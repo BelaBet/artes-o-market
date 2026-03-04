@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import MarketHeader from "@/components/MarketHeader";
 import HeroSection from "@/components/HeroSection";
 import MarqueeStrip from "@/components/MarqueeStrip";
@@ -13,24 +14,43 @@ import MarketFooter from "@/components/MarketFooter";
 import CatalogPage from "@/pages/CatalogPage";
 import DashboardPage from "@/pages/DashboardPage";
 import ChatPage from "@/pages/ChatPage";
+import ArtisanAuthPage from "@/pages/ArtisanAuthPage";
 
 const Index = () => {
   const [page, setPage] = useState("home");
   const [cart, setCart] = useState(2);
+  const { user, signOut } = useAuth();
+
+  const handleNavigate = (target: string) => {
+    // Dashboard and chat require auth
+    if ((target === "dashboard" || target === "chat") && !user) {
+      setPage("artisan-login");
+      return;
+    }
+    setPage(target);
+  };
 
   return (
     <div>
       <div className="grain-overlay" />
-      <MarketHeader currentPage={page} onNavigate={setPage} cartCount={cart} />
+      {page !== "artisan-login" && (
+        <MarketHeader
+          currentPage={page}
+          onNavigate={handleNavigate}
+          cartCount={cart}
+          isLoggedIn={!!user}
+          onSignOut={signOut}
+        />
+      )}
 
       {page === "home" && (
         <>
-          <HeroSection onExplore={() => setPage("catalog")} />
+          <HeroSection onExplore={() => handleNavigate("catalog")} />
           <MarqueeStrip />
           <TextureBand />
           <StorySection />
           <ShippingSection />
-          <CategoriesSection onNavigate={() => setPage("catalog")} />
+          <CategoriesSection onNavigate={() => handleNavigate("catalog")} />
           <section className="px-9 pb-16">
             <div className="max-w-[1320px] mx-auto">
               <div className="flex items-end justify-between mb-8 pb-3 border-b border-border">
@@ -40,7 +60,7 @@ const Index = () => {
                     Peças <em className="italic text-terra">em destaque</em>
                   </h2>
                 </div>
-                <button onClick={() => setPage("catalog")} className="bg-transparent border-none cursor-pointer font-body text-[0.66rem] tracking-[0.14em] uppercase text-muted-foreground hover:text-terra transition-colors">
+                <button onClick={() => handleNavigate("catalog")} className="bg-transparent border-none cursor-pointer font-body text-[0.66rem] tracking-[0.14em] uppercase text-muted-foreground hover:text-terra transition-colors">
                   Ver todos →
                 </button>
               </div>
@@ -48,14 +68,20 @@ const Index = () => {
             </div>
           </section>
           <ArtisansSection />
-          <CTASection onNavigate={() => setPage("dashboard")} />
+          <CTASection onNavigate={() => handleNavigate("dashboard")} />
           <MarketFooter />
         </>
       )}
 
       {page === "catalog" && <CatalogPage onAddToCart={() => setCart(c => c + 1)} />}
-      {page === "dashboard" && <DashboardPage />}
-      {page === "chat" && <ChatPage />}
+      {page === "dashboard" && user && <DashboardPage />}
+      {page === "chat" && user && <ChatPage />}
+      {page === "artisan-login" && (
+        <ArtisanAuthPage
+          onSuccess={() => setPage("dashboard")}
+          onBack={() => setPage("home")}
+        />
+      )}
     </div>
   );
 };
