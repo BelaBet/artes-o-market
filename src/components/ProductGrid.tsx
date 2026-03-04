@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { IMAGES, PRODUCTS, BADGE_MAP, formatPrice } from "@/lib/data";
+import { useCart } from "@/contexts/CartContext";
 
 interface ProductGridProps {
   products?: typeof PRODUCTS;
@@ -7,6 +8,7 @@ interface ProductGridProps {
 }
 
 const ProductGrid = ({ products = PRODUCTS, onAddToCart }: ProductGridProps) => {
+  const { addItem } = useCart();
   const [favs, setFavs] = useState<Set<number>>(new Set());
   const toggleFav = (id: number) => setFavs(p => { const s = new Set(p); s.has(id) ? s.delete(id) : s.add(id); return s; });
 
