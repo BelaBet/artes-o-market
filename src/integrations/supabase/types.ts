@@ -53,6 +53,39 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          artisan_user_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          product_name: string | null
+          rating: number
+          reviewer_city: string | null
+          reviewer_name: string
+        }
+        Insert: {
+          artisan_user_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_name?: string | null
+          rating: number
+          reviewer_city?: string | null
+          reviewer_name: string
+        }
+        Update: {
+          artisan_user_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_name?: string | null
+          rating?: number
+          reviewer_city?: string | null
+          reviewer_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
