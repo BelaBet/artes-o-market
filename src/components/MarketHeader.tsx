@@ -64,8 +64,11 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOu
               </>
             )}
 
-            <button className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap">
-              Carrinho <span className="inline-flex items-center justify-center bg-terra text-background w-[15px] h-[15px] rounded-full text-[0.56rem] font-semibold ml-0.5">{cartCount}</span>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+            >
+              Carrinho <span className="inline-flex items-center justify-center bg-terra text-background w-[15px] h-[15px] rounded-full text-[0.56rem] font-semibold ml-0.5">{displayCount}</span>
             </button>
 
             {isLoggedIn ? (

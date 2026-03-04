@@ -48,7 +48,7 @@ const ProductGrid = ({ products = PRODUCTS, onAddToCart }: ProductGridProps) => 
                 {p.oldPrice && <span className="text-[0.7rem] text-muted-foreground line-through ml-1">{formatPrice(p.oldPrice)}</span>}
               </div>
               <button
-                onClick={(e) => { e.stopPropagation(); onAddToCart?.(); }}
+                onClick={(e) => { e.stopPropagation(); addItem(p.id); onAddToCart?.(); }}
                 className="bg-transparent border border-border cursor-pointer px-3 py-1 font-body text-[0.6rem] tracking-[0.12em] uppercase font-medium hover:bg-foreground hover:text-background hover:border-foreground transition-all"
               >
                 Adicionar
