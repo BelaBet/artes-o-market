@@ -1,12 +1,12 @@
-import { useState } from "react";
-
 interface MarketHeaderProps {
   currentPage: string;
   onNavigate: (page: string) => void;
   cartCount: number;
+  isLoggedIn?: boolean;
+  onSignOut?: () => void;
 }
 
-const MarketHeader = ({ currentPage, onNavigate, cartCount }: MarketHeaderProps) => {
+const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOut }: MarketHeaderProps) => {
   return (
     <>
       {/* Top banner */}
@@ -36,25 +36,49 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount }: MarketHeaderProps)
           </div>
 
           <nav className="flex items-center gap-1 ml-auto shrink-0">
-            {[
-              { key: "catalog", label: "Catálogo" },
-              { key: "chat", label: "Mensagens" },
-              { key: "dashboard", label: "Minha Loja" },
-            ].map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => onNavigate(key)}
-                className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
-              >
-                {label}
-              </button>
-            ))}
+            <button
+              onClick={() => onNavigate("catalog")}
+              className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+            >
+              Catálogo
+            </button>
+
+            {isLoggedIn && (
+              <>
+                <button
+                  onClick={() => onNavigate("chat")}
+                  className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+                >
+                  Mensagens
+                </button>
+                <button
+                  onClick={() => onNavigate("dashboard")}
+                  className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+                >
+                  Minha Loja
+                </button>
+              </>
+            )}
+
             <button className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap">
               Carrinho <span className="inline-flex items-center justify-center bg-terra text-background w-[15px] h-[15px] rounded-full text-[0.56rem] font-semibold ml-0.5">{cartCount}</span>
             </button>
-            <button className="bg-transparent border border-foreground cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-foreground px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap">
-              Entrar
-            </button>
+
+            {isLoggedIn ? (
+              <button
+                onClick={onSignOut}
+                className="bg-transparent border border-foreground cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-foreground px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
+              >
+                Sair
+              </button>
+            ) : (
+              <button
+                onClick={() => onNavigate("artisan-login")}
+                className="bg-transparent border border-foreground cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-foreground px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
+              >
+                Entrar
+              </button>
+            )}
           </nav>
         </div>
       </header>
@@ -64,8 +88,12 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount }: MarketHeaderProps)
         {[
           { key: "home", label: "Início" },
           { key: "catalog", label: "Catálogo" },
-          { key: "dashboard", label: "Painel do Artesão" },
-          { key: "chat", label: "Mensagens" },
+          ...(isLoggedIn
+            ? [
+                { key: "dashboard", label: "Painel do Artesão" },
+                { key: "chat", label: "Mensagens" },
+              ]
+            : []),
         ].map(({ key, label }) => (
           <button
             key={key}
