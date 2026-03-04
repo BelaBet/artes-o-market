@@ -15,19 +15,25 @@ import CatalogPage from "@/pages/CatalogPage";
 import DashboardPage from "@/pages/DashboardPage";
 import ChatPage from "@/pages/ChatPage";
 import ArtisanAuthPage from "@/pages/ArtisanAuthPage";
+import ArtisanProfilePage from "@/pages/ArtisanProfilePage";
 
 const Index = () => {
   const [page, setPage] = useState("home");
   const [cart, setCart] = useState(2);
+  const [selectedArtisan, setSelectedArtisan] = useState(0);
   const { user, signOut } = useAuth();
 
   const handleNavigate = (target: string) => {
-    // Dashboard and chat require auth
     if ((target === "dashboard" || target === "chat") && !user) {
       setPage("artisan-login");
       return;
     }
     setPage(target);
+  };
+
+  const handleViewProfile = (index: number) => {
+    setSelectedArtisan(index);
+    setPage("artisan-profile");
   };
 
   return (
@@ -67,7 +73,7 @@ const Index = () => {
               <ProductGrid onAddToCart={() => setCart(c => c + 1)} />
             </div>
           </section>
-          <ArtisansSection />
+          <ArtisansSection onViewProfile={handleViewProfile} />
           <CTASection onNavigate={() => handleNavigate("dashboard")} />
           <MarketFooter />
         </>
@@ -80,6 +86,13 @@ const Index = () => {
         <ArtisanAuthPage
           onSuccess={() => setPage("dashboard")}
           onBack={() => setPage("home")}
+        />
+      )}
+      {page === "artisan-profile" && (
+        <ArtisanProfilePage
+          artisanIndex={selectedArtisan}
+          onBack={() => setPage("home")}
+          onAddToCart={() => setCart(c => c + 1)}
         />
       )}
     </div>

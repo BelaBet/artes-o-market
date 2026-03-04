@@ -1,6 +1,10 @@
 import { IMAGES, ARTISANS } from "@/lib/data";
 
-const ArtisansSection = () => (
+interface ArtisansSectionProps {
+  onViewProfile?: (index: number) => void;
+}
+
+const ArtisansSection = ({ onViewProfile }: ArtisansSectionProps) => (
   <section className="py-[72px] px-9 bg-espresso">
     <div className="max-w-[1320px] mx-auto">
       <div className="flex items-end justify-between mb-10">
@@ -44,7 +48,10 @@ const ArtisansSection = () => (
                 ))}
               </div>
               <div className="flex gap-2">
-                <button className="flex-1 bg-terra text-background border-none py-2 cursor-pointer font-body text-[0.64rem] tracking-[0.14em] uppercase font-medium hover:brightness-90 transition-colors">
+                <button
+                  onClick={() => onViewProfile?.(i)}
+                  className="flex-1 bg-terra text-background border-none py-2 cursor-pointer font-body text-[0.64rem] tracking-[0.14em] uppercase font-medium hover:brightness-90 transition-colors"
+                >
                   Visitar
                 </button>
                 <button className="bg-transparent text-parchment/60 border border-parchment/20 px-3 py-2 cursor-pointer font-body text-[0.64rem] tracking-[0.14em] uppercase font-medium hover:border-parchment hover:text-parchment transition-all">
