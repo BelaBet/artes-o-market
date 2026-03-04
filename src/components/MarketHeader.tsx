@@ -1,3 +1,5 @@
+import { useCart } from "@/contexts/CartContext";
+
 interface MarketHeaderProps {
   currentPage: string;
   onNavigate: (page: string) => void;
@@ -7,6 +9,8 @@ interface MarketHeaderProps {
 }
 
 const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOut }: MarketHeaderProps) => {
+  const { setIsOpen, totalItems } = useCart();
+  const displayCount = totalItems || cartCount;
   return (
     <>
       {/* Top banner */}
