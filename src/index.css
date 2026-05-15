@@ -91,6 +91,6 @@
   to { transform: translateX(-50%); }
 }
 
-#lovable-badge {
-  display: none !important;
+#lovable-badge#lovable-badge {
+  display: none;
 }
