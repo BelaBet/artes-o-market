@@ -80,7 +80,7 @@ const HeroSection = ({ onExplore }: HeroSectionProps) => {
               className="w-full h-full object-cover brightness-[0.78] saturate-[0.88] group-hover:scale-[1.04] group-hover:brightness-[0.68] transition-all duration-[600ms]"
             />
             <span className="absolute top-2.5 right-2.5 bg-espresso/80 backdrop-blur border border-gold/30 px-2 py-1 z-[2] text-[0.54rem] tracking-[0.14em] uppercase text-gold-light font-semibold">
-              🇧🇷 Brazil
+              🇧🇷 Brasil
             </span>
             <div className="absolute bottom-0 left-0 right-0 p-3.5 bg-gradient-to-t from-espresso/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <div className="text-background text-[0.7rem] font-medium tracking-[0.06em]">{item.name}</div>

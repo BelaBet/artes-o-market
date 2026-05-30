@@ -30,7 +30,7 @@ const ProductGrid = ({ products = PRODUCTS, onAddToCart }: ProductGridProps) => 
             </button>
             <img src={IMAGES[p.img]} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[550ms] saturate-[0.86]" />
             <span className="absolute bottom-2 left-2 bg-espresso/70 backdrop-blur px-2 py-0.5 text-[0.52rem] tracking-[0.12em] uppercase text-gold-light font-semibold">
-              🇧🇷 Made in Brazil
+              🇧🇷 Made in Brasil
             </span>
           </div>
           <div className="p-3.5 pb-4">
