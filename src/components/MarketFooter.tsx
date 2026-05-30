@@ -12,7 +12,7 @@ const MarketFooter = () => (
           <div className="font-display text-[1.3rem] sm:text-[1.4rem] font-semibold text-parchment mb-2 flex flex-wrap items-center gap-2">
             Feito <em className="italic text-gold">à Mão</em>
             <span className="font-body text-[0.5rem] tracking-[0.16em] uppercase bg-gold/10 text-gold-light border border-gold/20 px-1.5 py-0.5 font-semibold">
-              🇧🇷 Made in Brazil
+              🇧🇷 Made in Brasil
             </span>
           </div>
           <p className="text-[0.76rem] sm:text-[0.78rem] leading-[1.85] text-parchment/30 font-light max-w-[260px] mb-3">
