@@ -116,16 +116,16 @@ const ArtisanProfilePage = ({ artisanIndex, onBack, onAddToCart }: ArtisanProfil
       </div>
 
       {/* Products */}
-      <section className="py-12 px-9">
+      <section className="py-10 sm:py-12 px-4 md:px-9">
         <div className="max-w-[1320px] mx-auto">
-          <div className="flex items-end justify-between mb-8 pb-3 border-b border-border">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-7 sm:mb-8 pb-3 border-b border-border">
             <div>
-              <div className="text-[0.63rem] tracking-[0.2em] uppercase text-terra mb-2">Loja</div>
-              <h2 className="font-display font-normal text-[2rem] leading-[1.15]">
+              <div className="text-[0.6rem] sm:text-[0.63rem] tracking-[0.18em] sm:tracking-[0.2em] uppercase text-terra mb-2">Loja</div>
+              <h2 className="font-display font-normal text-[1.55rem] sm:text-[2rem] leading-[1.15]">
                 Produtos de <em className="italic text-terra">{artisan.name}</em>
               </h2>
             </div>
-            <span className="font-display text-[0.9rem] text-muted-foreground">{artisanProducts.length} produtos</span>
+            <span className="font-display text-[0.85rem] sm:text-[0.9rem] text-muted-foreground">{artisanProducts.length} produtos</span>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {artisanProducts.map((p) => (
@@ -144,21 +144,21 @@ const ArtisanProfilePage = ({ artisanIndex, onBack, onAddToCart }: ArtisanProfil
                   </button>
                   <img src={IMAGES[p.img]} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[550ms] saturate-[0.86]" />
                 </div>
-                <div className="p-3.5 pb-4">
-                  <div className="font-display font-medium text-[0.98rem] leading-tight mb-1">{p.name}</div>
-                  <div className="text-[0.67rem] tracking-[0.05em] text-muted-foreground mb-3">{p.city}</div>
-                  <div className="flex items-center justify-between">
+                <div className="p-3 sm:p-3.5 pb-4">
+                  <div className="font-display font-medium text-[0.92rem] sm:text-[0.98rem] leading-tight mb-1">{p.name}</div>
+                  <div className="text-[0.64rem] sm:text-[0.67rem] tracking-[0.05em] text-muted-foreground mb-3">{p.city}</div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
-                      <div className="text-gold text-[0.64rem] tracking-[1px]">
+                      <div className="text-gold text-[0.62rem] sm:text-[0.64rem] tracking-[1px]">
                         {"★".repeat(p.stars)}{"☆".repeat(5 - p.stars)}
-                        <span className="text-muted-foreground text-[0.61rem] ml-0.5 tracking-normal">({p.reviews})</span>
+                        <span className="text-muted-foreground text-[0.6rem] ml-0.5 tracking-normal">({p.reviews})</span>
                       </div>
-                      <span className="font-display text-[1.15rem] font-medium">{formatPrice(p.price)}</span>
-                      {p.oldPrice && <span className="text-[0.7rem] text-muted-foreground line-through ml-1">{formatPrice(p.oldPrice)}</span>}
+                      <span className="font-display text-[1.05rem] sm:text-[1.15rem] font-medium">{formatPrice(p.price)}</span>
+                      {p.oldPrice && <span className="text-[0.68rem] sm:text-[0.7rem] text-muted-foreground line-through ml-1">{formatPrice(p.oldPrice)}</span>}
                     </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); onAddToCart(); }}
-                      className="bg-transparent border border-border cursor-pointer px-3 py-1 font-body text-[0.6rem] tracking-[0.12em] uppercase font-medium hover:bg-foreground hover:text-background hover:border-foreground transition-all"
+                      className="bg-transparent border border-border cursor-pointer px-3 py-1 font-body text-[0.58rem] sm:text-[0.6rem] tracking-[0.12em] uppercase font-medium hover:bg-foreground hover:text-background hover:border-foreground transition-all self-start sm:self-auto"
                     >
                       Adicionar
                     </button>
@@ -171,24 +171,24 @@ const ArtisanProfilePage = ({ artisanIndex, onBack, onAddToCart }: ArtisanProfil
       </section>
 
       {/* Reviews */}
-      <section className="py-12 px-9 bg-parchment">
+      <section className="py-10 sm:py-12 px-4 md:px-9 bg-parchment">
         <div className="max-w-[1320px] mx-auto">
-          <div className="flex items-end justify-between mb-8 pb-3 border-b border-border">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-7 sm:mb-8 pb-3 border-b border-border">
             <div>
-              <div className="text-[0.63rem] tracking-[0.2em] uppercase text-terra mb-2">Avaliações</div>
-              <h2 className="font-display font-normal text-[2rem] leading-[1.15]">
+              <div className="text-[0.6rem] sm:text-[0.63rem] tracking-[0.18em] sm:tracking-[0.2em] uppercase text-terra mb-2">Avaliações</div>
+              <h2 className="font-display font-normal text-[1.55rem] sm:text-[2rem] leading-[1.15]">
                 O que dizem sobre <em className="italic text-terra">{artisan.name}</em>
               </h2>
             </div>
-            <div className="text-right">
-              <div className="font-display text-[2.2rem] text-terra font-light leading-tight">{avgRating}</div>
-              <div className="text-gold text-[0.72rem] tracking-[1px]">{"★".repeat(Math.round(Number(avgRating)))}</div>
+            <div className="text-left sm:text-right">
+              <div className="font-display text-[1.8rem] sm:text-[2.2rem] text-terra font-light leading-tight">{avgRating}</div>
+              <div className="text-gold text-[0.7rem] sm:text-[0.72rem] tracking-[1px]">{"★".repeat(Math.round(Number(avgRating)))}</div>
               <div className="text-[0.6rem] text-muted-foreground tracking-[0.08em]">{reviews.length} avaliações</div>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {reviews.map((r, i) => (
-              <div key={i} className="bg-background border border-border p-6 hover:border-terra/30 transition-colors">
+              <div key={i} className="bg-background border border-border p-5 sm:p-6 hover:border-terra/30 transition-colors">
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <div className="font-medium text-[0.85rem]">{r.name}</div>
