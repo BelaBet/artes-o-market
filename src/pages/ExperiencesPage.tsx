@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Star, MapPin, Play, Users, Award, ChevronRight, Sparkles, Clock } from "lucide-react";
 import { IMAGES, formatPrice } from "@/lib/data";
+import ShareMenu from "@/components/ShareMenu";
 
 type ExpType = "ao vivo" | "gravado" | "presencial" | "mentoria";
 
