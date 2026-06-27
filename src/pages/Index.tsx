@@ -16,6 +16,7 @@ import DashboardPage from "@/pages/DashboardPage";
 import ChatPage from "@/pages/ChatPage";
 import ArtisanAuthPage from "@/pages/ArtisanAuthPage";
 import ArtisanProfilePage from "@/pages/ArtisanProfilePage";
+import ExperiencesPage from "@/pages/ExperiencesPage";
 
 const Index = () => {
   const [page, setPage] = useState("home");
@@ -80,6 +81,7 @@ const Index = () => {
       )}
 
       {page === "catalog" && <CatalogPage onAddToCart={() => setCart(c => c + 1)} />}
+      {page === "experiences" && <ExperiencesPage onExplore={() => handleNavigate("catalog")} />}
       {page === "dashboard" && user && <DashboardPage />}
       {page === "chat" && user && <ChatPage />}
       {page === "artisan-login" && (

@@ -21,6 +21,7 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOu
   const tabs = [
     { key: "home", label: "Início" },
     { key: "catalog", label: "Catálogo" },
+    { key: "experiences", label: "Experiências" },
     ...(isLoggedIn
       ? [
           { key: "dashboard", label: "Painel do Artesão" },
@@ -65,6 +66,12 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOu
               className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
             >
               Catálogo
+            </button>
+            <button
+              onClick={() => onNavigate("experiences")}
+              className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+            >
+              Experiências
             </button>
 
             {isLoggedIn && (
