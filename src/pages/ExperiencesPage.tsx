@@ -157,8 +157,6 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
       <img src={exp.img} alt={exp.title} className="absolute inset-0 w-full h-full object-cover brightness-[0.78] saturate-[0.9]" />
       <div className="absolute top-3 left-3 flex gap-2">
         <TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge>
-      <div className="absolute top-3 left-3 flex gap-2">
-        <TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge>
         <TypeBadge icon={<Sparkles className="w-3 h-3" />} light>Destaque</TypeBadge>
       </div>
       <div className="absolute top-3 right-3">
