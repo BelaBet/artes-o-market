@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Star, MapPin, Play, Users, Award, ChevronRight, Sparkles, Clock } from "lucide-react";
 import { IMAGES, formatPrice } from "@/lib/data";
+import ShareMenu from "@/components/ShareMenu";
 
 type ExpType = "ao vivo" | "gravado" | "presencial" | "mentoria";
 
@@ -158,6 +159,9 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
         <TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge>
         <TypeBadge icon={<Sparkles className="w-3 h-3" />} light>Destaque</TypeBadge>
       </div>
+      <div className="absolute top-3 right-3">
+        <ShareMenu title={exp.title} variant="dark" />
+      </div>
     </div>
     <div className="p-7 sm:p-10 md:p-14 flex flex-col justify-center">
       <Eyebrow color="text-gold-light">Experiência em destaque</Eyebrow>
@@ -200,6 +204,7 @@ const ExperienceCard = ({ exp }: { exp: Experience }) => (
         className="absolute inset-0 w-full h-full object-cover brightness-[0.92] group-hover:scale-[1.04] group-hover:brightness-[0.82] transition-all duration-[600ms]"
       />
       <div className="absolute top-3 left-3"><TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge></div>
+      <div className="absolute top-3 right-3"><ShareMenu title={exp.title} /></div>
       <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-background/85 backdrop-blur px-2 py-1 text-[0.58rem] tracking-[0.1em] uppercase text-foreground">
         <Clock className="w-3 h-3" /> {exp.meta}
       </div>
