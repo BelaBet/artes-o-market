@@ -204,6 +204,7 @@ const ExperienceCard = ({ exp }: { exp: Experience }) => (
         className="absolute inset-0 w-full h-full object-cover brightness-[0.92] group-hover:scale-[1.04] group-hover:brightness-[0.82] transition-all duration-[600ms]"
       />
       <div className="absolute top-3 left-3"><TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge></div>
+      <div className="absolute top-3 right-3"><ShareMenu title={exp.title} /></div>
       <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-background/85 backdrop-blur px-2 py-1 text-[0.58rem] tracking-[0.1em] uppercase text-foreground">
         <Clock className="w-3 h-3" /> {exp.meta}
       </div>
