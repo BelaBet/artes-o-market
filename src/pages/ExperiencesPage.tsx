@@ -196,28 +196,28 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
 );
 
 const ExperienceCard = ({ exp }: { exp: Experience }) => (
-  <article className="bg-card border border-border flex flex-col group">
+  <article className="bg-card border border-border flex flex-col group h-full">
     <div className="relative aspect-[4/3] overflow-hidden">
       <img
         src={exp.img}
         alt={exp.title}
         className="absolute inset-0 w-full h-full object-cover brightness-[0.92] group-hover:scale-[1.04] group-hover:brightness-[0.82] transition-all duration-[600ms]"
       />
-      <div className="absolute top-3 left-3"><TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge></div>
+      <div className="absolute top-3 left-3 max-w-[calc(100%-3.5rem)]"><TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge></div>
       <div className="absolute top-3 right-3"><ShareMenu title={exp.title} /></div>
-      <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-background/85 backdrop-blur px-2 py-1 text-[0.58rem] tracking-[0.1em] uppercase text-foreground">
-        <Clock className="w-3 h-3" /> {exp.meta}
+      <div className="absolute bottom-3 left-3 right-3 inline-flex items-center gap-1 bg-background/85 backdrop-blur px-2 py-1 text-[0.58rem] tracking-[0.1em] uppercase text-foreground w-fit max-w-full truncate">
+        <Clock className="w-3 h-3 shrink-0" /> <span className="truncate">{exp.meta}</span>
       </div>
     </div>
-    <div className="p-5 flex flex-col flex-1">
-      <h3 className="font-display text-[1.15rem] leading-[1.2] mb-2">{exp.title}</h3>
-      <div className="text-[0.7rem] text-muted-foreground mb-3">
+    <div className="p-4 sm:p-5 flex flex-col flex-1">
+      <h3 className="font-display text-[1.05rem] sm:text-[1.15rem] leading-[1.2] mb-2 break-words">{exp.title}</h3>
+      <div className="text-[0.7rem] text-muted-foreground mb-3 break-words">
         por <span className="text-foreground">{exp.creator}</span> · {exp.location}
       </div>
       <div className="mb-4"><Stars rating={exp.rating} /> <span className="text-[0.68rem] text-muted-foreground">({exp.reviews})</span></div>
-      <div className="mt-auto flex items-center justify-between pt-4 border-t border-border">
-        <div className="font-display text-[1.25rem] text-terra">{formatPrice(exp.price)}</div>
-        <button className="bg-terra text-background px-4 py-2 font-body text-[0.66rem] tracking-[0.14em] uppercase hover:bg-[hsl(18,56%,36%)] transition-colors">
+      <div className="mt-auto flex items-center justify-between gap-3 pt-4 border-t border-border flex-wrap">
+        <div className="font-display text-[1.15rem] sm:text-[1.25rem] text-terra">{formatPrice(exp.price)}</div>
+        <button className="bg-terra text-background px-3.5 sm:px-4 py-2 font-body text-[0.62rem] sm:text-[0.66rem] tracking-[0.14em] uppercase hover:bg-[hsl(18,56%,36%)] transition-colors whitespace-nowrap">
           Participar
         </button>
       </div>
