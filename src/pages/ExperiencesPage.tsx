@@ -152,10 +152,10 @@ const TypeBadge = ({ icon, children, light }: { icon: JSX.Element; children: Rea
 );
 
 const FeaturedCard = ({ exp }: { exp: Experience }) => (
-  <article className="grid grid-cols-1 lg:grid-cols-2 bg-espresso text-parchment overflow-hidden">
-    <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[460px] overflow-hidden">
+  <article className="grid grid-cols-1 md:grid-cols-2 bg-espresso text-parchment overflow-hidden">
+    <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[380px] lg:min-h-[460px] overflow-hidden">
       <img src={exp.img} alt={exp.title} className="absolute inset-0 w-full h-full object-cover brightness-[0.78] saturate-[0.9]" />
-      <div className="absolute top-3 left-3 flex gap-2">
+      <div className="absolute top-3 left-3 flex gap-2 flex-wrap max-w-[calc(100%-4rem)]">
         <TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge>
         <TypeBadge icon={<Sparkles className="w-3 h-3" />} light>Destaque</TypeBadge>
       </div>
@@ -163,31 +163,31 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
         <ShareMenu title={exp.title} variant="dark" />
       </div>
     </div>
-    <div className="p-7 sm:p-10 md:p-14 flex flex-col justify-center">
+    <div className="p-6 sm:p-9 md:p-10 lg:p-14 flex flex-col justify-center">
       <Eyebrow color="text-gold-light">Experiência em destaque</Eyebrow>
-      <h2 className="font-display font-light text-[1.8rem] sm:text-[2.2rem] md:text-[2.6rem] leading-[1.1] mb-4">
+      <h2 className="font-display font-light text-[1.55rem] sm:text-[1.9rem] md:text-[2rem] lg:text-[2.6rem] leading-[1.1] mb-4 break-words">
         {exp.title}
       </h2>
-      <p className="text-[0.85rem] font-light leading-[1.8] text-parchment/60 mb-7 max-w-[460px]">{exp.desc}</p>
+      <p className="text-[0.8rem] sm:text-[0.85rem] font-light leading-[1.75] text-parchment/60 mb-6 sm:mb-7 max-w-[460px]">{exp.desc}</p>
 
-      <div className="flex items-center gap-3 mb-7">
-        <div className="w-10 h-10 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center font-display text-gold-light">
+      <div className="flex items-center gap-3 mb-6 sm:mb-7">
+        <div className="w-10 h-10 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center font-display text-gold-light shrink-0">
           {exp.creator.charAt(0)}
         </div>
-        <div>
-          <div className="text-[0.78rem] text-parchment">{exp.creator}</div>
-          <div className="text-[0.66rem] text-parchment/50 flex items-center gap-1">
-            <MapPin className="w-3 h-3" /> {exp.location} · <Stars rating={exp.rating} /> ({exp.reviews})
+        <div className="min-w-0">
+          <div className="text-[0.78rem] text-parchment truncate">{exp.creator}</div>
+          <div className="text-[0.66rem] text-parchment/50 flex items-center gap-1 flex-wrap">
+            <MapPin className="w-3 h-3 shrink-0" /> {exp.location} · <Stars rating={exp.rating} /> ({exp.reviews})
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-4 pt-6 border-t border-parchment/15 flex-wrap">
+      <div className="flex items-center justify-between gap-4 pt-5 sm:pt-6 border-t border-parchment/15 flex-wrap">
         <div>
-          <div className="font-display text-[1.8rem] text-gold-light">{formatPrice(exp.price)}</div>
+          <div className="font-display text-[1.5rem] sm:text-[1.8rem] text-gold-light">{formatPrice(exp.price)}</div>
           <div className="text-[0.62rem] tracking-[0.12em] uppercase text-parchment/40 mt-0.5">{exp.meta}</div>
         </div>
-        <button className="bg-terra text-background border-none px-7 py-3 cursor-pointer font-body font-medium text-[0.71rem] tracking-[0.14em] uppercase hover:brightness-90 hover:-translate-y-px transition-all">
+        <button className="bg-terra text-background border-none px-5 sm:px-7 py-3 cursor-pointer font-body font-medium text-[0.68rem] sm:text-[0.71rem] tracking-[0.14em] uppercase hover:brightness-90 hover:-translate-y-px transition-all whitespace-nowrap">
           Garantir Vaga
         </button>
       </div>
@@ -196,28 +196,28 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
 );
 
 const ExperienceCard = ({ exp }: { exp: Experience }) => (
-  <article className="bg-card border border-border flex flex-col group">
+  <article className="bg-card border border-border flex flex-col group h-full">
     <div className="relative aspect-[4/3] overflow-hidden">
       <img
         src={exp.img}
         alt={exp.title}
         className="absolute inset-0 w-full h-full object-cover brightness-[0.92] group-hover:scale-[1.04] group-hover:brightness-[0.82] transition-all duration-[600ms]"
       />
-      <div className="absolute top-3 left-3"><TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge></div>
+      <div className="absolute top-3 left-3 max-w-[calc(100%-3.5rem)]"><TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge></div>
       <div className="absolute top-3 right-3"><ShareMenu title={exp.title} /></div>
-      <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-background/85 backdrop-blur px-2 py-1 text-[0.58rem] tracking-[0.1em] uppercase text-foreground">
-        <Clock className="w-3 h-3" /> {exp.meta}
+      <div className="absolute bottom-3 left-3 right-3 inline-flex items-center gap-1 bg-background/85 backdrop-blur px-2 py-1 text-[0.58rem] tracking-[0.1em] uppercase text-foreground w-fit max-w-full truncate">
+        <Clock className="w-3 h-3 shrink-0" /> <span className="truncate">{exp.meta}</span>
       </div>
     </div>
-    <div className="p-5 flex flex-col flex-1">
-      <h3 className="font-display text-[1.15rem] leading-[1.2] mb-2">{exp.title}</h3>
-      <div className="text-[0.7rem] text-muted-foreground mb-3">
+    <div className="p-4 sm:p-5 flex flex-col flex-1">
+      <h3 className="font-display text-[1.05rem] sm:text-[1.15rem] leading-[1.2] mb-2 break-words">{exp.title}</h3>
+      <div className="text-[0.7rem] text-muted-foreground mb-3 break-words">
         por <span className="text-foreground">{exp.creator}</span> · {exp.location}
       </div>
       <div className="mb-4"><Stars rating={exp.rating} /> <span className="text-[0.68rem] text-muted-foreground">({exp.reviews})</span></div>
-      <div className="mt-auto flex items-center justify-between pt-4 border-t border-border">
-        <div className="font-display text-[1.25rem] text-terra">{formatPrice(exp.price)}</div>
-        <button className="bg-terra text-background px-4 py-2 font-body text-[0.66rem] tracking-[0.14em] uppercase hover:bg-[hsl(18,56%,36%)] transition-colors">
+      <div className="mt-auto flex items-center justify-between gap-3 pt-4 border-t border-border flex-wrap">
+        <div className="font-display text-[1.15rem] sm:text-[1.25rem] text-terra">{formatPrice(exp.price)}</div>
+        <button className="bg-terra text-background px-3.5 sm:px-4 py-2 font-body text-[0.62rem] sm:text-[0.66rem] tracking-[0.14em] uppercase hover:bg-[hsl(18,56%,36%)] transition-colors whitespace-nowrap">
           Participar
         </button>
       </div>
