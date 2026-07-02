@@ -46,7 +46,7 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOu
           >
             Feito <em className="italic text-terra">à Mão</em>
             <span className="hidden sm:inline font-body text-[0.52rem] tracking-[0.16em] uppercase bg-espresso text-gold-light px-1.5 py-0.5 font-semibold">
-              🇧🇷 Brasil
+              🇧🇷
             </span>
           </div>
 
