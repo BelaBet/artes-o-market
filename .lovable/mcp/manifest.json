@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://zoopaaixgiaownvvykcg.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "feito-a-mao-mcp",
+      "version": "0.1.0",
+      "title": "Feito à Mão"
+    },
+    "tools": [
+      {
+        "name": "get_my_profile",
+        "title": "Get my artisan profile",
+        "description": "Fetch the signed-in artisan's profile (display name, shop, bio, location).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_my_profile",
+        "title": "Update my artisan profile",
+        "description": "Update fields on the signed-in artisan's profile. Only provided fields are changed.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "display_name": {
+              "description": "Artisan display name.",
+              "type": "string"
+            },
+            "shop_name": {
+              "description": "Shop name.",
+              "type": "string"
+            },
+            "bio": {
+              "description": "Short biography.",
+              "type": "string"
+            },
+            "city": {
+              "description": "City.",
+              "type": "string"
+            },
+            "state": {
+              "description": "State/UF.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_reviews",
+        "title": "List reviews for my shop",
+        "description": "List reviews left for the signed-in artisan, most recent first.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "description": "Max reviews to return (default 20).",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
