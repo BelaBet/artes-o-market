@@ -58,16 +58,16 @@ const Index = () => {
           <StorySection />
           <ShippingSection />
           <CategoriesSection onNavigate={() => handleNavigate("catalog")} />
-          <section className="px-9 pb-16">
+          <section className="px-4 sm:px-6 lg:px-9 pb-12 sm:pb-16">
             <div className="max-w-[1320px] mx-auto">
-              <div className="flex items-end justify-between mb-8 pb-3 border-b border-border">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 pb-3 border-b border-border">
                 <div>
-                  <div className="text-[0.63rem] tracking-[0.2em] uppercase text-terra mb-2">Curadoria</div>
-                  <h2 className="font-display font-normal text-[2.1rem] leading-[1.15]">
+                  <div className="text-[0.6rem] sm:text-[0.63rem] tracking-[0.2em] uppercase text-terra mb-1.5 sm:mb-2">Curadoria</div>
+                  <h2 className="font-display font-normal text-[1.65rem] sm:text-[2.1rem] leading-[1.15]">
                     Peças <em className="italic text-terra">em destaque</em>
                   </h2>
                 </div>
-                <button onClick={() => handleNavigate("catalog")} className="bg-transparent border-none cursor-pointer font-body text-[0.66rem] tracking-[0.14em] uppercase text-muted-foreground hover:text-terra transition-colors">
+                <button onClick={() => handleNavigate("catalog")} className="self-start sm:self-auto bg-transparent border-none cursor-pointer font-body text-[0.62rem] sm:text-[0.66rem] tracking-[0.14em] uppercase text-muted-foreground hover:text-terra transition-colors">
                   Ver todos →
                 </button>
               </div>
