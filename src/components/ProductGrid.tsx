@@ -23,7 +23,8 @@ const ProductGrid = ({ products = PRODUCTS, onAddToCart }: ProductGridProps) => 
               </span>
             )}
             <button
-              className={`absolute top-2 sm:top-2.5 right-2 sm:right-2.5 bg-background/90 border border-border w-6 h-6 sm:w-7 sm:h-7 rounded-full cursor-pointer text-[0.7rem] sm:text-[0.78rem] flex items-center justify-center transition-all z-[2] hover:bg-background ${favs.has(p.id) ? "text-terra" : ""}`}
+              className={`absolute top-2 sm:top-2.5 right-2 sm:right-2.5 bg-background/90 border border-border w-8 h-8 sm:w-7 sm:h-7 rounded-full cursor-pointer text-[0.85rem] sm:text-[0.78rem] flex items-center justify-center transition-all z-[2] hover:bg-background active:scale-90 ${favs.has(p.id) ? "text-terra" : ""}`}
+              aria-label={favs.has(p.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
               onClick={(e) => { e.stopPropagation(); toggleFav(p.id); }}
             >
               {favs.has(p.id) ? "♥" : "♡"}
@@ -38,18 +39,20 @@ const ProductGrid = ({ products = PRODUCTS, onAddToCart }: ProductGridProps) => 
             <div className="text-[0.6rem] sm:text-[0.67rem] tracking-[0.05em] text-muted-foreground mb-2 sm:mb-3">
               por <strong className="text-terra font-medium">{p.artist}</strong> · {p.city}
             </div>
-            <div className="flex items-end justify-between gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <div className="text-gold text-[0.58rem] sm:text-[0.64rem] tracking-[1px]">
                   {"★".repeat(p.stars)}{"☆".repeat(5 - p.stars)}
                   <span className="text-muted-foreground text-[0.55rem] sm:text-[0.61rem] ml-0.5 tracking-normal">({p.reviews})</span>
                 </div>
-                <span className="font-display text-[0.98rem] sm:text-[1.15rem] font-medium">{formatPrice(p.price)}</span>
-                {p.oldPrice && <span className="text-[0.6rem] sm:text-[0.7rem] text-muted-foreground line-through ml-1">{formatPrice(p.oldPrice)}</span>}
+                <div className="flex items-center gap-1">
+                  <span className="font-display text-[0.98rem] sm:text-[1.15rem] font-medium">{formatPrice(p.price)}</span>
+                  {p.oldPrice && <span className="text-[0.6rem] sm:text-[0.7rem] text-muted-foreground line-through">{formatPrice(p.oldPrice)}</span>}
+                </div>
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); addItem(p.id); onAddToCart?.(); }}
-                className="bg-transparent border border-border cursor-pointer px-2 sm:px-3 py-1 font-body text-[0.52rem] sm:text-[0.6rem] tracking-[0.12em] uppercase font-medium hover:bg-foreground hover:text-background hover:border-foreground transition-all shrink-0"
+                className="bg-transparent border border-border cursor-pointer w-full sm:w-auto px-3 py-2 sm:py-1 font-body text-[0.62rem] sm:text-[0.6rem] tracking-[0.12em] uppercase font-medium hover:bg-foreground hover:text-background hover:border-foreground active:bg-foreground active:text-background transition-all shrink-0"
               >
                 Adicionar
               </button>
