@@ -10,9 +10,11 @@ import ArtisansSection from "@/components/ArtisansSection";
 import CTASection from "@/components/CTASection";
 import MarketFooter from "@/components/MarketFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useProdutos } from "@/hooks/useProdutos";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { produtos, loading } = useProdutos();
   usePageMeta(
     "Artesanato brasileiro feito à mão",
     "Marketplace de artesanato brasileiro: peças únicas feitas à mão por artesãos de todo o Brasil, com envio para mais de 50 países.",
@@ -42,7 +44,7 @@ const HomePage = () => {
               Ver todos →
             </Link>
           </div>
-          <ProductGrid />
+          <ProductGrid products={produtos} loading={loading} />
         </div>
       </section>
       <ArtisansSection />

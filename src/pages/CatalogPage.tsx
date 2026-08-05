@@ -1,11 +1,19 @@
 import { useState } from "react";
 import ProductGrid from "@/components/ProductGrid";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/data";
 import { SlidersHorizontal, X } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useProdutos } from "@/hooks/useProdutos";
 
 const CatalogPage = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const { produtos, loading } = useProdutos();
+  // ?skeleton=1 força o estado de carregamento — útil para conferir o
+  // esqueleto no celular sem precisar estrangular a rede no DevTools.
+  const [searchParams] = useSearchParams();
+  const forcarSkeleton = searchParams.get("skeleton") === "1";
   usePageMeta(
     "Catálogo",
     "Explore peças únicas de artesanato brasileiro: cerâmica, madeira, macramê, palha e pedra-sabão, direto de quem faz.",
@@ -74,14 +82,20 @@ const CatalogPage = () => {
               <SlidersHorizontal className="w-3.5 h-3.5" /> Filtros
             </button>
             <span className="font-display text-[0.92rem] sm:text-[0.98rem] text-muted-foreground">
-              <strong className="text-foreground">856</strong> produtos
+              {loading || forcarSkeleton ? (
+                <Skeleton className="h-[0.9rem] w-[5.5rem] rounded-none inline-block align-middle" />
+              ) : (
+                <>
+                  <strong className="text-foreground">{produtos.length}</strong> produtos
+                </>
+              )}
             </span>
           </div>
           <select className="border border-border bg-transparent px-2.5 py-1.5 font-body text-[0.7rem] tracking-[0.06em] outline-none cursor-pointer">
             <option>Relevância</option><option>Menor preço</option><option>Melhor avaliação</option><option>Mais novos</option>
           </select>
         </div>
-        <ProductGrid />
+        <ProductGrid products={produtos} loading={loading || forcarSkeleton} />
       </div>
     </div>
   );
