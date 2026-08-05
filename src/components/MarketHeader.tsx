@@ -1,34 +1,38 @@
 import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, Search, ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
-interface MarketHeaderProps {
-  currentPage: string;
-  onNavigate: (page: string) => void;
-  cartCount: number;
-  isLoggedIn?: boolean;
-  onSignOut?: () => void;
-}
-
-const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOut }: MarketHeaderProps) => {
+const MarketHeader = () => {
   const { setIsOpen, totalItems } = useCart();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const displayCount = totalItems || cartCount;
 
-  const go = (p: string) => { onNavigate(p); setMenuOpen(false); };
+  const isLoggedIn = !!user;
 
   const tabs = [
-    { key: "home", label: "Início" },
-    { key: "catalog", label: "Catálogo" },
-    { key: "experiences", label: "Experiências" },
+    { to: "/", label: "Início" },
+    { to: "/catalogo", label: "Catálogo" },
+    { to: "/experiencias", label: "Experiências" },
     ...(isLoggedIn
       ? [
-          { key: "dashboard", label: "Painel do Artesão" },
-          { key: "chat", label: "Mensagens" },
+          { to: "/painel", label: "Painel do Artesão" },
+          { to: "/mensagens", label: "Mensagens" },
         ]
       : []),
   ];
+
+  const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
+
+  const handleSignOut = async () => {
+    setMenuOpen(false);
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <>
@@ -40,15 +44,15 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOu
       {/* Header */}
       <header className="sticky top-0 z-[200] bg-background/95 backdrop-blur-[18px] border-b border-border px-4 md:px-9">
         <div className="max-w-[1320px] mx-auto flex items-center h-[58px] md:h-[68px] gap-3 md:gap-5">
-          <div
+          <Link
+            to="/"
             className="font-display font-semibold text-[1.15rem] md:text-[1.42rem] tracking-[0.04em] text-foreground cursor-pointer flex items-center gap-2 shrink-0"
-            onClick={() => go("home")}
           >
             Feito <em className="italic text-terra">à Mão</em>
             <span className="hidden sm:inline font-body text-[0.52rem] tracking-[0.16em] uppercase bg-espresso text-gold-light px-1.5 py-0.5 font-semibold">
               🇧🇷 Brasil
             </span>
-          </div>
+          </Link>
 
           {/* Desktop search */}
           <div className="hidden md:flex flex-1 max-w-[320px] items-center gap-2 border-b border-border pb-1 focus-within:border-terra transition-colors">
@@ -61,33 +65,33 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOu
 
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-1 ml-auto shrink-0">
-            <button
-              onClick={() => onNavigate("catalog")}
-              className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+            <Link
+              to="/catalogo"
+              className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
             >
               Catálogo
-            </button>
-            <button
-              onClick={() => onNavigate("experiences")}
-              className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+            </Link>
+            <Link
+              to="/experiencias"
+              className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
             >
               Experiências
-            </button>
+            </Link>
 
             {isLoggedIn && (
               <>
-                <button
-                  onClick={() => onNavigate("chat")}
-                  className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+                <Link
+                  to="/mensagens"
+                  className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   Mensagens
-                </button>
-                <button
-                  onClick={() => onNavigate("dashboard")}
-                  className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+                </Link>
+                <Link
+                  to="/painel"
+                  className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   Minha Loja
-                </button>
+                </Link>
               </>
             )}
 
@@ -95,30 +99,35 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOu
               onClick={() => setIsOpen(true)}
               className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
             >
-              Carrinho <span className="inline-flex items-center justify-center bg-terra text-background w-[15px] h-[15px] rounded-full text-[0.56rem] font-semibold ml-0.5">{displayCount}</span>
+              Carrinho
+              {totalItems > 0 && (
+                <span className="inline-flex items-center justify-center bg-terra text-background w-[15px] h-[15px] rounded-full text-[0.56rem] font-semibold ml-0.5">
+                  {totalItems}
+                </span>
+              )}
             </button>
 
             {isLoggedIn ? (
               <button
-                onClick={onSignOut}
+                onClick={handleSignOut}
                 className="bg-transparent border border-foreground cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-foreground px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
               >
                 Sair
               </button>
             ) : (
-              <button
-                onClick={() => onNavigate("artisan-login")}
-                className="bg-transparent border border-foreground cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-foreground px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
+              <Link
+                to="/entrar"
+                className="border border-foreground font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-foreground px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
               >
                 Entrar
-              </button>
+              </Link>
             )}
           </nav>
 
           {/* Mobile actions */}
           <div className="flex lg:hidden items-center gap-1 ml-auto shrink-0">
             <button
-              onClick={() => setSearchOpen(s => !s)}
+              onClick={() => setSearchOpen((s) => !s)}
               aria-label="Buscar"
               className="md:hidden p-2 text-foreground"
             >
@@ -130,14 +139,14 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOu
               className="relative p-2 text-foreground"
             >
               <ShoppingBag className="w-[18px] h-[18px]" />
-              {displayCount > 0 && (
+              {totalItems > 0 && (
                 <span className="absolute top-0 right-0 inline-flex items-center justify-center bg-terra text-background min-w-[16px] h-[16px] rounded-full text-[0.55rem] font-semibold px-1">
-                  {displayCount}
+                  {totalItems}
                 </span>
               )}
             </button>
             <button
-              onClick={() => setMenuOpen(o => !o)}
+              onClick={() => setMenuOpen((o) => !o)}
               aria-label="Menu"
               className="p-2 text-foreground"
             >
@@ -161,32 +170,34 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOu
         {/* Mobile menu panel */}
         {menuOpen && (
           <div className="lg:hidden border-t border-border bg-background py-3 -mx-4 md:-mx-9 px-4 md:px-9">
-            {tabs.map(t => (
-              <button
-                key={t.key}
-                onClick={() => go(t.key)}
+            {tabs.map((t) => (
+              <Link
+                key={t.to}
+                to={t.to}
+                onClick={() => setMenuOpen(false)}
                 className={`block w-full text-left py-3 font-body text-[0.78rem] tracking-[0.1em] uppercase border-b border-border/60 ${
-                  currentPage === t.key ? "text-terra" : "text-foreground"
+                  isActive(t.to) ? "text-terra" : "text-foreground"
                 }`}
               >
                 {t.label}
-              </button>
+              </Link>
             ))}
             <div className="pt-4">
               {isLoggedIn ? (
                 <button
-                  onClick={() => { onSignOut?.(); setMenuOpen(false); }}
+                  onClick={handleSignOut}
                   className="w-full border border-foreground py-2.5 font-body text-[0.72rem] tracking-[0.14em] uppercase"
                 >
                   Sair
                 </button>
               ) : (
-                <button
-                  onClick={() => go("artisan-login")}
-                  className="w-full border border-foreground py-2.5 font-body text-[0.72rem] tracking-[0.14em] uppercase"
+                <Link
+                  to="/entrar"
+                  onClick={() => setMenuOpen(false)}
+                  className="block text-center w-full border border-foreground py-2.5 font-body text-[0.72rem] tracking-[0.14em] uppercase"
                 >
                   Entrar
-                </button>
+                </Link>
               )}
             </div>
           </div>
@@ -195,18 +206,18 @@ const MarketHeader = ({ currentPage, onNavigate, cartCount, isLoggedIn, onSignOu
 
       {/* Desktop tabs */}
       <div className="hidden md:flex bg-parchment border-b border-border px-9 overflow-x-auto">
-        {tabs.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => onNavigate(key)}
-            className={`bg-transparent border-none cursor-pointer font-body text-[0.68rem] font-medium tracking-[0.12em] uppercase py-3 px-4 border-b-2 -mb-px transition-all whitespace-nowrap ${
-              currentPage === key
+        {tabs.map(({ to, label }) => (
+          <Link
+            key={to}
+            to={to}
+            className={`font-body text-[0.68rem] font-medium tracking-[0.12em] uppercase py-3 px-4 border-b-2 -mb-px transition-all whitespace-nowrap ${
+              isActive(to)
                 ? "text-foreground border-b-terra"
                 : "text-muted-foreground border-b-transparent hover:text-foreground"
             }`}
           >
             {label}
-          </button>
+          </Link>
         ))}
       </div>
     </>

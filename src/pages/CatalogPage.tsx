@@ -2,13 +2,14 @@ import { useState } from "react";
 import ProductGrid from "@/components/ProductGrid";
 import { formatPrice } from "@/lib/data";
 import { SlidersHorizontal, X } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
-interface CatalogPageProps {
-  onAddToCart: () => void;
-}
-
-const CatalogPage = ({ onAddToCart }: CatalogPageProps) => {
+const CatalogPage = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
+  usePageMeta(
+    "Catálogo",
+    "Explore peças únicas de artesanato brasileiro: cerâmica, madeira, macramê, palha e pedra-sabão, direto de quem faz.",
+  );
 
   const Filters = (
     <>
@@ -80,7 +81,7 @@ const CatalogPage = ({ onAddToCart }: CatalogPageProps) => {
             <option>Relevância</option><option>Menor preço</option><option>Melhor avaliação</option><option>Mais novos</option>
           </select>
         </div>
-        <ProductGrid onAddToCart={onAddToCart} />
+        <ProductGrid />
       </div>
     </div>
   );

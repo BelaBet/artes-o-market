@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { ORDERS, STATUS_MAP, formatPrice } from "@/lib/data";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const DashboardPage = () => {
   const [tab, setTab] = useState("overview");
+  usePageMeta("Painel do Artesão");
   const tabs = [
     { key: "overview", icon: "⊞", label: "Visão Geral" },
     { key: "products", icon: "◈", label: "Produtos" },

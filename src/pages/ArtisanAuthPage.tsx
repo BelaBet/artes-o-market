@@ -1,18 +1,20 @@
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
-interface ArtisanAuthPageProps {
-  onSuccess: () => void;
-  onBack: () => void;
-}
-
-const ArtisanAuthPage = ({ onSuccess, onBack }: ArtisanAuthPageProps) => {
+const ArtisanAuthPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Volta para a página que exigiu login, se houver.
+  const from = (location.state as { from?: string } | null)?.from ?? "/painel";
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  usePageMeta("Painel do Artesão", "Acesse sua loja e gerencie seus produtos no Artes o Market.");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +33,7 @@ const ArtisanAuthPage = ({ onSuccess, onBack }: ArtisanAuthPageProps) => {
         toast.error(error.message);
       } else {
         toast.success("Conta criada! Verifique seu email para confirmar.");
-        onSuccess();
+        navigate(from, { replace: true });
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -39,7 +41,7 @@ const ArtisanAuthPage = ({ onSuccess, onBack }: ArtisanAuthPageProps) => {
         toast.error(error.message);
       } else {
         toast.success("Login realizado com sucesso!");
-        onSuccess();
+        navigate(from, { replace: true });
       }
     }
     setLoading(false);
@@ -123,7 +125,7 @@ const ArtisanAuthPage = ({ onSuccess, onBack }: ArtisanAuthPageProps) => {
         </div>
         <div className="text-center mt-3">
           <button
-            onClick={onBack}
+            onClick={() => navigate("/")}
             className="bg-transparent border-none cursor-pointer font-body text-[0.68rem] text-muted-foreground hover:text-foreground transition-colors tracking-[0.08em]"
           >
             ← Voltar ao marketplace

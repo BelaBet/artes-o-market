@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { Star, MapPin, Play, Users, Award, ChevronRight, Sparkles, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { IMAGES, formatPrice } from "@/lib/data";
 import ShareMenu from "@/components/ShareMenu";
+import { usePageMeta } from "@/hooks/usePageMeta";
+
+// URL canônica de uma experiência — sem isso o compartilhamento
+// aponta sempre para a página atual, não para a peça em questão.
+const expUrl = (id: number) =>
+  typeof window !== "undefined" ? `${window.location.origin}/experiencias#exp-${id}` : "";
 
 type ExpType = "ao vivo" | "gravado" | "presencial" | "mentoria";
 
@@ -152,7 +159,7 @@ const TypeBadge = ({ icon, children, light }: { icon: JSX.Element; children: Rea
 );
 
 const FeaturedCard = ({ exp }: { exp: Experience }) => (
-  <article className="grid grid-cols-1 md:grid-cols-2 bg-espresso text-parchment overflow-hidden">
+  <article id={`exp-${exp.id}`} className="grid grid-cols-1 md:grid-cols-2 bg-espresso text-parchment overflow-hidden">
     <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[380px] lg:min-h-[460px] overflow-hidden">
       <img src={exp.img} alt={exp.title} className="absolute inset-0 w-full h-full object-cover brightness-[0.78] saturate-[0.9]" />
       <div className="absolute top-3 left-3 flex gap-2 flex-wrap max-w-[calc(100%-4rem)]">
@@ -160,7 +167,7 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
         <TypeBadge icon={<Sparkles className="w-3 h-3" />} light>Destaque</TypeBadge>
       </div>
       <div className="absolute top-3 right-3">
-        <ShareMenu title={exp.title} variant="dark" />
+        <ShareMenu title={exp.title} url={expUrl(exp.id)} variant="dark" />
       </div>
     </div>
     <div className="p-6 sm:p-9 md:p-10 lg:p-14 flex flex-col justify-center">
@@ -196,7 +203,7 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
 );
 
 const ExperienceCard = ({ exp }: { exp: Experience }) => (
-  <article className="bg-card border border-border flex flex-col group h-full">
+  <article id={`exp-${exp.id}`} className="bg-card border border-border flex flex-col group h-full">
     <div className="relative aspect-[4/3] overflow-hidden">
       <img
         src={exp.img}
@@ -204,7 +211,7 @@ const ExperienceCard = ({ exp }: { exp: Experience }) => (
         className="absolute inset-0 w-full h-full object-cover brightness-[0.92] group-hover:scale-[1.04] group-hover:brightness-[0.82] transition-all duration-[600ms]"
       />
       <div className="absolute top-3 left-3 max-w-[calc(100%-3.5rem)]"><TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge></div>
-      <div className="absolute top-3 right-3"><ShareMenu title={exp.title} /></div>
+      <div className="absolute top-3 right-3"><ShareMenu title={exp.title} url={expUrl(exp.id)} /></div>
       <div className="absolute bottom-3 left-3 right-3 inline-flex items-center gap-1 bg-background/85 backdrop-blur px-2 py-1 text-[0.58rem] tracking-[0.1em] uppercase text-foreground w-fit max-w-full truncate">
         <Clock className="w-3 h-3 shrink-0" /> <span className="truncate">{exp.meta}</span>
       </div>
@@ -225,8 +232,14 @@ const ExperienceCard = ({ exp }: { exp: Experience }) => (
   </article>
 );
 
-const ExperiencesPage = ({ onExplore }: { onExplore?: () => void }) => {
+const ExperiencesPage = () => {
+  const navigate = useNavigate();
+  const onExplore = () => navigate("/catalogo");
   const [tab, setTab] = useState<"todos" | ExpType>("todos");
+  usePageMeta(
+    "Experiências",
+    "Aulas, vivências e mentorias com artesãos brasileiros: torno, macramê, madeira e mais — ao vivo, gravadas ou presenciais.",
+  );
   const featured = EXPERIENCES.find((e) => e.featured)!;
   const rest = EXPERIENCES.filter((e) => !e.featured);
   const filtered = tab === "todos" ? rest : rest.filter((e) => e.type === tab);
