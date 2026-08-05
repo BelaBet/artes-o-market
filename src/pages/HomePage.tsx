@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import HeroSection from "@/components/HeroSection";
 import MarqueeStrip from "@/components/MarqueeStrip";
@@ -6,17 +7,34 @@ import StorySection from "@/components/StorySection";
 import ShippingSection from "@/components/ShippingSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ProductGrid from "@/components/ProductGrid";
+import FeaturedFilters, { type StyleKey } from "@/components/FeaturedFilters";
 import ArtisansSection from "@/components/ArtisansSection";
 import CTASection from "@/components/CTASection";
 import MarketFooter from "@/components/MarketFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { PRODUCTS } from "@/lib/data";
+
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [category, setCategory] = useState("todas");
+  const [style, setStyle] = useState<StyleKey>("todos");
+
+  const filtered = useMemo(
+    () =>
+      PRODUCTS.filter(
+        (p) =>
+          (category === "todas" || p.img === category) &&
+          (style === "todos" || p.badge === style),
+      ),
+    [category, style],
+  );
+
   usePageMeta(
     "Artesanato brasileiro feito à mão",
     "Marketplace de artesanato brasileiro: peças únicas feitas à mão por artesãos de todo o Brasil, com envio para mais de 50 países.",
   );
+
 
   return (
     <>
@@ -42,7 +60,28 @@ const HomePage = () => {
               Ver todos →
             </Link>
           </div>
-          <ProductGrid />
+          <FeaturedFilters
+            category={category}
+            style={style}
+            onCategoryChange={setCategory}
+            onStyleChange={setStyle}
+            resultCount={filtered.length}
+            onClear={() => {
+              setCategory("todas");
+              setStyle("todos");
+            }}
+          />
+          {filtered.length > 0 ? (
+            <ProductGrid products={filtered} />
+          ) : (
+            <div className="border border-border py-12 px-4 text-center">
+              <p className="font-display text-[1.05rem] mb-1">Nenhuma peça com esses filtros</p>
+              <p className="font-body text-[0.68rem] text-muted-foreground">
+                Tente outra categoria ou estilo.
+              </p>
+            </div>
+          )}
+
         </div>
       </section>
       <ArtisansSection />
