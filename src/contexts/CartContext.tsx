@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from "react";
-import { PRODUCTS, IMAGES } from "@/lib/data";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { PRODUCTS } from "@/lib/data";
+import { CARRINHO_STORAGE_KEY } from "@/lib/storageKeys";
 
 export interface CartItem {
   id: number;
@@ -24,9 +25,30 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+function carregarCarrinho(): CartItem[] {
+  try {
+    const bruto = localStorage.getItem(CARRINHO_STORAGE_KEY);
+    if (!bruto) return [];
+    const dados = JSON.parse(bruto);
+    return Array.isArray(dados) ? dados : [];
+  } catch {
+    return [];
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  // Carrinho persistido: como o PWA pode recarregar sozinho ao atualizar,
+  // manter só em memória descartaria a compra em andamento.
+  const [items, setItems] = useState<CartItem[]>(carregarCarrinho);
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CARRINHO_STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // localStorage indisponível (modo privado, cota cheia) — segue em memória.
+    }
+  }, [items]);
 
   const addItem = (productId: number) => {
     setItems((prev) => {
