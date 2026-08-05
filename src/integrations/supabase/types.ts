@@ -16,6 +16,31 @@ export type Database = {
     Tables: {
       artisans: {
         Row: {
+          public_name: string | null
+          logo_url: string | null
+          workshop_image_url: string | null
+          working_image_url: string | null
+          facebook: string | null
+          website: string | null
+          years_of_experience: number | null
+          production_capacity_monthly: number | null
+          average_production_days: number | null
+          minimum_order_days: number | null
+          team_size: number | null
+          accepts_custom_orders: boolean
+          accepts_large_orders: boolean
+          ships_nationwide: boolean
+          has_ready_stock: boolean
+          sells_to_people: boolean
+          sells_to_companies: boolean
+          sells_to_stores: boolean
+          sells_to_architects: boolean
+          receives_visitors: boolean
+          onboarding_step: string | null
+          onboarding_started_at: string | null
+          onboarding_completed_at: string | null
+          onboarding_skipped_at: string | null
+          whatsapp_publico: boolean
           avatar_url: string | null
           bio: string | null
           city: string | null
@@ -36,6 +61,31 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          public_name?: string | null
+          logo_url?: string | null
+          workshop_image_url?: string | null
+          working_image_url?: string | null
+          facebook?: string | null
+          website?: string | null
+          years_of_experience?: number | null
+          production_capacity_monthly?: number | null
+          average_production_days?: number | null
+          minimum_order_days?: number | null
+          team_size?: number | null
+          accepts_custom_orders?: boolean
+          accepts_large_orders?: boolean
+          ships_nationwide?: boolean
+          has_ready_stock?: boolean
+          sells_to_people?: boolean
+          sells_to_companies?: boolean
+          sells_to_stores?: boolean
+          sells_to_architects?: boolean
+          receives_visitors?: boolean
+          onboarding_step?: string | null
+          onboarding_started_at?: string | null
+          onboarding_completed_at?: string | null
+          onboarding_skipped_at?: string | null
+          whatsapp_publico?: boolean
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
@@ -56,6 +106,31 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          public_name?: string | null
+          logo_url?: string | null
+          workshop_image_url?: string | null
+          working_image_url?: string | null
+          facebook?: string | null
+          website?: string | null
+          years_of_experience?: number | null
+          production_capacity_monthly?: number | null
+          average_production_days?: number | null
+          minimum_order_days?: number | null
+          team_size?: number | null
+          accepts_custom_orders?: boolean
+          accepts_large_orders?: boolean
+          ships_nationwide?: boolean
+          has_ready_stock?: boolean
+          sells_to_people?: boolean
+          sells_to_companies?: boolean
+          sells_to_stores?: boolean
+          sells_to_architects?: boolean
+          receives_visitors?: boolean
+          onboarding_step?: string | null
+          onboarding_started_at?: string | null
+          onboarding_completed_at?: string | null
+          onboarding_skipped_at?: string | null
+          whatsapp_publico?: boolean
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
@@ -74,6 +149,141 @@ export type Database = {
           user_id?: string
           verified?: boolean
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      artisan_materials: {
+        Row: {
+          artisan_id: string
+          material_id: string
+          is_primary: boolean
+          outro: string | null
+        }
+        Insert: {
+          artisan_id: string
+          material_id: string
+          is_primary?: boolean
+          outro?: string | null
+        }
+        Update: {
+          artisan_id?: string
+          material_id?: string
+          is_primary?: boolean
+          outro?: string | null
+        }
+        Relationships: []
+      }
+      artisan_offerings: {
+        Row: {
+          artisan_id: string
+          offering_type: Database["public"]["Enums"]["offering_type"]
+          created_at: string
+        }
+        Insert: {
+          artisan_id: string
+          offering_type: Database["public"]["Enums"]["offering_type"]
+          created_at?: string
+        }
+        Update: {
+          artisan_id?: string
+          offering_type?: Database["public"]["Enums"]["offering_type"]
+          created_at?: string
+        }
+        Relationships: []
+      }
+      artisan_styles: {
+        Row: {
+          artisan_id: string
+          style_id: string
+        }
+        Insert: {
+          artisan_id: string
+          style_id: string
+        }
+        Update: {
+          artisan_id?: string
+          style_id?: string
+        }
+        Relationships: []
+      }
+      artisan_techniques: {
+        Row: {
+          artisan_id: string
+          technique_id: string
+          is_primary: boolean
+        }
+        Insert: {
+          artisan_id: string
+          technique_id: string
+          is_primary?: boolean
+        }
+        Update: {
+          artisan_id?: string
+          technique_id?: string
+          is_primary?: boolean
+        }
+        Relationships: []
+      }
+      materials: {
+        Row: {
+          id: string
+          slug: string
+          name: string
+          position: number
+        }
+        Insert: {
+          id?: string
+          slug: string
+          name: string
+          position?: number
+        }
+        Update: {
+          id?: string
+          slug?: string
+          name?: string
+          position?: number
+        }
+        Relationships: []
+      }
+      styles: {
+        Row: {
+          id: string
+          slug: string
+          name: string
+          position: number
+        }
+        Insert: {
+          id?: string
+          slug: string
+          name: string
+          position?: number
+        }
+        Update: {
+          id?: string
+          slug?: string
+          name?: string
+          position?: number
+        }
+        Relationships: []
+      }
+      techniques: {
+        Row: {
+          id: string
+          slug: string
+          name: string
+          position: number
+        }
+        Insert: {
+          id?: string
+          slug: string
+          name: string
+          position?: number
+        }
+        Update: {
+          id?: string
+          slug?: string
+          name?: string
+          position?: number
         }
         Relationships: []
       }
@@ -877,6 +1087,23 @@ export type Database = {
       pode_avaliar: { Args: { _order_item_id: string }; Returns: boolean }
     }
     Enums: {
+      offering_type:
+        | "product"
+        | "custom_order"
+        | "class"
+        | "workshop"
+        | "course"
+        | "studio_visit"
+        | "cultural_experience"
+        | "lecture"
+        | "event"
+        | "corporate"
+        | "stores"
+        | "hotels"
+        | "architects"
+        | "corporate_gifts"
+        | "school"
+        | "undecided"
       app_role: "buyer" | "artisan" | "admin"
       experience_kind: "live" | "recorded" | "in_person" | "mentorship"
       listing_status: "draft" | "active" | "sold_out" | "archived"
