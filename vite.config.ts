@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => ({
       // sem depender de o usuário fechar todas as abas.
       registerType: "autoUpdate",
       injectRegister: null, // registro feito manualmente em src/pwa.ts
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "robots.txt"],
+      includeAssets: ["favicon.svg", "favicon.png", "apple-touch-icon.png", "robots.txt"],
       manifest: {
         name: "Feito à Mão — Artesanato Brasileiro",
         short_name: "Feito à Mão",
