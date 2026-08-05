@@ -1,3 +1,4 @@
+import ImagemComPlaceholder from "@/components/ImagemComPlaceholder";
 import { IMAGES, CATEGORIES } from "@/lib/data";
 
 interface CategoriesSectionProps {
@@ -18,11 +19,11 @@ const CategoriesSection = ({ onNavigate }: CategoriesSectionProps) => (
             onClick={onNavigate}
             className="flex flex-col items-center cursor-pointer overflow-hidden relative aspect-[1] sm:aspect-[0.78] border-r border-b border-border group"
           >
-            <img
+            <ImagemComPlaceholder
               src={IMAGES[cat.img]}
               alt={cat.name}
               className="absolute inset-0 w-full h-full object-cover brightness-[0.6] saturate-[0.7] group-hover:brightness-50 group-hover:scale-[1.06] transition-all duration-500"
-            />
+            tintKey={cat.img} />
             <div className="relative z-[1] flex flex-col items-center justify-end h-full pb-3 gap-1">
               <div className="text-[0.58rem] tracking-[0.12em] uppercase font-semibold text-background text-center drop-shadow-lg px-2">
                 {cat.name}
