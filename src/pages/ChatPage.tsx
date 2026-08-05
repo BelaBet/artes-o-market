@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { IMAGES, CONVERSATIONS, MESSAGES } from "@/lib/data";
 import { ArrowLeft } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const ChatPage = () => {
   const [activeConv, setActiveConv] = useState<number | null>(null);
+  usePageMeta("Mensagens");
   const [msgInput, setMsgInput] = useState("");
 
   return (

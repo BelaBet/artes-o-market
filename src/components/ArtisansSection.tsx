@@ -1,10 +1,7 @@
+import { Link } from "react-router-dom";
 import { IMAGES, ARTISANS } from "@/lib/data";
 
-interface ArtisansSectionProps {
-  onViewProfile?: (index: number) => void;
-}
-
-const ArtisansSection = ({ onViewProfile }: ArtisansSectionProps) => (
+const ArtisansSection = () => (
   <section className="py-14 sm:py-[72px] px-4 md:px-9 bg-espresso">
     <div className="max-w-[1320px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8 sm:mb-10">
@@ -48,12 +45,12 @@ const ArtisansSection = ({ onViewProfile }: ArtisansSectionProps) => (
                 ))}
               </div>
               <div className="flex gap-2">
-                <button
-                  onClick={() => onViewProfile?.(i)}
-                  className="flex-1 bg-terra text-background border-none py-2 cursor-pointer font-body text-[0.62rem] sm:text-[0.64rem] tracking-[0.14em] uppercase font-medium hover:brightness-90 transition-colors"
+                <Link
+                  to={`/artesao/${a.slug}`}
+                  className="flex-1 text-center bg-terra text-background py-2 font-body text-[0.62rem] sm:text-[0.64rem] tracking-[0.14em] uppercase font-medium hover:brightness-90 transition-colors"
                 >
                   Visitar
-                </button>
+                </Link>
                 <button className="bg-transparent text-parchment/60 border border-parchment/20 px-3 py-2 cursor-pointer font-body text-[0.62rem] sm:text-[0.64rem] tracking-[0.14em] uppercase font-medium hover:border-parchment hover:text-parchment transition-all">
                   Seguir
                 </button>

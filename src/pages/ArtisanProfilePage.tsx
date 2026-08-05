@@ -1,11 +1,8 @@
 import { useState } from "react";
-import { IMAGES, PRODUCTS, ARTISANS, formatPrice, BADGE_MAP } from "@/lib/data";
-
-interface ArtisanProfilePageProps {
-  artisanIndex: number;
-  onBack: () => void;
-  onAddToCart: () => void;
-}
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { IMAGES, PRODUCTS, ARTISANS, formatPrice, BADGE_MAP, findArtisanBySlug } from "@/lib/data";
+import { usePageMeta } from "@/hooks/usePageMeta";
+import { useCart } from "@/contexts/CartContext";
 
 // Demo reviews per artisan
 const DEMO_REVIEWS = [
@@ -27,9 +24,21 @@ const DEMO_REVIEWS = [
   ],
 ];
 
-const ArtisanProfilePage = ({ artisanIndex, onBack, onAddToCart }: ArtisanProfilePageProps) => {
+const ArtisanProfilePage = () => {
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const { addItem } = useCart();
   const [favs, setFavs] = useState<Set<number>>(new Set());
-  const artisan = ARTISANS[artisanIndex];
+  const { artisan, index: artisanIndex } = findArtisanBySlug(slug);
+
+  usePageMeta(
+    artisan ? `${artisan.name} — ${artisan.spec}` : "Artesão",
+    artisan ? `Conheça o trabalho de ${artisan.name}, artesão em ${artisan.loc}. ${artisan.spec}.` : undefined,
+  );
+
+  // Slug inexistente cai no 404 em vez de quebrar em runtime.
+  if (!artisan) return <Navigate to="/404" replace />;
+
   const reviews = DEMO_REVIEWS[artisanIndex] || DEMO_REVIEWS[0];
 
   // Get products associated with this artisan (demo mapping)
@@ -40,7 +49,13 @@ const ArtisanProfilePage = ({ artisanIndex, onBack, onAddToCart }: ArtisanProfil
     : PRODUCTS.filter(p => ["wood", "straw1", "straw2"].includes(p.img));
 
   const avgRating = (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1);
-  const toggleFav = (id: number) => setFavs(p => { const s = new Set(p); s.has(id) ? s.delete(id) : s.add(id); return s; });
+  const toggleFav = (id: number) =>
+    setFavs((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   return (
     <div className="min-h-[80vh]">
@@ -54,7 +69,7 @@ const ArtisanProfilePage = ({ artisanIndex, onBack, onAddToCart }: ArtisanProfil
         <div className="absolute inset-0 flex items-end">
           <div className="max-w-[1320px] mx-auto w-full px-9 pb-10">
             <button
-              onClick={onBack}
+              onClick={() => navigate(-1)}
               className="bg-parchment/10 backdrop-blur border border-parchment/20 text-parchment px-4 py-1.5 font-body text-[0.64rem] tracking-[0.12em] uppercase cursor-pointer hover:bg-parchment/20 transition-colors mb-6"
             >
               ← Voltar
@@ -157,7 +172,7 @@ const ArtisanProfilePage = ({ artisanIndex, onBack, onAddToCart }: ArtisanProfil
                       {p.oldPrice && <span className="text-[0.68rem] sm:text-[0.7rem] text-muted-foreground line-through ml-1">{formatPrice(p.oldPrice)}</span>}
                     </div>
                     <button
-                      onClick={(e) => { e.stopPropagation(); onAddToCart(); }}
+                      onClick={(e) => { e.stopPropagation(); addItem(p.id); }}
                       className="bg-transparent border border-border cursor-pointer px-3 py-1 font-body text-[0.58rem] sm:text-[0.6rem] tracking-[0.12em] uppercase font-medium hover:bg-foreground hover:text-background hover:border-foreground transition-all self-start sm:self-auto"
                     >
                       Adicionar

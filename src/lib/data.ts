@@ -30,9 +30,9 @@ export const PRODUCTS = [
 ];
 
 export const ARTISANS = [
-  { img: "ceramic", name: "Ana Lima", loc: "Ouro Preto, MG", spec: "Pedra-Sabão & Cerâmica", sales: "342", rating: "4.9", followers: "1.2k", verified: true },
-  { img: "weave", name: "Maria Souza", loc: "Caruaru, PE", spec: "Macramê & Fibras Naturais", sales: "218", rating: "5.0", followers: "894", verified: true },
-  { img: "wood", name: "João Neto", loc: "Tocantins, TO", spec: "Escultura em Madeira", sales: "156", rating: "4.8", followers: "520", verified: false },
+  { slug: "ana-lima", img: "ceramic", name: "Ana Lima", loc: "Ouro Preto, MG", spec: "Pedra-Sabão & Cerâmica", sales: "342", rating: "4.9", followers: "1.2k", verified: true },
+  { slug: "maria-souza", img: "weave", name: "Maria Souza", loc: "Caruaru, PE", spec: "Macramê & Fibras Naturais", sales: "218", rating: "5.0", followers: "894", verified: true },
+  { slug: "joao-neto", img: "wood", name: "João Neto", loc: "Tocantins, TO", spec: "Escultura em Madeira", sales: "156", rating: "4.8", followers: "520", verified: false },
 ];
 
 export const CATEGORIES = [
@@ -82,6 +82,17 @@ export const STATUS_MAP: Record<string, { className: string; label: string }> = 
   ent: { className: "bg-espresso/10 text-espresso", label: "Entregue" },
 };
 
+const BRL = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
+
 export function formatPrice(brl: number): string {
-  return "R$ " + brl;
+  return BRL.format(brl);
+}
+
+export function findArtisanBySlug(slug?: string) {
+  if (!slug) return { artisan: undefined, index: -1 };
+  const index = ARTISANS.findIndex((a) => a.slug === slug);
+  return { artisan: index >= 0 ? ARTISANS[index] : undefined, index };
 }
