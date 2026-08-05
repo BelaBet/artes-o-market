@@ -60,7 +60,28 @@ const HomePage = () => {
               Ver todos →
             </Link>
           </div>
-          <ProductGrid />
+          <FeaturedFilters
+            category={category}
+            style={style}
+            onCategoryChange={setCategory}
+            onStyleChange={setStyle}
+            resultCount={filtered.length}
+            onClear={() => {
+              setCategory("todas");
+              setStyle("todos");
+            }}
+          />
+          {filtered.length > 0 ? (
+            <ProductGrid products={filtered} />
+          ) : (
+            <div className="border border-border py-12 px-4 text-center">
+              <p className="font-display text-[1.05rem] mb-1">Nenhuma peça com esses filtros</p>
+              <p className="font-body text-[0.68rem] text-muted-foreground">
+                Tente outra categoria ou estilo.
+              </p>
+            </div>
+          )}
+
         </div>
       </section>
       <ArtisansSection />
