@@ -18,6 +18,22 @@ export const IMAGES: Record<string, string> = {
   straw2: straw2Img,
 };
 
+/**
+ * Cor média de cada imagem — usada como placeholder enquanto o arquivo
+ * carrega. Evita o "buraco branco" no card e reduz a sensação de layout
+ * quebrado no mobile, onde as fotos chegam bem depois do HTML.
+ */
+export const IMAGE_TINTS: Record<string, string> = {
+  basket: "#815F51",
+  ceramic: "#9B5F36",
+  pottery: "#826549",
+  stone: "#8C6744",
+  straw1: "#CC914B",
+  straw2: "#B8864A",
+  weave: "#9A6E44",
+  wood: "#845A35",
+};
+
 export const PRODUCTS = [
   { id: 1, img: "stone", name: "Caixas de Pedra-Sabão", artist: "Ana Lima", city: "Ouro Preto, MG", price: 129, badge: "dest" as const, stars: 5, reviews: 42 },
   { id: 2, img: "weave", name: "Peça de Macramê", artist: "Carla B.", city: "Salvador, BA", price: 85, badge: "off" as const, stars: 5, reviews: 87, oldPrice: 110 },
