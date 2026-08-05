@@ -17,10 +17,24 @@ import { PRODUCTS } from "@/lib/data";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [category, setCategory] = useState("todas");
+  const [style, setStyle] = useState<StyleKey>("todos");
+
+  const filtered = useMemo(
+    () =>
+      PRODUCTS.filter(
+        (p) =>
+          (category === "todas" || p.img === category) &&
+          (style === "todos" || p.badge === style),
+      ),
+    [category, style],
+  );
+
   usePageMeta(
     "Artesanato brasileiro feito à mão",
     "Marketplace de artesanato brasileiro: peças únicas feitas à mão por artesãos de todo o Brasil, com envio para mais de 50 países.",
   );
+
 
   return (
     <>
