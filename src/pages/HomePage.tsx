@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import HeroSection from "@/components/HeroSection";
 import MarqueeStrip from "@/components/MarqueeStrip";
@@ -6,10 +7,13 @@ import StorySection from "@/components/StorySection";
 import ShippingSection from "@/components/ShippingSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ProductGrid from "@/components/ProductGrid";
+import FeaturedFilters, { type StyleKey } from "@/components/FeaturedFilters";
 import ArtisansSection from "@/components/ArtisansSection";
 import CTASection from "@/components/CTASection";
 import MarketFooter from "@/components/MarketFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { PRODUCTS } from "@/lib/data";
+
 
 const HomePage = () => {
   const navigate = useNavigate();
