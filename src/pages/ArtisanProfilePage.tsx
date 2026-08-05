@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { IMAGES, PRODUCTS, ARTISANS, formatPrice, BADGE_MAP, findArtisanBySlug } from "@/lib/data";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useCart } from "@/contexts/CartContext";
+import ImagemComPlaceholder from "@/components/ImagemComPlaceholder";
 
 // Demo reviews per artisan
 const DEMO_REVIEWS = [
@@ -61,9 +62,11 @@ const ArtisanProfilePage = () => {
     <div className="min-h-[80vh]">
       {/* Hero banner */}
       <div className="relative h-[320px] overflow-hidden">
-        <img
+        <ImagemComPlaceholder
           src={IMAGES[artisan.img]}
           alt={artisan.name}
+          tintKey={artisan.img}
+          prioridade
           className="w-full h-full object-cover brightness-[0.4] saturate-[0.6]"
         />
         <div className="absolute inset-0 flex items-end">
@@ -157,7 +160,12 @@ const ArtisanProfilePage = () => {
                   >
                     {favs.has(p.id) ? "♥" : "♡"}
                   </button>
-                  <img src={IMAGES[p.img]} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[550ms] saturate-[0.86]" />
+                  <ImagemComPlaceholder
+                    src={IMAGES[p.img]}
+                    alt={p.name}
+                    tintKey={p.img}
+                    className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[550ms] saturate-[0.86]"
+                  />
                 </div>
                 <div className="p-3 sm:p-3.5 pb-4">
                   <div className="font-display font-medium text-[0.92rem] sm:text-[0.98rem] leading-tight mb-1">{p.name}</div>

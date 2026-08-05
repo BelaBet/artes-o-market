@@ -1,20 +1,50 @@
 import { useState } from "react";
 import { IMAGES, PRODUCTS, BADGE_MAP, formatPrice } from "@/lib/data";
 import { useCart } from "@/contexts/CartContext";
+import ImagemComPlaceholder from "@/components/ImagemComPlaceholder";
+import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 
 interface ProductGridProps {
   products?: typeof PRODUCTS;
   onAddToCart?: () => void;
+  /** exibe o esqueleto no lugar da grade */
+  loading?: boolean;
+  /** quantos esqueletos mostrar enquanto carrega */
+  skeletonCount?: number;
 }
 
-const ProductGrid = ({ products = PRODUCTS, onAddToCart }: ProductGridProps) => {
+const ProductGrid = ({
+  products = PRODUCTS,
+  onAddToCart,
+  loading = false,
+  skeletonCount = 8,
+}: ProductGridProps) => {
   const { addItem } = useCart();
   const [favs, setFavs] = useState<Set<number>>(new Set());
-  const toggleFav = (id: number) => setFavs(p => { const s = new Set(p); s.has(id) ? s.delete(id) : s.add(id); return s; });
+  const toggleFav = (id: number) =>
+    setFavs((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  if (loading) return <ProductGridSkeleton quantidade={skeletonCount} />;
+
+  if (products.length === 0) {
+    return (
+      <div className="border border-border bg-background py-16 px-6 text-center">
+        <div className="font-display text-[1.15rem] mb-1">Nenhuma peça por aqui</div>
+        <p className="text-[0.78rem] text-muted-foreground font-light">
+          Tente ajustar os filtros ou explorar outra categoria.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-px bg-border border border-border">
-      {products.map((p) => (
+      {products.map((p, i) => (
         <div key={p.id} className="bg-background cursor-pointer hover:bg-parchment transition-colors relative group">
           <div className="aspect-square overflow-hidden relative bg-parchment">
             {p.badge && (
@@ -29,7 +59,13 @@ const ProductGrid = ({ products = PRODUCTS, onAddToCart }: ProductGridProps) => 
             >
               {favs.has(p.id) ? "♥" : "♡"}
             </button>
-            <img src={IMAGES[p.img]} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[550ms] saturate-[0.86]" />
+            <ImagemComPlaceholder
+              src={IMAGES[p.img]}
+              alt={p.name}
+              tintKey={p.img}
+              prioridade={i < 4}
+              className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[550ms] saturate-[0.86]"
+            />
             <span className="absolute bottom-2 left-2 bg-espresso/70 backdrop-blur px-1.5 sm:px-2 py-0.5 text-[0.45rem] sm:text-[0.52rem] tracking-[0.12em] uppercase text-gold-light font-semibold">
               🇧🇷 Made in Brasil
             </span>

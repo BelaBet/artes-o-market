@@ -12,22 +12,22 @@ import ArtisansSection from "@/components/ArtisansSection";
 import CTASection from "@/components/CTASection";
 import MarketFooter from "@/components/MarketFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { PRODUCTS } from "@/lib/data";
-
+import { useProdutos } from "@/hooks/useProdutos";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { produtos, loading } = useProdutos();
   const [category, setCategory] = useState("todas");
   const [style, setStyle] = useState<StyleKey>("todos");
 
   const filtered = useMemo(
     () =>
-      PRODUCTS.filter(
+      produtos.filter(
         (p) =>
           (category === "todas" || p.img === category) &&
           (style === "todos" || p.badge === style),
       ),
-    [category, style],
+    [produtos, category, style],
   );
 
   usePageMeta(
@@ -71,8 +71,8 @@ const HomePage = () => {
               setStyle("todos");
             }}
           />
-          {filtered.length > 0 ? (
-            <ProductGrid products={filtered} />
+          {loading || filtered.length > 0 ? (
+            <ProductGrid products={filtered} loading={loading} />
           ) : (
             <div className="border border-border py-12 px-4 text-center">
               <p className="font-display text-[1.05rem] mb-1">Nenhuma peça com esses filtros</p>
@@ -81,7 +81,6 @@ const HomePage = () => {
               </p>
             </div>
           )}
-
         </div>
       </section>
       <ArtisansSection />

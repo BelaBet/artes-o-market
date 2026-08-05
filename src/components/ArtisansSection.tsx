@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import ImagemComPlaceholder from "@/components/ImagemComPlaceholder";
 import { IMAGES, ARTISANS } from "@/lib/data";
 
 const ArtisansSection = () => (
@@ -20,7 +21,7 @@ const ArtisansSection = () => (
           <div key={i} className="bg-parchment/[0.03] border border-parchment/[0.07] cursor-pointer relative overflow-hidden group hover:bg-parchment/[0.055] transition-colors">
             <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-terra to-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-[400ms]" />
             <div className="h-[180px] sm:h-[200px] overflow-hidden relative">
-              <img src={IMAGES[a.img]} alt={a.name} className="w-full h-full object-cover brightness-[0.55] saturate-[0.68] group-hover:scale-[1.04] transition-transform duration-500" />
+              <ImagemComPlaceholder src={IMAGES[a.img]} alt={a.name} className="w-full h-full object-cover brightness-[0.55] saturate-[0.68] group-hover:scale-[1.04] transition-transform duration-500" tintKey={a.img} />
               <span className="absolute bottom-2.5 right-2.5 bg-espresso/75 border border-gold/30 px-2 py-0.5 text-[0.52rem] tracking-[0.13em] uppercase text-gold-light font-semibold">
                 ✈️ Envia para o mundo
               </span>
