@@ -1,7 +1,15 @@
 import { useState } from "react";
-import { Check, Loader2, RefreshCw } from "lucide-react";
-import EtapaEditor, { ETAPAS, type EtapaId } from "@/components/painel/EtapaEditor";
+import { Check, ChevronLeft, ChevronRight, Loader2, RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import BlocoEditor, { EscolhaFormasDeTrabalhar } from "@/components/painel/BlocoEditor";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  BLOCOS,
+  ETAPAS_ONBOARDING,
+  type BlocoId,
+  type EtapaOnboarding,
+} from "@/lib/painel/blocos";
 import {
   useMinhaLoja,
   useProgresso,
@@ -22,10 +30,7 @@ const IndicadorSalvamento = ({
     return (
       <div className="flex items-center gap-2 text-[0.72rem] text-destructive">
         <span>Não conseguimos salvar agora. Sua resposta continua aqui.</span>
-        <button
-          onClick={onTentarNovamente}
-          className="flex items-center gap-1 underline hover:no-underline"
-        >
+        <button onClick={onTentarNovamente} className="flex items-center gap-1 underline">
           <RefreshCw className="w-3 h-3" /> Tentar de novo
         </button>
       </div>
@@ -51,7 +56,10 @@ const MinhaLoja = () => {
   const { loja, loading } = useMinhaLoja();
   const { etapas, concluidas, total, percentual } = useProgresso(loja?.id);
   const { salvar, salvarAgora, estado, tentarNovamente } = useSalvarLoja(loja?.id);
-  const [etapaAberta, setEtapaAberta] = useState<EtapaId | null>(null);
+
+  const [modo, setModo] = useState<"visao" | "onboarding" | "bloco" | "final">("visao");
+  const [etapa, setEtapa] = useState<EtapaOnboarding>("sobre");
+  const [bloco, setBloco] = useState<BlocoId>("sobre");
 
   if (loading || !loja) {
     return (
@@ -64,29 +72,34 @@ const MinhaLoja = () => {
     );
   }
 
-  const primeiroAcesso = !loja.onboarding_started_at && !loja.onboarding_skipped_at;
+  const primeiroAcesso =
+    !loja.onboarding_completed_at && !loja.onboarding_started_at && !loja.onboarding_skipped_at;
 
-  const comecar = (etapa: EtapaId) => {
-    setEtapaAberta(etapa);
-    if (!loja.onboarding_started_at) {
-      salvar({ onboarding_started_at: new Date().toISOString(), onboarding_step: etapa });
-    } else {
-      salvar({ onboarding_step: etapa });
-    }
+  const indice = ETAPAS_ONBOARDING.findIndex((e) => e.id === etapa);
+
+  const comecarOnboarding = () => {
+    setEtapa("sobre");
+    setModo("onboarding");
+    salvar({ onboarding_started_at: new Date().toISOString(), onboarding_step: "sobre" });
   };
 
-  const sair = async () => {
-    setEtapaAberta(null);
-    salvar({
-      onboarding_skipped_at: loja.onboarding_skipped_at ?? new Date().toISOString(),
-    });
+  const adiar = async () => {
+    setModo("visao");
+    salvar({ onboarding_skipped_at: loja.onboarding_skipped_at ?? new Date().toISOString() });
     await salvarAgora();
   };
 
+  const concluir = async () => {
+    await salvarAgora();
+    // A data de conclusão é gravada pelo banco, não pelo navegador.
+    await supabase.rpc("concluir_onboarding");
+    setModo("final");
+  };
+
   // ------------------------------------------------------------------
-  // Boas-vindas — só no primeiro acesso, e nunca bloqueando o painel
+  // Boas-vindas
   // ------------------------------------------------------------------
-  if (primeiroAcesso && !etapaAberta) {
+  if (primeiroAcesso && modo === "visao") {
     return (
       <div className="max-w-[620px]">
         <div className="border border-border bg-parchment p-6 sm:p-9">
@@ -94,25 +107,23 @@ const MinhaLoja = () => {
             Bem-vindo! 🎉
           </h2>
           <p className="text-[0.92rem] font-light leading-[1.75] mb-3">
-            Queremos ajudar você a vender mais.
+            Sua loja já existe — você pode começar a usar o painel agora mesmo.
           </p>
-          <p className="text-[0.92rem] font-light leading-[1.75] mb-3 text-muted-foreground">
-            Vamos conhecer um pouco do seu trabalho para apresentar suas peças às pessoas
-            certas e criar anúncios mais completos.
-          </p>
-          <p className="text-[0.86rem] font-light leading-[1.7] text-muted-foreground mb-7">
-            Leva menos de 5 minutos e você pode alterar tudo depois.
+          <p className="text-[0.9rem] font-light leading-[1.75] text-muted-foreground mb-7">
+            Se quiser, responda quatro perguntas rápidas para a gente conhecer seu trabalho e
+            ajudar suas peças a chegarem às pessoas certas. Leva uns 2 minutos e dá para
+            alterar tudo depois.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-2.5">
             <button
-              onClick={() => comecar("sobre")}
+              onClick={comecarOnboarding}
               className="bg-espresso text-parchment px-6 py-3 font-body text-[0.7rem] tracking-[0.14em] uppercase hover:brightness-125 transition-all"
             >
               Vamos começar
             </button>
             <button
-              onClick={sair}
+              onClick={adiar}
               className="border border-border px-6 py-3 font-body text-[0.7rem] tracking-[0.14em] uppercase text-muted-foreground hover:text-foreground hover:border-foreground transition-colors"
             >
               Fazer isso depois
@@ -124,22 +135,151 @@ const MinhaLoja = () => {
   }
 
   // ------------------------------------------------------------------
-  // Etapa aberta
+  // Onboarding curto
   // ------------------------------------------------------------------
-  if (etapaAberta) {
+  if (modo === "onboarding") {
+    const atual = ETAPAS_ONBOARDING[indice];
+    const ultima = indice === ETAPAS_ONBOARDING.length - 1;
+
     return (
       <div className="max-w-[720px]">
         <div className="flex justify-end mb-3 min-h-[1.1rem]">
           <IndicadorSalvamento estado={estado} onTentarNovamente={tentarNovamente} />
         </div>
+
         <div className="border border-border bg-background p-5 sm:p-8">
-          <EtapaEditor
-            etapa={etapaAberta}
-            loja={loja}
-            salvar={salvar}
-            onIrPara={comecar}
-            onSair={sair}
-          />
+          <div className="flex items-center justify-between gap-3 mb-1">
+            <span className="font-body text-[0.6rem] tracking-[0.16em] uppercase text-terra">
+              Etapa {indice + 1} de {ETAPAS_ONBOARDING.length}
+            </span>
+            <button
+              onClick={adiar}
+              className="font-body text-[0.66rem] tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Fazer isso depois
+            </button>
+          </div>
+
+          <h3 className="font-display text-[1.5rem] sm:text-[1.75rem] font-light mb-6">
+            {atual.titulo}
+          </h3>
+
+          {/* Barra fina de progresso do onboarding */}
+          <div className="h-[3px] w-full bg-parchment mb-7 overflow-hidden">
+            <div
+              className="h-full bg-terra transition-[width] duration-500"
+              style={{ width: `${((indice + 1) / ETAPAS_ONBOARDING.length) * 100}%` }}
+            />
+          </div>
+
+          {etapa === "vender" ? (
+            <EscolhaFormasDeTrabalhar lojaId={loja.id} />
+          ) : (
+            <BlocoEditor bloco={etapa as BlocoId} loja={loja} salvar={salvar} />
+          )}
+
+          <div className="flex items-center justify-between gap-3 pt-4 mt-2 border-t border-border">
+            <button
+              onClick={() => indice > 0 && setEtapa(ETAPAS_ONBOARDING[indice - 1].id)}
+              disabled={indice === 0}
+              className="flex items-center gap-1.5 font-body text-[0.68rem] tracking-[0.12em] uppercase text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" /> Voltar
+            </button>
+
+            {ultima ? (
+              <button
+                onClick={concluir}
+                className="bg-terra text-background px-5 py-2.5 font-body text-[0.68rem] tracking-[0.14em] uppercase hover:brightness-95 transition-all"
+              >
+                Concluir
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  const proxima = ETAPAS_ONBOARDING[indice + 1].id;
+                  setEtapa(proxima);
+                  salvar({ onboarding_step: proxima });
+                }}
+                className="flex items-center gap-1.5 bg-espresso text-parchment px-5 py-2.5 font-body text-[0.68rem] tracking-[0.14em] uppercase hover:brightness-125 transition-all"
+              >
+                Continuar <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ------------------------------------------------------------------
+  // Fim do onboarding
+  // ------------------------------------------------------------------
+  if (modo === "final") {
+    return (
+      <div className="max-w-[620px]">
+        <div className="border border-border bg-parchment p-6 sm:p-9 text-center">
+          <h2 className="font-display text-[1.7rem] sm:text-[2rem] font-light leading-tight mb-3">
+            Tudo pronto! 🎉
+          </h2>
+          <p className="text-[0.92rem] font-light leading-[1.75] text-muted-foreground mb-7">
+            Agora podemos ajudar suas peças a chegar a mais compradores. Você pode completar o
+            resto da sua loja quando quiser.
+          </p>
+          <button
+            onClick={() => setModo("visao")}
+            className="bg-espresso text-parchment px-7 py-3 font-body text-[0.7rem] tracking-[0.14em] uppercase hover:brightness-125 transition-all"
+          >
+            Ir para minha loja
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ------------------------------------------------------------------
+  // Bloco em edição
+  // ------------------------------------------------------------------
+  if (modo === "bloco") {
+    const atual = BLOCOS.find((b) => b.id === bloco);
+
+    return (
+      <div className="max-w-[720px]">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <button
+            onClick={() => setModo("visao")}
+            className="flex items-center gap-1.5 font-body text-[0.68rem] tracking-[0.12em] uppercase text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" /> Minha loja
+          </button>
+          <IndicadorSalvamento estado={estado} onTentarNovamente={tentarNovamente} />
+        </div>
+
+        <div className="border border-border bg-background p-5 sm:p-8">
+          <h3 className="font-display text-[1.5rem] sm:text-[1.75rem] font-light mb-6">
+            {atual?.titulo}
+          </h3>
+
+          {bloco === "vender" ? (
+            <>
+              <EscolhaFormasDeTrabalhar lojaId={loja.id} />
+              <BlocoEditor bloco="vender" loja={loja} salvar={salvar} />
+            </>
+          ) : (
+            <BlocoEditor bloco={bloco} loja={loja} salvar={salvar} />
+          )}
+
+          <div className="pt-4 mt-2 border-t border-border">
+            <button
+              onClick={async () => {
+                await salvarAgora();
+                setModo("visao");
+              }}
+              className="bg-espresso text-parchment px-5 py-2.5 font-body text-[0.68rem] tracking-[0.14em] uppercase hover:brightness-125 transition-all"
+            >
+              Pronto
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -148,6 +288,8 @@ const MinhaLoja = () => {
   // ------------------------------------------------------------------
   // Visão geral
   // ------------------------------------------------------------------
+  const faltaHistoria = !loja.bio || loja.bio.length < 40;
+
   return (
     <div className="max-w-[720px]">
       <div className="mb-2 flex items-end justify-between gap-3">
@@ -167,7 +309,6 @@ const MinhaLoja = () => {
         compradores certos.
       </p>
 
-      {/* Barra de progresso */}
       <div
         className="h-[6px] w-full bg-parchment border border-border mb-2 overflow-hidden"
         role="progressbar"
@@ -181,11 +322,40 @@ const MinhaLoja = () => {
           style={{ width: `${percentual}%` }}
         />
       </div>
-      <div className="text-[0.72rem] text-muted-foreground mb-7">
+      <div className="text-[0.72rem] text-muted-foreground mb-6">
         {concluidas} de {total} concluídos
       </div>
 
-      {/* Checklist */}
+      {/* Lembrete leve, quando a história ficou para depois */}
+      {faltaHistoria && (
+        <div className="border border-border bg-parchment px-4 py-3.5 mb-6 flex items-start gap-3">
+          <div className="min-w-0">
+            <p className="text-[0.84rem] font-light leading-[1.6] mb-2">
+              Contar sua história ajuda compradores a conhecerem quem está por trás das peças.
+            </p>
+            <button
+              onClick={() => {
+                setBloco("historia");
+                setModo("bloco");
+              }}
+              className="font-body text-[0.66rem] tracking-[0.12em] uppercase text-terra hover:underline"
+            >
+              Contar minha história
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Onboarding ainda não concluído: convite discreto, nunca bloqueio */}
+      {!loja.onboarding_completed_at && (
+        <button
+          onClick={comecarOnboarding}
+          className="w-full border border-terra/50 px-4 py-3 mb-6 text-left font-body text-[0.8rem] hover:bg-terra/5 transition-colors"
+        >
+          Responder as 4 perguntas rápidas sobre seu trabalho →
+        </button>
+      )}
+
       <div className="border border-border divide-y divide-border mb-7">
         {etapas.map((e) => (
           <div key={e.etapa} className="flex items-center gap-3 px-4 py-3">
@@ -209,21 +379,31 @@ const MinhaLoja = () => {
         ))}
       </div>
 
-      {/* Seções */}
       <div className="font-body text-[0.6rem] tracking-[0.16em] uppercase text-muted-foreground mb-3">
-        Editar informações
+        Completar minha loja
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {ETAPAS.map((e) => (
+        {BLOCOS.map((b) => (
           <button
-            key={e.id}
-            onClick={() => comecar(e.id)}
-            className="border border-border px-4 py-3.5 text-left font-body text-[0.8rem] hover:border-foreground hover:bg-parchment transition-colors flex items-center justify-between gap-2"
+            key={b.id}
+            onClick={() => {
+              setBloco(b.id);
+              setModo("bloco");
+            }}
+            className="border border-border px-4 py-3.5 text-left hover:border-foreground hover:bg-parchment transition-colors"
           >
-            {e.titulo}
-            <span className="text-muted-foreground">→</span>
+            <div className="font-body text-[0.82rem] mb-0.5">{b.titulo}</div>
+            <div className="text-[0.72rem] text-muted-foreground font-light">{b.resumo}</div>
           </button>
         ))}
+      </div>
+
+      <div className="mt-6 text-[0.78rem] text-muted-foreground font-light">
+        Recebe encomendas?{" "}
+        <Link to="/painel" className="text-terra hover:underline">
+          Veja os pedidos na aba Encomendas
+        </Link>
+        .
       </div>
     </div>
   );

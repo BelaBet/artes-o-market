@@ -16,6 +16,17 @@ export type Database = {
     Tables: {
       artisans: {
         Row: {
+          accessibility_notes: string | null
+          additional_notes: string | null
+          company_document: string | null
+          company_name: string | null
+          corporate_min_quantity: number | null
+          custom_order_notes: string | null
+          delivery_regions: string[]
+          issues_invoice: boolean
+          min_order_value_cents: number | null
+          teaching_notes: string | null
+          visit_by_appointment: boolean
           public_name: string | null
           logo_url: string | null
           workshop_image_url: string | null
@@ -61,6 +72,17 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          accessibility_notes?: string | null
+          additional_notes?: string | null
+          company_document?: string | null
+          company_name?: string | null
+          corporate_min_quantity?: number | null
+          custom_order_notes?: string | null
+          delivery_regions?: string[]
+          issues_invoice?: boolean
+          min_order_value_cents?: number | null
+          teaching_notes?: string | null
+          visit_by_appointment?: boolean
           public_name?: string | null
           logo_url?: string | null
           workshop_image_url?: string | null
@@ -106,6 +128,17 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          accessibility_notes?: string | null
+          additional_notes?: string | null
+          company_document?: string | null
+          company_name?: string | null
+          corporate_min_quantity?: number | null
+          custom_order_notes?: string | null
+          delivery_regions?: string[]
+          issues_invoice?: boolean
+          min_order_value_cents?: number | null
+          teaching_notes?: string | null
+          visit_by_appointment?: boolean
           public_name?: string | null
           logo_url?: string | null
           workshop_image_url?: string | null
@@ -1186,6 +1219,10 @@ export type Database = {
       }
     }
     Functions: {
+      concluir_onboarding: {
+        Args: Record<string, never>
+        Returns: Database["public"]["Tables"]["artisans"]["Row"]
+      }
       garantir_minha_loja: {
         Args: { _shop_name?: string }
         Returns: Database["public"]["Tables"]["artisans"]["Row"]
