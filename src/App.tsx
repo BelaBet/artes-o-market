@@ -17,6 +17,7 @@ import ChatPage from "./pages/ChatPage";
 import ArtisanAuthPage from "./pages/ArtisanAuthPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OAuthConsent from "./pages/OAuthConsent";
 
 const queryClient = new QueryClient();
@@ -58,6 +59,7 @@ const App = () => (
               {/* Rotas sem header */}
               <Route path="/entrar" element={<ArtisanAuthPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
