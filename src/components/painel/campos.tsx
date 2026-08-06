@@ -226,6 +226,8 @@ interface FotoProps {
 
 export const CampoFoto = ({ rotulo, ajuda, artisanId, pasta, valor, onChange }: FotoProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+
   const [enviando, setEnviando] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
