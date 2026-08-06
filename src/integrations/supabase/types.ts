@@ -14,182 +14,67 @@ export type Database = {
   }
   public: {
     Tables: {
-      artisans: {
-        Row: {
-          public_name: string | null
-          logo_url: string | null
-          workshop_image_url: string | null
-          working_image_url: string | null
-          facebook: string | null
-          website: string | null
-          years_of_experience: number | null
-          production_capacity_monthly: number | null
-          average_production_days: number | null
-          minimum_order_days: number | null
-          team_size: number | null
-          accepts_custom_orders: boolean
-          accepts_large_orders: boolean
-          ships_nationwide: boolean
-          has_ready_stock: boolean
-          sells_to_people: boolean
-          sells_to_companies: boolean
-          sells_to_stores: boolean
-          sells_to_architects: boolean
-          receives_visitors: boolean
-          onboarding_step: string | null
-          onboarding_started_at: string | null
-          onboarding_completed_at: string | null
-          onboarding_skipped_at: string | null
-          whatsapp_publico: boolean
-          avatar_url: string | null
-          bio: string | null
-          city: string | null
-          commission_bps: number | null
-          cover_url: string | null
-          created_at: string
-          headline: string | null
-          id: string
-          instagram: string | null
-          pagarme_recipient_id: string | null
-          shop_name: string
-          slug: string
-          state: string | null
-          status: string
-          updated_at: string
-          user_id: string
-          verified: boolean
-          whatsapp: string | null
-        }
-        Insert: {
-          public_name?: string | null
-          logo_url?: string | null
-          workshop_image_url?: string | null
-          working_image_url?: string | null
-          facebook?: string | null
-          website?: string | null
-          years_of_experience?: number | null
-          production_capacity_monthly?: number | null
-          average_production_days?: number | null
-          minimum_order_days?: number | null
-          team_size?: number | null
-          accepts_custom_orders?: boolean
-          accepts_large_orders?: boolean
-          ships_nationwide?: boolean
-          has_ready_stock?: boolean
-          sells_to_people?: boolean
-          sells_to_companies?: boolean
-          sells_to_stores?: boolean
-          sells_to_architects?: boolean
-          receives_visitors?: boolean
-          onboarding_step?: string | null
-          onboarding_started_at?: string | null
-          onboarding_completed_at?: string | null
-          onboarding_skipped_at?: string | null
-          whatsapp_publico?: boolean
-          avatar_url?: string | null
-          bio?: string | null
-          city?: string | null
-          commission_bps?: number | null
-          cover_url?: string | null
-          created_at?: string
-          headline?: string | null
-          id?: string
-          instagram?: string | null
-          pagarme_recipient_id?: string | null
-          shop_name: string
-          slug: string
-          state?: string | null
-          status?: string
-          updated_at?: string
-          user_id: string
-          verified?: boolean
-          whatsapp?: string | null
-        }
-        Update: {
-          public_name?: string | null
-          logo_url?: string | null
-          workshop_image_url?: string | null
-          working_image_url?: string | null
-          facebook?: string | null
-          website?: string | null
-          years_of_experience?: number | null
-          production_capacity_monthly?: number | null
-          average_production_days?: number | null
-          minimum_order_days?: number | null
-          team_size?: number | null
-          accepts_custom_orders?: boolean
-          accepts_large_orders?: boolean
-          ships_nationwide?: boolean
-          has_ready_stock?: boolean
-          sells_to_people?: boolean
-          sells_to_companies?: boolean
-          sells_to_stores?: boolean
-          sells_to_architects?: boolean
-          receives_visitors?: boolean
-          onboarding_step?: string | null
-          onboarding_started_at?: string | null
-          onboarding_completed_at?: string | null
-          onboarding_skipped_at?: string | null
-          whatsapp_publico?: boolean
-          avatar_url?: string | null
-          bio?: string | null
-          city?: string | null
-          commission_bps?: number | null
-          cover_url?: string | null
-          created_at?: string
-          headline?: string | null
-          id?: string
-          instagram?: string | null
-          pagarme_recipient_id?: string | null
-          shop_name?: string
-          slug?: string
-          state?: string | null
-          status?: string
-          updated_at?: string
-          user_id?: string
-          verified?: boolean
-          whatsapp?: string | null
-        }
-        Relationships: []
-      }
       artisan_materials: {
         Row: {
           artisan_id: string
-          material_id: string
           is_primary: boolean
+          material_id: string
           outro: string | null
         }
         Insert: {
           artisan_id: string
-          material_id: string
           is_primary?: boolean
+          material_id: string
           outro?: string | null
         }
         Update: {
           artisan_id?: string
-          material_id?: string
           is_primary?: boolean
+          material_id?: string
           outro?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "artisan_materials_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_materials_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       artisan_offerings: {
         Row: {
           artisan_id: string
-          offering_type: Database["public"]["Enums"]["offering_type"]
           created_at: string
+          offering_type: Database["public"]["Enums"]["offering_type"]
         }
         Insert: {
           artisan_id: string
-          offering_type: Database["public"]["Enums"]["offering_type"]
           created_at?: string
+          offering_type: Database["public"]["Enums"]["offering_type"]
         }
         Update: {
           artisan_id?: string
-          offering_type?: Database["public"]["Enums"]["offering_type"]
           created_at?: string
+          offering_type?: Database["public"]["Enums"]["offering_type"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "artisan_offerings_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       artisan_styles: {
         Row: {
@@ -204,86 +89,191 @@ export type Database = {
           artisan_id?: string
           style_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "artisan_styles_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_styles_style_id_fkey"
+            columns: ["style_id"]
+            isOneToOne: false
+            referencedRelation: "styles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       artisan_techniques: {
         Row: {
           artisan_id: string
-          technique_id: string
           is_primary: boolean
+          technique_id: string
         }
         Insert: {
           artisan_id: string
-          technique_id: string
           is_primary?: boolean
+          technique_id: string
         }
         Update: {
           artisan_id?: string
-          technique_id?: string
           is_primary?: boolean
+          technique_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "artisan_techniques_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_techniques_technique_id_fkey"
+            columns: ["technique_id"]
+            isOneToOne: false
+            referencedRelation: "techniques"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      materials: {
+      artisans: {
         Row: {
+          accepts_custom_orders: boolean
+          accepts_large_orders: boolean
+          avatar_url: string | null
+          average_production_days: number | null
+          bio: string | null
+          city: string | null
+          commission_bps: number | null
+          cover_url: string | null
+          created_at: string
+          facebook: string | null
+          has_ready_stock: boolean
+          headline: string | null
           id: string
+          instagram: string | null
+          logo_url: string | null
+          minimum_order_days: number | null
+          onboarding_completed_at: string | null
+          onboarding_skipped_at: string | null
+          onboarding_started_at: string | null
+          onboarding_step: string | null
+          pagarme_recipient_id: string | null
+          production_capacity_monthly: number | null
+          public_name: string | null
+          receives_visitors: boolean
+          sells_to_architects: boolean
+          sells_to_companies: boolean
+          sells_to_people: boolean
+          sells_to_stores: boolean
+          ships_nationwide: boolean
+          shop_name: string
           slug: string
-          name: string
-          position: number
+          state: string | null
+          status: string
+          team_size: number | null
+          updated_at: string
+          user_id: string
+          verified: boolean
+          website: string | null
+          whatsapp: string | null
+          whatsapp_publico: boolean
+          working_image_url: string | null
+          workshop_image_url: string | null
+          years_of_experience: number | null
         }
         Insert: {
+          accepts_custom_orders?: boolean
+          accepts_large_orders?: boolean
+          avatar_url?: string | null
+          average_production_days?: number | null
+          bio?: string | null
+          city?: string | null
+          commission_bps?: number | null
+          cover_url?: string | null
+          created_at?: string
+          facebook?: string | null
+          has_ready_stock?: boolean
+          headline?: string | null
           id?: string
+          instagram?: string | null
+          logo_url?: string | null
+          minimum_order_days?: number | null
+          onboarding_completed_at?: string | null
+          onboarding_skipped_at?: string | null
+          onboarding_started_at?: string | null
+          onboarding_step?: string | null
+          pagarme_recipient_id?: string | null
+          production_capacity_monthly?: number | null
+          public_name?: string | null
+          receives_visitors?: boolean
+          sells_to_architects?: boolean
+          sells_to_companies?: boolean
+          sells_to_people?: boolean
+          sells_to_stores?: boolean
+          ships_nationwide?: boolean
+          shop_name: string
           slug: string
-          name: string
-          position?: number
+          state?: string | null
+          status?: string
+          team_size?: number | null
+          updated_at?: string
+          user_id: string
+          verified?: boolean
+          website?: string | null
+          whatsapp?: string | null
+          whatsapp_publico?: boolean
+          working_image_url?: string | null
+          workshop_image_url?: string | null
+          years_of_experience?: number | null
         }
         Update: {
+          accepts_custom_orders?: boolean
+          accepts_large_orders?: boolean
+          avatar_url?: string | null
+          average_production_days?: number | null
+          bio?: string | null
+          city?: string | null
+          commission_bps?: number | null
+          cover_url?: string | null
+          created_at?: string
+          facebook?: string | null
+          has_ready_stock?: boolean
+          headline?: string | null
           id?: string
+          instagram?: string | null
+          logo_url?: string | null
+          minimum_order_days?: number | null
+          onboarding_completed_at?: string | null
+          onboarding_skipped_at?: string | null
+          onboarding_started_at?: string | null
+          onboarding_step?: string | null
+          pagarme_recipient_id?: string | null
+          production_capacity_monthly?: number | null
+          public_name?: string | null
+          receives_visitors?: boolean
+          sells_to_architects?: boolean
+          sells_to_companies?: boolean
+          sells_to_people?: boolean
+          sells_to_stores?: boolean
+          ships_nationwide?: boolean
+          shop_name?: string
           slug?: string
-          name?: string
-          position?: number
-        }
-        Relationships: []
-      }
-      styles: {
-        Row: {
-          id: string
-          slug: string
-          name: string
-          position: number
-        }
-        Insert: {
-          id?: string
-          slug: string
-          name: string
-          position?: number
-        }
-        Update: {
-          id?: string
-          slug?: string
-          name?: string
-          position?: number
-        }
-        Relationships: []
-      }
-      techniques: {
-        Row: {
-          id: string
-          slug: string
-          name: string
-          position: number
-        }
-        Insert: {
-          id?: string
-          slug: string
-          name: string
-          position?: number
-        }
-        Update: {
-          id?: string
-          slug?: string
-          name?: string
-          position?: number
+          state?: string | null
+          status?: string
+          team_size?: number | null
+          updated_at?: string
+          user_id?: string
+          verified?: boolean
+          website?: string | null
+          whatsapp?: string | null
+          whatsapp_publico?: boolean
+          working_image_url?: string | null
+          workshop_image_url?: string | null
+          years_of_experience?: number | null
         }
         Relationships: []
       }
@@ -452,6 +442,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      materials: {
+        Row: {
+          id: string
+          name: string
+          position: number
+          slug: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          position?: number
+          slug: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          position?: number
+          slug?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -944,6 +955,48 @@ export type Database = {
         }
         Relationships: []
       }
+      styles: {
+        Row: {
+          id: string
+          name: string
+          position: number
+          slug: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          position?: number
+          slug: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          position?: number
+          slug?: string
+        }
+        Relationships: []
+      }
+      techniques: {
+        Row: {
+          id: string
+          name: string
+          position: number
+          slug: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          position?: number
+          slug: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          position?: number
+          slug?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -996,24 +1049,49 @@ export type Database = {
           _state?: string
         }
         Returns: {
+          accepts_custom_orders: boolean
+          accepts_large_orders: boolean
           avatar_url: string | null
+          average_production_days: number | null
           bio: string | null
           city: string | null
           commission_bps: number | null
           cover_url: string | null
           created_at: string
+          facebook: string | null
+          has_ready_stock: boolean
           headline: string | null
           id: string
           instagram: string | null
+          logo_url: string | null
+          minimum_order_days: number | null
+          onboarding_completed_at: string | null
+          onboarding_skipped_at: string | null
+          onboarding_started_at: string | null
+          onboarding_step: string | null
           pagarme_recipient_id: string | null
+          production_capacity_monthly: number | null
+          public_name: string | null
+          receives_visitors: boolean
+          sells_to_architects: boolean
+          sells_to_companies: boolean
+          sells_to_people: boolean
+          sells_to_stores: boolean
+          ships_nationwide: boolean
           shop_name: string
           slug: string
           state: string | null
           status: string
+          team_size: number | null
           updated_at: string
           user_id: string
           verified: boolean
+          website: string | null
           whatsapp: string | null
+          whatsapp_publico: boolean
+          working_image_url: string | null
+          workshop_image_url: string | null
+          years_of_experience: number | null
         }
         SetofOptions: {
           from: "*"
@@ -1069,6 +1147,61 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      garantir_minha_loja: {
+        Args: { _shop_name?: string }
+        Returns: {
+          accepts_custom_orders: boolean
+          accepts_large_orders: boolean
+          avatar_url: string | null
+          average_production_days: number | null
+          bio: string | null
+          city: string | null
+          commission_bps: number | null
+          cover_url: string | null
+          created_at: string
+          facebook: string | null
+          has_ready_stock: boolean
+          headline: string | null
+          id: string
+          instagram: string | null
+          logo_url: string | null
+          minimum_order_days: number | null
+          onboarding_completed_at: string | null
+          onboarding_skipped_at: string | null
+          onboarding_started_at: string | null
+          onboarding_step: string | null
+          pagarme_recipient_id: string | null
+          production_capacity_monthly: number | null
+          public_name: string | null
+          receives_visitors: boolean
+          sells_to_architects: boolean
+          sells_to_companies: boolean
+          sells_to_people: boolean
+          sells_to_stores: boolean
+          ships_nationwide: boolean
+          shop_name: string
+          slug: string
+          state: string | null
+          status: string
+          team_size: number | null
+          updated_at: string
+          user_id: string
+          verified: boolean
+          website: string | null
+          whatsapp: string | null
+          whatsapp_publico: boolean
+          working_image_url: string | null
+          workshop_image_url: string | null
+          years_of_experience: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "artisans"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      gerar_slug: { Args: { _texto: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1085,8 +1218,20 @@ export type Database = {
       }
       pedido_tem_item_meu: { Args: { _order_id: string }; Returns: boolean }
       pode_avaliar: { Args: { _order_item_id: string }; Returns: boolean }
+      progresso_da_loja: {
+        Args: { _artisan_id: string }
+        Returns: {
+          concluida: boolean
+          etapa: string
+          rotulo: string
+        }[]
+      }
+      unaccent_simples: { Args: { _texto: string }; Returns: string }
     }
     Enums: {
+      app_role: "buyer" | "artisan" | "admin"
+      experience_kind: "live" | "recorded" | "in_person" | "mentorship"
+      listing_status: "draft" | "active" | "sold_out" | "archived"
       offering_type:
         | "product"
         | "custom_order"
@@ -1104,9 +1249,6 @@ export type Database = {
         | "corporate_gifts"
         | "school"
         | "undecided"
-      app_role: "buyer" | "artisan" | "admin"
-      experience_kind: "live" | "recorded" | "in_person" | "mentorship"
-      listing_status: "draft" | "active" | "sold_out" | "archived"
       order_item_kind: "product" | "experience"
       order_status:
         | "pending"
@@ -1248,6 +1390,24 @@ export const Constants = {
       app_role: ["buyer", "artisan", "admin"],
       experience_kind: ["live", "recorded", "in_person", "mentorship"],
       listing_status: ["draft", "active", "sold_out", "archived"],
+      offering_type: [
+        "product",
+        "custom_order",
+        "class",
+        "workshop",
+        "course",
+        "studio_visit",
+        "cultural_experience",
+        "lecture",
+        "event",
+        "corporate",
+        "stores",
+        "hotels",
+        "architects",
+        "corporate_gifts",
+        "school",
+        "undecided",
+      ],
       order_item_kind: ["product", "experience"],
       order_status: [
         "pending",
