@@ -9,12 +9,21 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ onExplore }: HeroSectionProps) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { abrirLoja, criando } = useAbrirMinhaLoja();
 
   const handleAbrirLoja = async () => {
-    if (!user) {
+    if (loading) return;
+
+    // Revalida a sessão no clique: o contexto pode ainda não ter hidratado.
+    let logado = !!user;
+    if (!logado) {
+      const { data } = await supabase.auth.getSession();
+      logado = !!data.session;
+    }
+
+    if (!logado) {
       navigate("/entrar", { state: { from: "/painel" } });
       return;
     }
@@ -28,6 +37,7 @@ const HeroSection = ({ onExplore }: HeroSectionProps) => {
       );
     }
   };
+
 
   const heroItems = [
     { img: "pottery", name: "Cerâmica Torneada", price: 175 },
