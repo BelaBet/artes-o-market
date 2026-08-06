@@ -1064,6 +1064,19 @@ export type Database = {
       }
     }
     Functions: {
+      avaliacao_apenas_resposta: {
+        Args: {
+          _artisan_id: string
+          _author_id: string
+          _comment: string
+          _experience_id: string
+          _id: string
+          _order_item_id: string
+          _product_id: string
+          _rating: number
+        }
+        Returns: boolean
+      }
       caminho_e_da_minha_loja: { Args: { _name: string }; Returns: boolean }
       comissao_bps: { Args: { _artisan_id: string }; Returns: number }
       criar_minha_loja: {
