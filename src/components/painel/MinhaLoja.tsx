@@ -9,6 +9,20 @@ import {
   type EstadoSalvamento,
 } from "@/hooks/useMinhaLoja";
 
+/** Liga cada item do checklist (vindo do banco) à etapa editável correspondente. */
+const ETAPA_DO_PROGRESSO: Record<string, EtapaId | undefined> = {
+  nome: "sobre",
+  cidade: "sobre",
+  historia: "historia",
+  materiais: "produz",
+  tecnicas: "como",
+  foto: "fotos",
+  atelie: "fotos",
+  vendas: "vende",
+  peca: "oferece",
+  experiencia: "oferece",
+};
+
 const IndicadorSalvamento = ({
   estado,
   onTentarNovamente,
