@@ -23,6 +23,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
