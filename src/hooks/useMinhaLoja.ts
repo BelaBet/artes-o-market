@@ -31,11 +31,9 @@ export function useMinhaLoja() {
       const nome =
         (user!.user_metadata?.display_name as string | undefined) ?? "Meu Ateliê";
 
-      const { data, error } = await supabase.rpc("garantir_minha_loja", {
-        _shop_name: nome,
-      });
+      const { data, error } = await supabase.rpc("garantir_minha_loja", { _shop_name: nome });
       if (error) throw error;
-      return (data as unknown as Loja) ?? null;
+      return (data as Loja | null) ?? null;
     },
     staleTime: 30_000,
   });
@@ -54,11 +52,9 @@ export function useProgresso(artisanId: string | undefined) {
     queryKey: ["progresso", artisanId],
     enabled: !!artisanId,
     queryFn: async (): Promise<EtapaProgresso[]> => {
-      const { data, error } = await supabase.rpc("progresso_da_loja", {
-        _artisan_id: artisanId!,
-      });
+      const { data, error } = await supabase.rpc("progresso_da_loja", { _artisan_id: artisanId! });
       if (error) throw error;
-      return (data as unknown as EtapaProgresso[]) ?? [];
+      return (data as EtapaProgresso[]) ?? [];
     },
     staleTime: 15_000,
   });
@@ -182,7 +178,7 @@ export function useSelecaoVocabulario(
         .select(coluna)
         .eq("artisan_id", artisanId!);
       if (error) throw error;
-      return (data ?? []).map((r) => (r as Record<string, string>)[coluna]);
+      return ((data ?? []) as unknown as Record<string, string>[]).map((r) => r[coluna]);
     },
     staleTime: 15_000,
   });
@@ -190,14 +186,19 @@ export function useSelecaoVocabulario(
   const alternar = async (id: string, selecionado: boolean) => {
     if (!artisanId) return;
 
+    // `ligacao` é dinâmico (materials/techniques/styles); sem este ponto
+    // fixo a inferência do supabase-js explode em profundidade.
+    const tabela = supabase.from(ligacao) as unknown as {
+      insert: (linha: Record<string, string>) => Promise<unknown>;
+      delete: () => {
+        eq: (col: string, val: string) => { eq: (col: string, val: string) => Promise<unknown> };
+      };
+    };
+
     if (selecionado) {
-      await supabase.from(ligacao).insert({ artisan_id: artisanId, [coluna]: id } as never);
+      await tabela.insert({ artisan_id: artisanId, [coluna]: id });
     } else {
-      await supabase
-        .from(ligacao)
-        .delete()
-        .eq("artisan_id", artisanId)
-        .eq(coluna, id);
+      await tabela.delete().eq("artisan_id", artisanId).eq(coluna, id);
     }
 
     queryClient.invalidateQueries({ queryKey: chave });

@@ -43,7 +43,7 @@ const CartDrawer = () => {
                 <div key={item.id} className="flex gap-3 pb-4 border-b border-border last:border-b-0">
                   <div className="w-20 h-20 shrink-0 overflow-hidden bg-parchment">
                     <img
-                      src={IMAGES[item.img]}
+                      src={item.imageUrl || IMAGES[item.img]}
                       alt={item.name}
                       className="w-full h-full object-cover saturate-[0.86]"
                     />

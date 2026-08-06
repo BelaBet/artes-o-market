@@ -83,6 +83,28 @@ const HomePage = () => {
           )}
         </div>
       </section>
+      {/* Ponto de entrada dos Projetos Sob Medida */}
+      <section className="px-4 md:px-9 pb-12 sm:pb-16">
+        <div className="max-w-[1320px] mx-auto border border-border bg-parchment px-6 sm:px-10 py-9 sm:py-12 text-center">
+          <div className="font-body text-[0.6rem] tracking-[0.2em] uppercase text-terra mb-2">
+            Projetos sob medida
+          </div>
+          <h2 className="font-display text-[1.6rem] sm:text-[2.1rem] font-light leading-tight mb-3">
+            Não encontrou exatamente <em className="italic text-terra">o que procura</em>?
+          </h2>
+          <p className="text-[0.88rem] font-light leading-[1.75] text-muted-foreground max-w-[520px] mx-auto mb-6">
+            Conte sua ideia. Nós ajudamos a organizar o pedido e encontramos artesãos que possam
+            produzir — mesmo que você não saiba o nome da técnica ou do material.
+          </p>
+          <Link
+            to="/projetos-sob-medida"
+            className="inline-block bg-espresso text-parchment px-7 py-3.5 font-body text-[0.7rem] tracking-[0.14em] uppercase hover:brightness-125 transition-all"
+          >
+            Criar projeto sob medida
+          </Link>
+        </div>
+      </section>
+
       <ArtisansSection />
       <CTASection onNavigate={() => navigate("/painel")} />
       <MarketFooter />

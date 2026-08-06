@@ -18,6 +18,7 @@ const MarketHeader = () => {
     { to: "/", label: "Início" },
     { to: "/catalogo", label: "Catálogo" },
     { to: "/experiencias", label: "Experiências" },
+    { to: "/projetos-sob-medida", label: "Sob Medida" },
     ...(isLoggedIn
       ? [
           { to: "/painel", label: "Painel do Artesão" },
@@ -76,6 +77,12 @@ const MarketHeader = () => {
               className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
             >
               Experiências
+            </Link>
+            <Link
+              to="/projetos-sob-medida"
+              className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-terra px-3 py-1.5 hover:brightness-90 transition-colors whitespace-nowrap"
+            >
+              Sob Medida
             </Link>
 
             {isLoggedIn && (

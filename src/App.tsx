@@ -16,6 +16,10 @@ import DashboardPage from "./pages/DashboardPage";
 import ChatPage from "./pages/ChatPage";
 import ArtisanAuthPage from "./pages/ArtisanAuthPage";
 import NotFound from "./pages/NotFound";
+import ProjetosSobMedidaPage from "./pages/ProjetosSobMedidaPage";
+import CriarProjetoPage from "./pages/CriarProjetoPage";
+import ProdutoPage from "./pages/ProdutoPage";
+import { MeusProjetosPage, ProjetoDetalhePage } from "./pages/MeusProjetosPage";
 import LoginPage from "./pages/LoginPage";
 import OAuthConsent from "./pages/OAuthConsent";
 
@@ -37,6 +41,25 @@ const App = () => (
                 <Route path="/catalogo" element={<CatalogPage />} />
                 <Route path="/experiencias" element={<ExperiencesPage />} />
                 <Route path="/artesao/:slug" element={<ArtisanProfilePage />} />
+                <Route path="/produto/:slug" element={<ProdutoPage />} />
+                <Route path="/projetos-sob-medida" element={<ProjetosSobMedidaPage />} />
+                <Route path="/projetos-sob-medida/criar" element={<CriarProjetoPage />} />
+                <Route
+                  path="/minha-conta/projetos"
+                  element={
+                    <ProtectedRoute>
+                      <MeusProjetosPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/minha-conta/projetos/:id"
+                  element={
+                    <ProtectedRoute>
+                      <ProjetoDetalhePage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/painel"
                   element={

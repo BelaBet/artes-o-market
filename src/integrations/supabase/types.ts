@@ -313,6 +313,7 @@ export type Database = {
       }
       conversations: {
         Row: {
+          request_id: string | null
           artisan_id: string
           buyer_user_id: string
           created_at: string
@@ -321,6 +322,7 @@ export type Database = {
           product_id: string | null
         }
         Insert: {
+          request_id?: string | null
           artisan_id: string
           buyer_user_id: string
           created_at?: string
@@ -329,6 +331,7 @@ export type Database = {
           product_id?: string | null
         }
         Update: {
+          request_id?: string | null
           artisan_id?: string
           buyer_user_id?: string
           created_at?: string
@@ -352,6 +355,204 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      custom_request_attachments: {
+        Row: {
+          id: string
+          request_id: string
+          uploaded_by: string
+          storage_path: string
+          file_name: string
+          file_type: string | null
+          file_size: number | null
+          description: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          request_id: string
+          uploaded_by: string
+          storage_path: string
+          file_name: string
+          file_type?: string | null
+          file_size?: number | null
+          description?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          request_id?: string
+          uploaded_by?: string
+          storage_path?: string
+          file_name?: string
+          file_type?: string | null
+          file_size?: number | null
+          description?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      custom_request_items: {
+        Row: {
+          id: string
+          request_id: string
+          name: string
+          description: string | null
+          quantity: number | null
+          dimensions: string | null
+          notes: string | null
+          position: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          request_id: string
+          name: string
+          description?: string | null
+          quantity?: number | null
+          dimensions?: string | null
+          notes?: string | null
+          position?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          request_id?: string
+          name?: string
+          description?: string | null
+          quantity?: number | null
+          dimensions?: string | null
+          notes?: string | null
+          position?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      custom_request_matches: {
+        Row: {
+          id: string
+          request_id: string
+          artisan_id: string
+          match_score: number
+          match_reasons: string[]
+          response_status: Database["public"]["Enums"]["match_response"]
+          decline_reason: string | null
+          sent_at: string
+          viewed_at: string | null
+          responded_at: string | null
+        }
+        Insert: {
+          id?: string
+          request_id: string
+          artisan_id: string
+          match_score?: number
+          match_reasons?: string[]
+          response_status?: Database["public"]["Enums"]["match_response"]
+          decline_reason?: string | null
+          sent_at?: string
+          viewed_at?: string | null
+          responded_at?: string | null
+        }
+        Update: {
+          id?: string
+          request_id?: string
+          artisan_id?: string
+          match_score?: number
+          match_reasons?: string[]
+          response_status?: Database["public"]["Enums"]["match_response"]
+          decline_reason?: string | null
+          sent_at?: string
+          viewed_at?: string | null
+          responded_at?: string | null
+        }
+        Relationships: []
+      }
+      custom_requests: {
+        Row: {
+          id: string
+          number?: number
+          buyer_user_id: string
+          request_type: Database["public"]["Enums"]["request_type"]
+          source_product_id: string | null
+          selected_artisan_id: string | null
+          title: string | null
+          description: string | null
+          intended_use: string | null
+          quantity_min: number | null
+          quantity_max: number | null
+          budget_min_cents: number | null
+          budget_max_cents: number | null
+          desired_date: string | null
+          desired_period: string | null
+          delivery_postal_code: string | null
+          delivery_city: string | null
+          delivery_state: string | null
+          customizations: Json
+          distribution_mode: Database["public"]["Enums"]["distribution_mode"]
+          max_proposals: number
+          status: Database["public"]["Enums"]["request_status"]
+          published_at: string | null
+          expires_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          number?: number
+          buyer_user_id: string
+          request_type: Database["public"]["Enums"]["request_type"]
+          source_product_id?: string | null
+          selected_artisan_id?: string | null
+          title?: string | null
+          description?: string | null
+          intended_use?: string | null
+          quantity_min?: number | null
+          quantity_max?: number | null
+          budget_min_cents?: number | null
+          budget_max_cents?: number | null
+          desired_date?: string | null
+          desired_period?: string | null
+          delivery_postal_code?: string | null
+          delivery_city?: string | null
+          delivery_state?: string | null
+          customizations?: Json
+          distribution_mode?: Database["public"]["Enums"]["distribution_mode"]
+          max_proposals?: number
+          status?: Database["public"]["Enums"]["request_status"]
+          published_at?: string | null
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          number?: number
+          buyer_user_id?: string
+          request_type?: Database["public"]["Enums"]["request_type"]
+          source_product_id?: string | null
+          selected_artisan_id?: string | null
+          title?: string | null
+          description?: string | null
+          intended_use?: string | null
+          quantity_min?: number | null
+          quantity_max?: number | null
+          budget_min_cents?: number | null
+          budget_max_cents?: number | null
+          desired_date?: string | null
+          desired_period?: string | null
+          delivery_postal_code?: string | null
+          delivery_city?: string | null
+          delivery_state?: string | null
+          customizations?: Json
+          distribution_mode?: Database["public"]["Enums"]["distribution_mode"]
+          max_proposals?: number
+          status?: Database["public"]["Enums"]["request_status"]
+          published_at?: string | null
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       experiences: {
         Row: {
@@ -985,6 +1186,34 @@ export type Database = {
       }
     }
     Functions: {
+      garantir_minha_loja: {
+        Args: { _shop_name?: string }
+        Returns: Database["public"]["Tables"]["artisans"]["Row"]
+      }
+      progresso_da_loja: {
+        Args: { _artisan_id: string }
+        Returns: { etapa: string; rotulo: string; concluida: boolean }[]
+      }
+      reivindicar_loja: {
+        Args: { _claim_code: string }
+        Returns: Database["public"]["Tables"]["artisans"]["Row"]
+      }
+      enviar_encomenda: {
+        Args: { _request_id: string }
+        Returns: Database["public"]["Tables"]["custom_requests"]["Row"]
+      }
+      distribuir_encomenda: {
+        Args: { _request_id: string }
+        Returns: number
+      }
+      responder_encomenda: {
+        Args: {
+          _request_id: string
+          _resposta: Database["public"]["Enums"]["match_response"]
+          _motivo?: string | null
+        }
+        Returns: undefined
+      }
       caminho_e_da_minha_loja: { Args: { _name: string }; Returns: boolean }
       comissao_bps: { Args: { _artisan_id: string }; Returns: number }
       criar_minha_loja: {
@@ -1104,6 +1333,10 @@ export type Database = {
         | "corporate_gifts"
         | "school"
         | "undecided"
+      distribution_mode: "artesao_especifico" | "recomendados" | "aberta"
+      match_response: "pendente" | "visualizada" | "interessado" | "mais_informacoes" | "recusada" | "proposta_enviada"
+      request_status: "rascunho" | "enviada" | "em_distribuicao" | "recebendo_propostas" | "em_negociacao" | "proposta_escolhida" | "aguardando_pagamento" | "confirmada" | "em_producao" | "pronta_para_envio" | "enviada_ao_cliente" | "entregue" | "concluida" | "cancelada" | "expirada"
+      request_type: "personalizar" | "peca_nova" | "quantidade" | "brindes" | "evento" | "decoracao" | "loja" | "hotelaria" | "arquitetura" | "outro"
       app_role: "buyer" | "artisan" | "admin"
       experience_kind: "live" | "recorded" | "in_person" | "mentorship"
       listing_status: "draft" | "active" | "sold_out" | "archived"

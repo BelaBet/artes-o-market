@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ORDERS, STATUS_MAP, formatPrice } from "@/lib/data";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import MinhaLoja from "@/components/painel/MinhaLoja";
+import Encomendas from "@/components/painel/Encomendas";
 
 const DashboardPage = () => {
   const [tab, setTab] = useState("overview");
@@ -9,6 +10,7 @@ const DashboardPage = () => {
   const tabs = [
     { key: "overview", icon: "⊞", label: "Visão Geral" },
     { key: "loja", icon: "⌂", label: "Minha Loja" },
+    { key: "encomendas", icon: "✎", label: "Encomendas" },
     { key: "products", icon: "◈", label: "Produtos" },
     { key: "orders", icon: "⬡", label: "Pedidos" },
     { key: "finance", icon: "◎", label: "Financeiro" },
@@ -40,6 +42,8 @@ const DashboardPage = () => {
       <main className="p-4 md:p-7 bg-background">
         {tab === "loja" ? (
           <MinhaLoja />
+        ) : tab === "encomendas" ? (
+          <Encomendas />
         ) : (
           <>
         <div className="font-display text-[1.5rem] sm:text-[1.8rem] mb-1">Bom dia, Ana! 👋</div>
