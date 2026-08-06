@@ -210,7 +210,12 @@ const MinhaLoja = () => {
       {/* Checklist */}
       <div className="border border-border divide-y divide-border mb-7">
         {etapas.map((e) => (
-          <div key={e.etapa} className="flex items-center gap-3 px-4 py-3">
+          <button
+            key={e.etapa}
+            type="button"
+            onClick={() => comecar(e.etapa as EtapaId)}
+            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-parchment transition-colors"
+          >
             <span
               aria-hidden
               className={`w-[18px] h-[18px] shrink-0 border flex items-center justify-center ${
@@ -227,7 +232,8 @@ const MinhaLoja = () => {
               {e.rotulo}
             </span>
             <span className="sr-only">{e.concluida ? "concluído" : "ainda não feito"}</span>
-          </div>
+            <span className="ml-auto text-muted-foreground">→</span>
+          </button>
         ))}
       </div>
 
