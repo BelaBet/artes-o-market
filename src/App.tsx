@@ -59,6 +59,7 @@ const App = () => (
               {/* Rotas sem header */}
               <Route path="/entrar" element={<ArtisanAuthPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

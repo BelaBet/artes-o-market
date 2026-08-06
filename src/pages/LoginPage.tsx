@@ -54,7 +54,7 @@ const LoginPage = () => {
 
     if (mode === "recover") {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/entrar`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) {
         setErro(mensagemAmigavel(error.message));
