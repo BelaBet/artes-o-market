@@ -52,6 +52,7 @@ const MinhaLoja = () => {
   const { etapas, concluidas, total, percentual } = useProgresso(loja?.id);
   const { salvar, salvarAgora, estado, tentarNovamente } = useSalvarLoja(loja?.id);
   const [etapaAberta, setEtapaAberta] = useState<EtapaId | null>(null);
+  const [pulou, setPulou] = useState(false);
 
   if (loading || !loja) {
     return (
@@ -64,7 +65,8 @@ const MinhaLoja = () => {
     );
   }
 
-  const primeiroAcesso = !loja.onboarding_started_at && !loja.onboarding_skipped_at;
+  const primeiroAcesso =
+    !pulou && !loja.onboarding_started_at && !loja.onboarding_skipped_at;
 
   const comecar = (etapa: EtapaId) => {
     setEtapaAberta(etapa);
@@ -76,12 +78,16 @@ const MinhaLoja = () => {
   };
 
   const sair = async () => {
+    // Sai na hora: a pessoa continua usando a plataforma e volta ao
+    // onboarding depois, pela própria "Minha loja".
     setEtapaAberta(null);
+    setPulou(true);
     salvar({
       onboarding_skipped_at: loja.onboarding_skipped_at ?? new Date().toISOString(),
     });
     await salvarAgora();
   };
+
 
   // ------------------------------------------------------------------
   // Boas-vindas — só no primeiro acesso, e nunca bloqueando o painel
@@ -181,9 +187,25 @@ const MinhaLoja = () => {
           style={{ width: `${percentual}%` }}
         />
       </div>
-      <div className="text-[0.72rem] text-muted-foreground mb-7">
+      <div className="text-[0.72rem] text-muted-foreground mb-5">
         {concluidas} de {total} concluídos
       </div>
+
+      {concluidas < total && (
+        <button
+          onClick={() =>
+            comecar(
+              ((loja.onboarding_step as EtapaId | null) ??
+                (etapas.find((e) => !e.concluida)?.etapa as EtapaId) ??
+                "sobre") as EtapaId,
+            )
+          }
+          className="bg-espresso text-parchment px-6 py-3 font-body text-[0.7rem] tracking-[0.14em] uppercase hover:brightness-125 transition-all mb-7"
+        >
+          Continuar de onde parei
+        </button>
+      )}
+
 
       {/* Checklist */}
       <div className="border border-border divide-y divide-border mb-7">
