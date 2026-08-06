@@ -1,6 +1,8 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { IMAGES, formatPrice } from "@/lib/data";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAbrirMinhaLoja } from "@/hooks/useMinhaLoja";
 
 interface HeroSectionProps {
   onExplore: () => void;
@@ -8,6 +10,25 @@ interface HeroSectionProps {
 
 const HeroSection = ({ onExplore }: HeroSectionProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { abrirLoja, criando } = useAbrirMinhaLoja();
+
+  const handleAbrirLoja = async () => {
+    if (!user) {
+      navigate("/entrar", { state: { from: "/painel" } });
+      return;
+    }
+    try {
+      const loja = await abrirLoja();
+      if (loja) toast.success("Sua loja está pronta! Complete os dados abaixo.");
+      navigate("/painel");
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "Não foi possível criar sua loja agora.",
+      );
+    }
+  };
+
   const heroItems = [
     { img: "pottery", name: "Cerâmica Torneada", price: 175 },
     { img: "stone", name: "Pedra-Sabão Pintada", price: 129 },
