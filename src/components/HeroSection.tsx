@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { IMAGES, formatPrice } from "@/lib/data";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAbrirMinhaLoja } from "@/hooks/useMinhaLoja";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HeroSectionProps {
   onExplore: () => void;
