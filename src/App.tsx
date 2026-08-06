@@ -20,6 +20,7 @@ import ProjetosSobMedidaPage from "./pages/ProjetosSobMedidaPage";
 import CriarProjetoPage from "./pages/CriarProjetoPage";
 import ProdutoPage from "./pages/ProdutoPage";
 import RedefinirSenhaPage from "./pages/RedefinirSenhaPage";
+import AdminRecebedoresPage from "./pages/AdminRecebedoresPage";
 import { MeusProjetosPage, ProjetoDetalhePage } from "./pages/MeusProjetosPage";
 import LoginPage from "./pages/LoginPage";
 import OAuthConsent from "./pages/OAuthConsent";
@@ -45,6 +46,14 @@ const App = () => (
                 <Route path="/produto/:slug" element={<ProdutoPage />} />
                 <Route path="/projetos-sob-medida" element={<ProjetosSobMedidaPage />} />
                 <Route path="/projetos-sob-medida/criar" element={<CriarProjetoPage />} />
+                <Route
+                  path="/admin/recebedores"
+                  element={
+                    <ProtectedRoute>
+                      <AdminRecebedoresPage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/minha-conta/projetos"
                   element={
