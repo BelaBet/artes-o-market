@@ -60,3 +60,65 @@ export const UFS = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB",
   "PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
 ];
+
+// ---------------------------------------------------------------------
+// Retomada do onboarding
+//
+// Fica aqui, fora do componente, para poder ser testado sem montar tela.
+// ---------------------------------------------------------------------
+export interface EtapaProgressoLike {
+  etapa: string;
+  concluida: boolean;
+}
+
+/** Uma etapa do onboarding está respondida? Quem decide é o banco. */
+export function etapaRespondida(
+  etapa: EtapaOnboarding,
+  progresso: EtapaProgressoLike[],
+): boolean {
+  const feito = (chave: string) =>
+    progresso.find((e) => e.etapa === chave)?.concluida ?? false;
+
+  switch (etapa) {
+    case "sobre":
+      return feito("nome") && feito("cidade");
+    case "trabalho":
+      // Material ou técnica já diz o suficiente sobre o que a pessoa faz.
+      return feito("materiais") || feito("tecnicas");
+    case "vender":
+      return feito("vendas");
+    case "historia":
+      return feito("historia");
+  }
+}
+
+/** Primeira etapa ainda sem resposta. */
+export function primeiraEtapaPendente(
+  progresso: EtapaProgressoLike[],
+): EtapaOnboarding {
+  return ETAPAS_ONBOARDING.find((e) => !etapaRespondida(e.id, progresso))?.id ?? "sobre";
+}
+
+/**
+ * Onde retomar o onboarding.
+ *
+ * A etapa salva só vale se continuar pendente: se a pessoa parou na etapa
+ * 2 e respondeu aquilo depois pelos blocos de Minha Loja, cair de novo
+ * numa pergunta já respondida seria desperdício do tempo dela.
+ */
+export function etapaParaRetomar(
+  salva: string | null | undefined,
+  progresso: EtapaProgressoLike[],
+): EtapaOnboarding {
+  const valida = ETAPAS_ONBOARDING.some((e) => e.id === salva)
+    ? (salva as EtapaOnboarding)
+    : null;
+
+  if (valida && !etapaRespondida(valida, progresso)) return valida;
+  return primeiraEtapaPendente(progresso);
+}
+
+/** Quantas das etapas do onboarding já estão respondidas. */
+export function etapasRespondidas(progresso: EtapaProgressoLike[]): number {
+  return ETAPAS_ONBOARDING.filter((e) => etapaRespondida(e.id, progresso)).length;
+}

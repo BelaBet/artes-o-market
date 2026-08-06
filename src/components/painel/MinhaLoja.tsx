@@ -7,6 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   BLOCOS,
   ETAPAS_ONBOARDING,
+  etapaParaRetomar,
+  etapaRespondida,
+  etapasRespondidas,
   type BlocoId,
   type EtapaOnboarding,
 } from "@/lib/painel/blocos";
@@ -77,11 +80,10 @@ const MinhaLoja = () => {
 
   const indice = ETAPAS_ONBOARDING.findIndex((e) => e.id === etapa);
 
-  const comecarOnboarding = () => {
-    // Retoma de onde parou, se já tinha começado antes.
-    const salva = loja.onboarding_step as EtapaOnboarding | null;
-    const inicio =
-      salva && ETAPAS_ONBOARDING.some((e) => e.id === salva) ? salva : "sobre";
+  const respondida = (etapa: EtapaOnboarding) => etapaRespondida(etapa, etapas);
+
+  const comecarOnboarding = (etapaEscolhida?: EtapaOnboarding) => {
+    const inicio = etapaEscolhida ?? etapaParaRetomar(loja.onboarding_step, etapas);
 
     setEtapa(inicio);
     setModo("onboarding");
@@ -93,7 +95,11 @@ const MinhaLoja = () => {
 
   const adiar = async () => {
     setModo("visao");
-    salvar({ onboarding_skipped_at: loja.onboarding_skipped_at ?? new Date().toISOString() });
+    // Guarda a etapa em que a pessoa estava: é para cá que ela volta.
+    salvar({
+      onboarding_skipped_at: loja.onboarding_skipped_at ?? new Date().toISOString(),
+      onboarding_step: etapa,
+    });
     await salvarAgora();
   };
 
@@ -125,7 +131,7 @@ const MinhaLoja = () => {
 
           <div className="flex flex-col sm:flex-row gap-2.5">
             <button
-              onClick={comecarOnboarding}
+              onClick={() => comecarOnboarding()}
               className="bg-espresso text-parchment px-6 py-3 font-body text-[0.7rem] tracking-[0.14em] uppercase hover:brightness-125 transition-all"
             >
               Vamos começar
@@ -168,9 +174,15 @@ const MinhaLoja = () => {
             </button>
           </div>
 
-          <h3 className="font-display text-[1.5rem] sm:text-[1.75rem] font-light mb-6">
+          <h3 className="font-display text-[1.5rem] sm:text-[1.75rem] font-light mb-2">
             {atual.titulo}
           </h3>
+
+          {respondida(atual.id) && (
+            <p className="text-[0.76rem] text-muted-foreground mb-4">
+              Você já respondeu esta etapa — pode revisar ou seguir em frente.
+            </p>
+          )}
 
           {/* Barra fina de progresso do onboarding */}
           <div className="h-[3px] w-full bg-parchment mb-7 overflow-hidden">
@@ -355,14 +367,56 @@ const MinhaLoja = () => {
       )}
 
       {/* Onboarding ainda não concluído: convite discreto, nunca bloqueio */}
-      {!loja.onboarding_completed_at && (
-        <button
-          onClick={comecarOnboarding}
-          className="w-full border border-terra/50 px-4 py-3 mb-6 text-left font-body text-[0.8rem] hover:bg-terra/5 transition-colors"
-        >
-          Responder as 4 perguntas rápidas sobre seu trabalho →
-        </button>
-      )}
+      {!loja.onboarding_completed_at &&
+        (() => {
+          const retomar = etapaParaRetomar(loja.onboarding_step, etapas);
+          const indiceRetomar = ETAPAS_ONBOARDING.findIndex((e) => e.id === retomar);
+          const respondidas = etapasRespondidas(etapas);
+          const comecou = respondidas > 0 || !!loja.onboarding_started_at;
+
+          return (
+            <div className="border border-terra/50 px-4 py-4 mb-6">
+              <div className="flex items-baseline justify-between gap-3 mb-1">
+                <span className="font-body text-[0.86rem]">
+                  {comecou
+                    ? "Continuar de onde parei"
+                    : "Responder 4 perguntas rápidas sobre seu trabalho"}
+                </span>
+                {comecou && (
+                  <span className="shrink-0 text-[0.68rem] text-muted-foreground">
+                    {respondidas} de {ETAPAS_ONBOARDING.length}
+                  </span>
+                )}
+              </div>
+
+              <p className="text-[0.78rem] text-muted-foreground font-light leading-snug mb-3">
+                {comecou
+                  ? `Você para na etapa ${indiceRetomar + 1}: ${
+                      ETAPAS_ONBOARDING[indiceRetomar].titulo
+                    }. O que você já respondeu está guardado.`
+                  : "Leva uns 2 minutos e dá para alterar tudo depois."}
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => comecarOnboarding()}
+                  className="bg-espresso text-parchment px-4 py-2.5 font-body text-[0.68rem] tracking-[0.12em] uppercase hover:brightness-125 transition-all"
+                >
+                  {comecou ? "Continuar" : "Começar"}
+                </button>
+
+                {comecou && respondidas > 0 && (
+                  <button
+                    onClick={() => comecarOnboarding("sobre")}
+                    className="border border-border px-4 py-2.5 font-body text-[0.68rem] tracking-[0.12em] uppercase text-muted-foreground hover:text-foreground hover:border-foreground transition-colors"
+                  >
+                    Revisar desde o início
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
       <div className="border border-border divide-y divide-border mb-7">
         {etapas.map((e) => (
