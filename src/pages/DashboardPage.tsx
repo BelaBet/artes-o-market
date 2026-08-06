@@ -8,7 +8,7 @@ const DashboardPage = () => {
   usePageMeta("Painel do Artesão");
   const tabs = [
     { key: "overview", icon: "⊞", label: "Visão Geral" },
-    { key: "loja", icon: "⌂", label: "Minha Loja" },
+    { key: "loja", icon: "⌂", label: "Minha História" },
     { key: "products", icon: "◈", label: "Produtos" },
     { key: "orders", icon: "⬡", label: "Pedidos" },
     { key: "finance", icon: "◎", label: "Financeiro" },
