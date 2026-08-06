@@ -52,6 +52,7 @@ const MinhaLoja = () => {
   const { etapas, concluidas, total, percentual } = useProgresso(loja?.id);
   const { salvar, salvarAgora, estado, tentarNovamente } = useSalvarLoja(loja?.id);
   const [etapaAberta, setEtapaAberta] = useState<EtapaId | null>(null);
+  const [pulou, setPulou] = useState(false);
 
   if (loading || !loja) {
     return (
