@@ -294,21 +294,33 @@ export function useOfertas(artisanId: string | undefined) {
   const alternar = async (tipo: TipoOferta, selecionado: boolean) => {
     if (!artisanId) return;
 
-    if (selecionado) {
-      await supabase
-        .from("artisan_offerings")
-        .insert({ artisan_id: artisanId, offering_type: tipo });
-    } else {
-      await supabase
-        .from("artisan_offerings")
-        .delete()
-        .eq("artisan_id", artisanId)
-        .eq("offering_type", tipo);
+    const anterior = queryClient.getQueryData<TipoOferta[]>(chave) ?? [];
+    queryClient.setQueryData<TipoOferta[]>(
+      chave,
+      selecionado ? [...anterior, tipo] : anterior.filter((x) => x !== tipo),
+    );
+
+    try {
+      if (selecionado) {
+        await supabase
+          .from("artisan_offerings")
+          .insert({ artisan_id: artisanId, offering_type: tipo });
+      } else {
+        await supabase
+          .from("artisan_offerings")
+          .delete()
+          .eq("artisan_id", artisanId)
+          .eq("offering_type", tipo);
+      }
+    } catch {
+      queryClient.setQueryData<TipoOferta[]>(chave, anterior);
+      return;
     }
 
     queryClient.invalidateQueries({ queryKey: chave });
     queryClient.invalidateQueries({ queryKey: ["progresso", artisanId] });
   };
+
 
   return { ofertas: query.data ?? [], alternar, loading: query.isLoading };
 }
