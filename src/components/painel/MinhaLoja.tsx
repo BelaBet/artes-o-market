@@ -187,9 +187,25 @@ const MinhaLoja = () => {
           style={{ width: `${percentual}%` }}
         />
       </div>
-      <div className="text-[0.72rem] text-muted-foreground mb-7">
+      <div className="text-[0.72rem] text-muted-foreground mb-5">
         {concluidas} de {total} concluídos
       </div>
+
+      {concluidas < total && (
+        <button
+          onClick={() =>
+            comecar(
+              ((loja.onboarding_step as EtapaId | null) ??
+                (etapas.find((e) => !e.concluida)?.etapa as EtapaId) ??
+                "sobre") as EtapaId,
+            )
+          }
+          className="bg-espresso text-parchment px-6 py-3 font-body text-[0.7rem] tracking-[0.14em] uppercase hover:brightness-125 transition-all mb-7"
+        >
+          Continuar de onde parei
+        </button>
+      )}
+
 
       {/* Checklist */}
       <div className="border border-border divide-y divide-border mb-7">
