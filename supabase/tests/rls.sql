@@ -452,3 +452,131 @@ SELECT public.checar(
 RESET ROLE;
 
 SELECT '=========== PAINEL: TESTES PASSARAM ===========' AS resultado;
+
+-- =====================================================================
+-- 11. Encomendas (Projetos Sob Medida)
+-- =====================================================================
+-- Visão auxiliar só para o teste enxergar a verdade do banco.
+CREATE VIEW public.custom_requests_todas AS SELECT * FROM public.custom_requests;
+GRANT SELECT ON public.custom_requests_todas TO authenticated;
+-- A loja da Ana passa a aceitar encomendas; a do João, não.
+UPDATE public.artisans SET accepts_custom_orders = TRUE, state = 'PE',
+       production_capacity_monthly = 100
+  WHERE slug = 'ana-lima';
+UPDATE public.artisans SET accepts_custom_orders = FALSE WHERE slug = 'joao-neto';
+
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+
+INSERT INTO public.custom_requests
+  (buyer_user_id, request_type, title, description, quantity_min, delivery_state, max_proposals)
+VALUES (auth.uid(), 'peca_nova', 'Painel de madeira para a sala',
+        'Queria um painel de madeira de uns 2 metros para a parede da sala.',
+        1, 'PE', 3);
+
+SELECT public.checar(
+  'comprador cria encomenda como rascunho',
+  (SELECT status FROM public.custom_requests LIMIT 1) = 'rascunho'
+);
+
+-- rascunho não pode vazar para artesão nenhum
+SET request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+SELECT public.checar(
+  'artesã NÃO enxerga encomenda em rascunho',
+  (SELECT count(*) FROM public.custom_requests) = 0
+);
+
+SET request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+SELECT public.checar(
+  'terceiro NÃO enxerga encomenda alheia',
+  (SELECT count(*) FROM public.custom_requests) = 0
+);
+
+-- envio e distribuição
+SET request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+SELECT public.enviar_encomenda((SELECT id FROM public.custom_requests LIMIT 1));
+
+SELECT public.checar(
+  'envio publica a encomenda e passa a receber propostas',
+  (SELECT status FROM public.custom_requests LIMIT 1) = 'recebendo_propostas'
+);
+RESET ROLE;
+
+SELECT public.checar(
+  'distribuição alcança só quem aceita encomendas',
+  (SELECT count(*) FROM public.custom_request_matches) = 1
+  AND (SELECT a.slug FROM public.custom_request_matches m
+       JOIN public.artisans a ON a.id = m.artisan_id LIMIT 1) = 'ana-lima'
+);
+
+SELECT public.checar(
+  'a razão do encaminhamento fica registrada',
+  'aceita encomendas' = ANY (SELECT unnest(match_reasons) FROM public.custom_request_matches LIMIT 1)
+);
+
+-- artesão que recebeu passa a enxergar
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+SELECT public.checar(
+  'artesã que recebeu a distribuição enxerga a encomenda',
+  (SELECT count(*) FROM public.custom_requests) = 1
+);
+
+SET request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+SELECT public.checar(
+  'artesão que NÃO recebeu continua sem enxergar',
+  (SELECT count(*) FROM public.custom_requests) = 0
+);
+
+SELECT public.checar_bloqueio(
+  'artesão não distribuído NÃO consegue responder',
+  $q$ SELECT public.responder_encomenda(
+        (SELECT id FROM public.custom_requests_todas LIMIT 1), 'interessado') $q$
+);
+
+-- resposta abre conversa
+SET request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+SELECT public.responder_encomenda(
+  (SELECT id FROM public.custom_requests LIMIT 1), 'interessado');
+
+SELECT public.checar(
+  'interesse abre a conversa entre artesã e compradora',
+  (SELECT count(*) FROM public.conversations WHERE request_id IS NOT NULL) = 1
+);
+RESET ROLE;
+
+SELECT public.checar(
+  'resposta do artesão fica registrada',
+  (SELECT response_status FROM public.custom_request_matches LIMIT 1) = 'interessado'
+);
+
+-- ninguém insere distribuição na mão
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+SELECT public.checar_bloqueio(
+  'ninguém se auto-inclui na distribuição de uma encomenda',
+  $q$ INSERT INTO public.custom_request_matches (request_id, artisan_id)
+      VALUES ((SELECT id FROM public.custom_requests_todas LIMIT 1),
+              (SELECT id FROM public.artisans WHERE slug = 'joao-neto')) $q$
+);
+
+-- anexos: caminho tem que ser da encomenda
+SELECT public.checar_bloqueio(
+  'quem não participa NÃO envia anexo para a encomenda',
+  format($q$ INSERT INTO storage.objects (bucket_id, name)
+             VALUES ('encomendas', %L) $q$,
+    (SELECT id::text FROM public.custom_requests_todas LIMIT 1) || '/planta.pdf')
+);
+
+SET request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+INSERT INTO storage.objects (bucket_id, name)
+VALUES ('encomendas',
+        (SELECT id::text FROM public.custom_requests LIMIT 1) || '/referencia.jpg');
+
+SELECT public.checar(
+  'compradora envia anexo na pasta da própria encomenda',
+  (SELECT count(*) FROM storage.objects WHERE bucket_id = 'encomendas') = 1
+);
+RESET ROLE;
+
+SELECT '=========== ENCOMENDAS: TESTES PASSARAM ===========' AS resultado;
