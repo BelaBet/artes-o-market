@@ -182,7 +182,7 @@ export function useSelecaoVocabulario(
         .select(coluna)
         .eq("artisan_id", artisanId!);
       if (error) throw error;
-      return (data ?? []).map((r) => (r as Record<string, string>)[coluna]);
+      return ((data ?? []) as unknown as Record<string, string>[]).map((r) => r[coluna]);
     },
     staleTime: 15_000,
   });
@@ -193,9 +193,7 @@ export function useSelecaoVocabulario(
     if (selecionado) {
       await supabase.from(ligacao).insert({ artisan_id: artisanId, [coluna]: id } as never);
     } else {
-      await supabase
-        .from(ligacao)
-        .delete()
+      await (supabase.from(ligacao).delete() as any)
         .eq("artisan_id", artisanId)
         .eq(coluna, id);
     }
