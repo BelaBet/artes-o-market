@@ -31,9 +31,11 @@ export function useMinhaLoja() {
       const nome =
         (user!.user_metadata?.display_name as string | undefined) ?? "Meu Ateliê";
 
-      const { data, error } = await supabase.rpc("garantir_minha_loja", { _shop_name: nome });
+      const { data, error } = await supabase.rpc("garantir_minha_loja", {
+        _shop_name: nome,
+      });
       if (error) throw error;
-      return (data as Loja | null) ?? null;
+      return (data as unknown as Loja) ?? null;
     },
     staleTime: 30_000,
   });
@@ -45,6 +47,52 @@ export function useMinhaLoja() {
   };
 }
 
+/**
+ * Cria a loja sob demanda (ex.: clique em "Abrir Minha Loja").
+ *
+ * Se já existir, apenas devolve a existente. Idempotente: a função no banco
+ * usa o usuário logado e não duplica lojas.
+ */
+export function useAbrirMinhaLoja() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [criando, setCriando] = useState(false);
+
+  const abrirLoja = useCallback(async (): Promise<Loja | null> => {
+    if (!user) return null;
+    setCriando(true);
+    try {
+      const { data: existente } = await supabase
+        .from("artisans")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existente) {
+        queryClient.setQueryData(["minha-loja", user.id], existente);
+        return existente;
+      }
+
+      const nome =
+        (user.user_metadata?.display_name as string | undefined) ?? "Meu Ateliê";
+
+      const { data, error } = await supabase.rpc("garantir_minha_loja", {
+        _shop_name: nome,
+      });
+      if (error) throw error;
+
+      const nova = (data as unknown as Loja) ?? null;
+      if (nova) queryClient.setQueryData(["minha-loja", user.id], nova);
+      queryClient.invalidateQueries({ queryKey: ["minha-loja", user.id] });
+      return nova;
+    } finally {
+      setCriando(false);
+    }
+  }, [user, queryClient]);
+
+  return { abrirLoja, criando };
+}
+
 export type EtapaProgresso = { etapa: string; rotulo: string; concluida: boolean };
 
 export function useProgresso(artisanId: string | undefined) {
@@ -52,9 +100,11 @@ export function useProgresso(artisanId: string | undefined) {
     queryKey: ["progresso", artisanId],
     enabled: !!artisanId,
     queryFn: async (): Promise<EtapaProgresso[]> => {
-      const { data, error } = await supabase.rpc("progresso_da_loja", { _artisan_id: artisanId! });
+      const { data, error } = await supabase.rpc("progresso_da_loja", {
+        _artisan_id: artisanId!,
+      });
       if (error) throw error;
-      return (data as EtapaProgresso[]) ?? [];
+      return (data as unknown as EtapaProgresso[]) ?? [];
     },
     staleTime: 15_000,
   });
@@ -186,24 +236,33 @@ export function useSelecaoVocabulario(
   const alternar = async (id: string, selecionado: boolean) => {
     if (!artisanId) return;
 
-    // `ligacao` é dinâmico (materials/techniques/styles); sem este ponto
-    // fixo a inferência do supabase-js explode em profundidade.
-    const tabela = supabase.from(ligacao) as unknown as {
-      insert: (linha: Record<string, string>) => Promise<unknown>;
-      delete: () => {
-        eq: (col: string, val: string) => { eq: (col: string, val: string) => Promise<unknown> };
-      };
-    };
+    const anterior = queryClient.getQueryData<string[]>(chave) ?? [];
+    // Resposta imediata na tela; o banco recebe em seguida.
+    queryClient.setQueryData<string[]>(
+      chave,
+      selecionado ? [...anterior, id] : anterior.filter((x) => x !== id),
+    );
 
-    if (selecionado) {
-      await tabela.insert({ artisan_id: artisanId, [coluna]: id });
-    } else {
-      await tabela.delete().eq("artisan_id", artisanId).eq(coluna, id);
+    try {
+      if (selecionado) {
+        await supabase.from(ligacao).insert({ artisan_id: artisanId, [coluna]: id } as never);
+      } else {
+        // `ligacao` é dinâmico; sem este ponto fixo a inferência do
+        // supabase-js estoura em profundidade.
+        const remover = supabase.from(ligacao).delete() as unknown as {
+          eq: (col: string, val: string) => { eq: (col: string, val: string) => Promise<unknown> };
+        };
+        await remover.eq("artisan_id", artisanId).eq(coluna, id);
+      }
+    } catch {
+      queryClient.setQueryData<string[]>(chave, anterior);
+      return;
     }
 
     queryClient.invalidateQueries({ queryKey: chave });
     queryClient.invalidateQueries({ queryKey: ["progresso", artisanId] });
   };
+
 
   return { selecionados: query.data ?? [], alternar, loading: query.isLoading };
 }
@@ -238,21 +297,33 @@ export function useOfertas(artisanId: string | undefined) {
   const alternar = async (tipo: TipoOferta, selecionado: boolean) => {
     if (!artisanId) return;
 
-    if (selecionado) {
-      await supabase
-        .from("artisan_offerings")
-        .insert({ artisan_id: artisanId, offering_type: tipo });
-    } else {
-      await supabase
-        .from("artisan_offerings")
-        .delete()
-        .eq("artisan_id", artisanId)
-        .eq("offering_type", tipo);
+    const anterior = queryClient.getQueryData<TipoOferta[]>(chave) ?? [];
+    queryClient.setQueryData<TipoOferta[]>(
+      chave,
+      selecionado ? [...anterior, tipo] : anterior.filter((x) => x !== tipo),
+    );
+
+    try {
+      if (selecionado) {
+        await supabase
+          .from("artisan_offerings")
+          .insert({ artisan_id: artisanId, offering_type: tipo });
+      } else {
+        await supabase
+          .from("artisan_offerings")
+          .delete()
+          .eq("artisan_id", artisanId)
+          .eq("offering_type", tipo);
+      }
+    } catch {
+      queryClient.setQueryData<TipoOferta[]>(chave, anterior);
+      return;
     }
 
     queryClient.invalidateQueries({ queryKey: chave });
     queryClient.invalidateQueries({ queryKey: ["progresso", artisanId] });
   };
+
 
   return { ofertas: query.data ?? [], alternar, loading: query.isLoading };
 }

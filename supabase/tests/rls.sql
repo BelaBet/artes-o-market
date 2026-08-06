@@ -364,11 +364,26 @@ SELECT public.checar(
 
 SET ROLE authenticated;
 SET request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
-UPDATE public.artisans SET verified = TRUE, commission_bps = 0;
+UPDATE public.artisans SET verified = TRUE;
 RESET ROLE;
 SELECT public.checar(
-  'usuário NÃO se auto-verifica nem zera a própria comissão de outra loja',
+  'usuário NÃO se auto-verifica',
   (SELECT count(*) FROM public.artisans WHERE verified) = 0
+);
+
+-- Dados financeiros (recebedor Pagar.me e comissão) vivem em
+-- artisan_billing, fora da tabela lida publicamente.
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+SELECT public.checar(
+  'nem o próprio artesão lê os dados financeiros da loja',
+  (SELECT count(*) FROM public.artisan_billing) = 0
+);
+UPDATE public.artisan_billing SET commission_bps = 0;
+RESET ROLE;
+SELECT public.checar(
+  'ninguém além de admin altera a comissão da própria loja',
+  NOT EXISTS (SELECT 1 FROM public.artisan_billing WHERE commission_bps = 0)
 );
 
 -- =====================================================================

@@ -78,9 +78,17 @@ const MinhaLoja = () => {
   const indice = ETAPAS_ONBOARDING.findIndex((e) => e.id === etapa);
 
   const comecarOnboarding = () => {
-    setEtapa("sobre");
+    // Retoma de onde parou, se já tinha começado antes.
+    const salva = loja.onboarding_step as EtapaOnboarding | null;
+    const inicio =
+      salva && ETAPAS_ONBOARDING.some((e) => e.id === salva) ? salva : "sobre";
+
+    setEtapa(inicio);
     setModo("onboarding");
-    salvar({ onboarding_started_at: new Date().toISOString(), onboarding_step: "sobre" });
+    salvar({
+      onboarding_started_at: loja.onboarding_started_at ?? new Date().toISOString(),
+      onboarding_step: inicio,
+    });
   };
 
   const adiar = async () => {

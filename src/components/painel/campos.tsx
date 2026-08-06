@@ -226,6 +226,8 @@ interface FotoProps {
 
 export const CampoFoto = ({ rotulo, ajuda, artisanId, pasta, valor, onChange }: FotoProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+
   const [enviando, setEnviando] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -278,19 +280,52 @@ export const CampoFoto = ({ rotulo, ajuda, artisanId, pasta, valor, onChange }: 
           )}
         </div>
 
-        <div>
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            disabled={enviando}
-            className="border border-foreground px-4 py-2 font-body text-[0.68rem] tracking-[0.12em] uppercase hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 flex items-center gap-2"
-          >
-            {enviando && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            {enviando ? "Enviando…" : preview ? "Trocar foto" : "Adicionar foto"}
-          </button>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={enviando}
+              className="border border-foreground px-4 py-2 font-body text-[0.68rem] tracking-[0.12em] uppercase hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {enviando && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {enviando ? "Enviando…" : "Enviar do dispositivo"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => cameraRef.current?.click()}
+              disabled={enviando}
+              className="border border-border px-4 py-2 font-body text-[0.68rem] tracking-[0.12em] uppercase text-muted-foreground hover:text-foreground hover:border-foreground transition-colors disabled:opacity-50"
+            >
+              Tirar foto
+            </button>
+          </div>
+
+          {preview && !enviando && (
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              className="self-start font-body text-[0.66rem] tracking-[0.1em] uppercase text-muted-foreground underline hover:text-destructive transition-colors"
+            >
+              Remover
+            </button>
+          )}
 
           <input
             ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const arquivo = e.target.files?.[0];
+              if (arquivo) void enviar(arquivo);
+              e.target.value = "";
+            }}
+          />
+
+          <input
+            ref={cameraRef}
             type="file"
             accept="image/*"
             capture="environment"
@@ -302,6 +337,7 @@ export const CampoFoto = ({ rotulo, ajuda, artisanId, pasta, valor, onChange }: 
             }}
           />
         </div>
+
       </div>
     </Campo>
   );
