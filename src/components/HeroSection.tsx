@@ -63,12 +63,13 @@ const HeroSection = ({ onExplore }: HeroSectionProps) => {
             >
               Explorar Catálogo
             </button>
-            <Link
-              to={user ? "/painel" : "/entrar"}
-              className="bg-transparent text-parchment border border-parchment/30 px-6 sm:px-7 py-3 cursor-pointer font-body font-medium text-[0.68rem] sm:text-[0.71rem] tracking-[0.14em] uppercase hover:border-parchment transition-all inline-flex items-center"
+            <button
+              onClick={handleAbrirLoja}
+              disabled={criando}
+              className="bg-transparent text-parchment border border-parchment/30 px-6 sm:px-7 py-3 cursor-pointer font-body font-medium text-[0.68rem] sm:text-[0.71rem] tracking-[0.14em] uppercase hover:border-parchment transition-all disabled:opacity-60 disabled:cursor-wait"
             >
-              Abrir Minha Loja
-            </Link>
+              {criando ? "Criando sua loja…" : "Abrir Minha Loja"}
+            </button>
           </div>
           <div className="flex gap-x-3 gap-y-2 mt-6 sm:mt-7 animate-[fadeUp_1s_ease_both_0.78s] flex-wrap">
             {["✈️ 50+ países", "🔒 Checkout seguro", "↩️ 30 dias devolução", "🇧🇷 100% Brasileiro"].map((t, i) => (
