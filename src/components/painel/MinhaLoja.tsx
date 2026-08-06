@@ -9,6 +9,20 @@ import {
   type EstadoSalvamento,
 } from "@/hooks/useMinhaLoja";
 
+/** Liga cada item do checklist (vindo do banco) à etapa editável correspondente. */
+const ETAPA_DO_PROGRESSO: Record<string, EtapaId | undefined> = {
+  nome: "sobre",
+  cidade: "sobre",
+  historia: "historia",
+  materiais: "produz",
+  tecnicas: "como",
+  foto: "fotos",
+  atelie: "fotos",
+  vendas: "vende",
+  peca: "oferece",
+  experiencia: "oferece",
+};
+
 const IndicadorSalvamento = ({
   estado,
   onTentarNovamente,
@@ -209,33 +223,43 @@ const MinhaLoja = () => {
 
       {/* Checklist */}
       <div className="border border-border divide-y divide-border mb-7">
-        {etapas.map((e) => (
-          <button
-            key={e.etapa}
-            type="button"
-            onClick={() => comecar(e.etapa as EtapaId)}
-            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-parchment transition-colors"
-          >
-            <span
-              aria-hidden
-              className={`w-[18px] h-[18px] shrink-0 border flex items-center justify-center ${
-                e.concluida ? "bg-sage border-sage" : "border-border"
-              }`}
+        {etapas.map((e) => {
+          const destino = ETAPA_DO_PROGRESSO[e.etapa];
+          const Elemento = destino ? "button" : "div";
+          return (
+            <Elemento
+              key={e.etapa}
+              {...(destino
+                ? {
+                    type: "button" as const,
+                    onClick: () => comecar(destino),
+                    className:
+                      "w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-parchment transition-colors",
+                  }
+                : { className: "w-full flex items-center gap-3 px-4 py-3" })}
             >
-              {e.concluida && <Check className="w-3 h-3 text-background" />}
-            </span>
-            <span
-              className={`font-body text-[0.82rem] ${
-                e.concluida ? "text-muted-foreground line-through" : "text-foreground"
-              }`}
-            >
-              {e.rotulo}
-            </span>
-            <span className="sr-only">{e.concluida ? "concluído" : "ainda não feito"}</span>
-            <span className="ml-auto text-muted-foreground">→</span>
-          </button>
-        ))}
+              <span
+                aria-hidden
+                className={`w-[18px] h-[18px] shrink-0 border flex items-center justify-center ${
+                  e.concluida ? "bg-sage border-sage" : "border-border"
+                }`}
+              >
+                {e.concluida && <Check className="w-3 h-3 text-background" />}
+              </span>
+              <span
+                className={`font-body text-[0.82rem] ${
+                  e.concluida ? "text-muted-foreground line-through" : "text-foreground"
+                }`}
+              >
+                {e.rotulo}
+              </span>
+              <span className="sr-only">{e.concluida ? "concluído" : "ainda não feito"}</span>
+              {destino && <span className="ml-auto text-muted-foreground">→</span>}
+            </Elemento>
+          );
+        })}
       </div>
+
 
       {/* Seções */}
       <div className="font-body text-[0.6rem] tracking-[0.16em] uppercase text-muted-foreground mb-3">
