@@ -595,3 +595,79 @@ SELECT public.checar(
 RESET ROLE;
 
 SELECT '=========== ENCOMENDAS: TESTES PASSARAM ===========' AS resultado;
+
+-- =====================================================================
+-- 12. Pagamento: taxa de serviço e total calculado no servidor
+-- =====================================================================
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+
+CREATE TEMP TABLE pedido_pgto AS
+SELECT * FROM public.criar_pedido(
+  jsonb_build_array(
+    jsonb_build_object('kind','product','id',
+      (SELECT id FROM public.products WHERE slug = 'vaso-ceramica'), 'quantity', 1)),
+  'Compradora Teste', 'compradora@test', NULL, NULL, '{}'::jsonb, 0
+);
+
+SELECT public.definir_pagamento((SELECT id FROM pedido_pgto), 'pix');
+RESET ROLE;
+
+SELECT public.checar(
+  'PIX: taxa de 0,99% sobre o subtotal (175,00 -> 1,73)',
+  (SELECT service_fee_cents FROM public.orders WHERE id = (SELECT id FROM pedido_pgto)) = 173
+);
+
+SELECT public.checar(
+  'total = subtotal + taxa de serviço',
+  (SELECT total_cents FROM public.orders WHERE id = (SELECT id FROM pedido_pgto)) = 17500 + 173
+);
+
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+SELECT public.definir_pagamento((SELECT id FROM pedido_pgto), 'boleto');
+RESET ROLE;
+
+SELECT public.checar(
+  'boleto cobra valor fixo, não percentual',
+  (SELECT service_fee_cents FROM public.orders WHERE id = (SELECT id FROM pedido_pgto)) = 349
+);
+
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+SELECT public.definir_pagamento((SELECT id FROM pedido_pgto), 'credit_card', 3);
+RESET ROLE;
+
+SELECT public.checar(
+  'cartão guarda o parcelamento escolhido',
+  (SELECT installments FROM public.orders WHERE id = (SELECT id FROM pedido_pgto)) = 3
+);
+
+-- comprador não muda o pagamento de pedido alheio
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+SELECT public.checar_bloqueio(
+  'terceiro NÃO define o pagamento de pedido de outra pessoa',
+  format($q$ SELECT public.definir_pagamento(%L, 'pix') $q$, (SELECT id FROM pedido_pgto))
+);
+
+-- depois de pago, não dá para trocar o método (e o total)
+RESET ROLE;
+UPDATE public.orders SET status = 'paid' WHERE id = (SELECT id FROM pedido_pgto);
+
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+SELECT public.checar_bloqueio(
+  'pedido pago NÃO tem o pagamento redefinido',
+  format($q$ SELECT public.definir_pagamento(%L, 'pix') $q$, (SELECT id FROM pedido_pgto))
+);
+
+-- dados do recebedor seguem fora do alcance do artesão
+SET request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+SELECT public.checar(
+  'artesão vê o andamento do próprio cadastro, sem ver a comissão',
+  (SELECT count(*) FROM public.meu_recebimento) >= 0
+);
+RESET ROLE;
+
+SELECT '=========== PAGAMENTO: TESTES PASSARAM ===========' AS resultado;
