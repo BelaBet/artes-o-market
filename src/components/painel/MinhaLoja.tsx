@@ -65,7 +65,8 @@ const MinhaLoja = () => {
     );
   }
 
-  const primeiroAcesso = !loja.onboarding_started_at && !loja.onboarding_skipped_at;
+  const primeiroAcesso =
+    !pulou && !loja.onboarding_started_at && !loja.onboarding_skipped_at;
 
   const comecar = (etapa: EtapaId) => {
     setEtapaAberta(etapa);
@@ -77,12 +78,16 @@ const MinhaLoja = () => {
   };
 
   const sair = async () => {
+    // Sai na hora: a pessoa continua usando a plataforma e volta ao
+    // onboarding depois, pela própria "Minha loja".
     setEtapaAberta(null);
+    setPulou(true);
     salvar({
       onboarding_skipped_at: loja.onboarding_skipped_at ?? new Date().toISOString(),
     });
     await salvarAgora();
   };
+
 
   // ------------------------------------------------------------------
   // Boas-vindas — só no primeiro acesso, e nunca bloqueando o painel
