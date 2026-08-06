@@ -1,19 +1,21 @@
 import { useState } from "react";
 import ProductGrid from "@/components/ProductGrid";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatPrice } from "@/lib/data";
+import { formatarCentavos } from "@/lib/catalogo";
 import { SlidersHorizontal, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { useProdutos } from "@/hooks/useProdutos";
+import { usePecas } from "@/hooks/useCatalogo";
 
 const CatalogPage = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const { produtos, loading } = useProdutos();
+
   // ?skeleton=1 força o estado de carregamento — útil para conferir o
   // esqueleto no celular sem precisar estrangular a rede no DevTools.
   const [searchParams] = useSearchParams();
   const forcarSkeleton = searchParams.get("skeleton") === "1";
+  const categoriaUrl = searchParams.get("categoria") || undefined;
+  const { pecas, loading } = usePecas({ categorySlug: categoriaUrl });
   usePageMeta(
     "Catálogo",
     "Explore peças únicas de artesanato brasileiro: cerâmica, madeira, macramê, palha e pedra-sabão, direto de quem faz.",
@@ -49,7 +51,7 @@ const CatalogPage = () => {
         <div className="text-[0.58rem] tracking-[0.18em] uppercase text-muted-foreground mb-2">Faixa de preço</div>
         <input type="range" min="0" max="500" defaultValue={250} className="w-full accent-terra my-2" />
         <div className="flex justify-between text-[0.7rem] text-muted-foreground">
-          <span>{formatPrice(0)}</span><span>{formatPrice(500)}</span>
+          <span>{formatarCentavos(0)}</span><span>{formatarCentavos(50000)}</span>
         </div>
       </div>
       <label className="flex items-center gap-2 text-[0.78rem] cursor-pointer hover:text-terra transition-colors mt-1">
@@ -86,7 +88,7 @@ const CatalogPage = () => {
                 <Skeleton className="h-[0.9rem] w-[5.5rem] rounded-none inline-block align-middle" />
               ) : (
                 <>
-                  <strong className="text-foreground">{produtos.length}</strong> produtos
+                  <strong className="text-foreground">{pecas.length}</strong> {pecas.length === 1 ? "peça" : "peças"}
                 </>
               )}
             </span>
@@ -95,7 +97,7 @@ const CatalogPage = () => {
             <option>Relevância</option><option>Menor preço</option><option>Melhor avaliação</option><option>Mais novos</option>
           </select>
         </div>
-        <ProductGrid products={produtos} loading={loading || forcarSkeleton} />
+        <ProductGrid products={pecas} loading={loading || forcarSkeleton} />
       </div>
     </div>
   );

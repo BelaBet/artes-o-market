@@ -1,5 +1,6 @@
 import { useCart } from "@/contexts/CartContext";
-import { IMAGES, formatPrice } from "@/lib/data";
+import { formatarCentavos } from "@/lib/catalogo";
+import ImagemComPlaceholder from "@/components/ImagemComPlaceholder";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import {
   Sheet,
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/sheet";
 
 const CartDrawer = () => {
-  const { items, isOpen, setIsOpen, updateQty, removeItem, totalItems, totalPrice } = useCart();
+  const { items, isOpen, setIsOpen, updateQty, removeItem, totalItems, totalCents } = useCart();
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -42,18 +43,21 @@ const CartDrawer = () => {
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3 pb-4 border-b border-border last:border-b-0">
                   <div className="w-20 h-20 shrink-0 overflow-hidden bg-parchment">
-                    <img
-                      src={IMAGES[item.img]}
-                      alt={item.name}
-                      className="w-full h-full object-cover saturate-[0.86]"
-                    />
+                    {item.imageUrl && (
+                      <ImagemComPlaceholder
+                        src={item.imageUrl}
+                        alt={item.title}
+                        tint={item.tint}
+                        className="w-full h-full object-cover saturate-[0.86]"
+                      />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-display font-medium text-sm leading-tight mb-0.5 truncate">
-                      {item.name}
+                      {item.title}
                     </div>
                     <div className="text-[0.65rem] tracking-[0.05em] text-muted-foreground mb-2">
-                      por <span className="text-terra font-medium">{item.artist}</span>
+                      por <span className="text-terra font-medium">{item.artistName}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center border border-border">
@@ -66,14 +70,16 @@ const CartDrawer = () => {
                         <span className="w-8 text-center text-xs font-medium">{item.qty}</span>
                         <button
                           onClick={() => updateQty(item.id, item.qty + 1)}
-                          className="w-7 h-7 flex items-center justify-center hover:bg-parchment transition-colors"
+                          disabled={item.qty >= item.maxQty}
+                          title={item.qty >= item.maxQty ? "Sem mais unidades disponíveis" : undefined}
+                          className="w-7 h-7 flex items-center justify-center hover:bg-parchment transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-display text-sm font-medium">
-                          {formatPrice(item.price * item.qty)}
+                          {formatarCentavos(item.priceCents * item.qty)}
                         </span>
                         <button
                           onClick={() => removeItem(item.id)}
@@ -91,7 +97,7 @@ const CartDrawer = () => {
             <SheetFooter className="flex-col gap-3 px-6 py-5 border-t border-border bg-parchment">
               <div className="flex items-center justify-between w-full">
                 <span className="text-xs tracking-[0.1em] uppercase text-muted-foreground font-medium">Subtotal</span>
-                <span className="font-display text-lg font-medium">{formatPrice(totalPrice)}</span>
+                <span className="font-display text-lg font-medium">{formatarCentavos(totalCents)}</span>
               </div>
               <p className="text-[0.6rem] text-muted-foreground tracking-wide">
                 Frete calculado no checkout · Parcele em até 6x

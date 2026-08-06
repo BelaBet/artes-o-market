@@ -1,4 +1,5 @@
-import { CATEGORIES, BADGE_MAP } from "@/lib/data";
+import { BADGE_MAP } from "@/lib/data";
+import { useCategorias } from "@/hooks/useCatalogo";
 
 export type StyleKey = keyof typeof BADGE_MAP | "todos";
 
@@ -26,6 +27,8 @@ const FeaturedFilters = ({
   resultCount,
   onClear,
 }: FeaturedFiltersProps) => {
+  const { categorias } = useCategorias();
+
   const styles: { key: StyleKey; label: string }[] = [
     { key: "todos", label: "Todos" },
     ...Object.entries(BADGE_MAP).map(([key, v]) => ({ key: key as StyleKey, label: v.label })),
@@ -42,8 +45,8 @@ const FeaturedFilters = ({
           <button className={chip(category === "todas")} onClick={() => onCategoryChange("todas")}>
             Todas
           </button>
-          {CATEGORIES.map((c) => (
-            <button key={c.img} className={chip(category === c.img)} onClick={() => onCategoryChange(c.img)}>
+          {categorias.map((c) => (
+            <button key={c.slug} className={chip(category === c.slug)} onClick={() => onCategoryChange(c.slug)}>
               {c.name}
             </button>
           ))}

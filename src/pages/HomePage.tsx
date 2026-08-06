@@ -12,22 +12,22 @@ import ArtisansSection from "@/components/ArtisansSection";
 import CTASection from "@/components/CTASection";
 import MarketFooter from "@/components/MarketFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { useProdutos } from "@/hooks/useProdutos";
+import { usePecas } from "@/hooks/useCatalogo";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { produtos, loading } = useProdutos();
+  const { pecas, loading } = usePecas();
   const [category, setCategory] = useState("todas");
   const [style, setStyle] = useState<StyleKey>("todos");
 
   const filtered = useMemo(
     () =>
-      produtos.filter(
+      pecas.filter(
         (p) =>
-          (category === "todas" || p.img === category) &&
+          (category === "todas" || p.categorySlug === category) &&
           (style === "todos" || p.badge === style),
       ),
-    [produtos, category, style],
+    [pecas, category, style],
   );
 
   usePageMeta(
@@ -43,7 +43,7 @@ const HomePage = () => {
       <TextureBand />
       <StorySection />
       <ShippingSection />
-      <CategoriesSection onNavigate={() => navigate("/catalogo")} />
+      <CategoriesSection />
       <section className="px-4 sm:px-6 lg:px-9 pb-12 sm:pb-16">
         <div className="max-w-[1320px] mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 pb-3 border-b border-border">

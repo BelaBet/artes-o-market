@@ -391,4 +391,45 @@ SELECT public.checar_bloqueio(
 );
 RESET ROLE;
 
+-- =====================================================================
+-- 9. Loja curada e reivindicação
+-- =====================================================================
+INSERT INTO public.artisans (slug, shop_name, city, state, status, claim_code)
+VALUES ('teresa-c', 'Barro de Teresa', 'Limoeiro', 'PE', 'active', 'TERESA-2026');
+
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '44444444-4444-4444-4444-444444444444';
+
+SELECT public.checar(
+  'loja sem dono aparece na vitrine',
+  (SELECT count(*) FROM public.artisans WHERE slug = 'teresa-c') = 1
+);
+
+SELECT public.checar_bloqueio(
+  'código de reivindicação errado é recusado',
+  $q$ SELECT public.reivindicar_loja('CHUTE-123') $q$
+);
+
+SELECT public.reivindicar_loja('TERESA-2026');
+RESET ROLE;
+
+SELECT public.checar(
+  'reivindicação vincula a loja e concede o papel de artesão',
+  (SELECT user_id FROM public.artisans WHERE slug = 'teresa-c') = '44444444-4444-4444-4444-444444444444'
+  AND public.has_role('44444444-4444-4444-4444-444444444444', 'artisan')
+);
+
+SELECT public.checar(
+  'código é queimado após o uso',
+  (SELECT claim_code IS NULL AND claimed_at IS NOT NULL FROM public.artisans WHERE slug = 'teresa-c')
+);
+
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
+SELECT public.checar_bloqueio(
+  'código já usado não serve para mais ninguém',
+  $q$ SELECT public.reivindicar_loja('TERESA-2026') $q$
+);
+RESET ROLE;
+
 SELECT '=========== TODOS OS TESTES PASSARAM ===========' AS resultado;

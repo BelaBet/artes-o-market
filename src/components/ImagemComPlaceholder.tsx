@@ -3,7 +3,9 @@ import { cn } from "@/lib/utils";
 import { IMAGE_TINTS } from "@/lib/data";
 
 interface ImagemComPlaceholderProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  /** chave em IMAGES/IMAGE_TINTS — define a cor de fundo do placeholder */
+  /** cor média da foto, vinda do banco */
+  tint?: string | null;
+  /** alternativa: chave em IMAGE_TINTS, para as telas ainda com dados locais */
   tintKey?: string;
   /** true para a primeira dobra: carrega com prioridade em vez de lazy */
   prioridade?: boolean;
@@ -15,6 +17,7 @@ interface ImagemComPlaceholderProps extends React.ImgHTMLAttributes<HTMLImageEle
  * layout shift — o card já nasce com a forma final.
  */
 const ImagemComPlaceholder = ({
+  tint: tintDireto,
   tintKey,
   prioridade = false,
   className,
@@ -22,7 +25,7 @@ const ImagemComPlaceholder = ({
   ...props
 }: ImagemComPlaceholderProps) => {
   const [carregada, setCarregada] = useState(false);
-  const tint = tintKey ? IMAGE_TINTS[tintKey] : undefined;
+  const tint = tintDireto ?? (tintKey ? IMAGE_TINTS[tintKey] : undefined);
 
   return (
     <>
