@@ -1,6 +1,8 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { IMAGES, formatPrice } from "@/lib/data";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAbrirMinhaLoja } from "@/hooks/useMinhaLoja";
 
 interface HeroSectionProps {
   onExplore: () => void;
@@ -8,6 +10,25 @@ interface HeroSectionProps {
 
 const HeroSection = ({ onExplore }: HeroSectionProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { abrirLoja, criando } = useAbrirMinhaLoja();
+
+  const handleAbrirLoja = async () => {
+    if (!user) {
+      navigate("/entrar", { state: { from: "/painel" } });
+      return;
+    }
+    try {
+      const loja = await abrirLoja();
+      if (loja) toast.success("Sua loja está pronta! Complete os dados abaixo.");
+      navigate("/painel");
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "Não foi possível criar sua loja agora.",
+      );
+    }
+  };
+
   const heroItems = [
     { img: "pottery", name: "Cerâmica Torneada", price: 175 },
     { img: "stone", name: "Pedra-Sabão Pintada", price: 129 },
@@ -42,12 +63,13 @@ const HeroSection = ({ onExplore }: HeroSectionProps) => {
             >
               Explorar Catálogo
             </button>
-            <Link
-              to={user ? "/painel" : "/entrar"}
-              className="bg-transparent text-parchment border border-parchment/30 px-6 sm:px-7 py-3 cursor-pointer font-body font-medium text-[0.68rem] sm:text-[0.71rem] tracking-[0.14em] uppercase hover:border-parchment transition-all inline-flex items-center"
+            <button
+              onClick={handleAbrirLoja}
+              disabled={criando}
+              className="bg-transparent text-parchment border border-parchment/30 px-6 sm:px-7 py-3 cursor-pointer font-body font-medium text-[0.68rem] sm:text-[0.71rem] tracking-[0.14em] uppercase hover:border-parchment transition-all disabled:opacity-60 disabled:cursor-wait"
             >
-              Abrir Minha Loja
-            </Link>
+              {criando ? "Criando sua loja…" : "Abrir Minha Loja"}
+            </button>
           </div>
           <div className="flex gap-x-3 gap-y-2 mt-6 sm:mt-7 animate-[fadeUp_1s_ease_both_0.78s] flex-wrap">
             {["✈️ 50+ países", "🔒 Checkout seguro", "↩️ 30 dias devolução", "🇧🇷 100% Brasileiro"].map((t, i) => (
