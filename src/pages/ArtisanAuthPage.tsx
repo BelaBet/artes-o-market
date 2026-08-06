@@ -17,7 +17,11 @@ function mensagemAmigavel(mensagem: string): string {
   if (m.includes("invalid login credentials")) return "E-mail ou senha incorretos.";
   if (m.includes("already registered")) return "Já existe uma conta com esse e-mail. Tente entrar.";
   if (m.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar. Veja sua caixa de entrada.";
-  if (m.includes("password")) return "A senha precisa ter pelo menos 6 caracteres.";
+  if (m.includes("pwned") || m.includes("known to be weak") || m.includes("weak password"))
+    return "Essa senha já apareceu em vazamentos de dados e não é segura. Escolha uma senha diferente — de preferência uma frase com palavras suas, como “panela-de-barro-2019”.";
+  if (m.includes("should be at least") || m.includes("at least 6"))
+    return "A senha precisa ter pelo menos 6 caracteres.";
+  if (m.includes("password")) return "Não conseguimos usar essa senha. Tente outra.";
   if (m.includes("rate limit") || m.includes("too many")) return "Muitas tentativas. Aguarde um minuto e tente de novo.";
   return "Não conseguimos concluir agora. Tente novamente em instantes.";
 }
@@ -150,7 +154,7 @@ const ArtisanAuthPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`${campo} pr-11`}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 6 caracteres, evite senhas comuns"
                   required
                   minLength={6}
                   autoComplete={mode === "register" ? "new-password" : "current-password"}
