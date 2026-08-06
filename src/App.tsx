@@ -17,6 +17,7 @@ import ChatPage from "./pages/ChatPage";
 import ArtisanAuthPage from "./pages/ArtisanAuthPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OAuthConsent from "./pages/OAuthConsent";
 
 const queryClient = new QueryClient();
