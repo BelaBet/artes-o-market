@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      artisan_billing: {
+        Row: {
+          artisan_id: string
+          commission_bps: number | null
+          created_at: string
+          pagarme_recipient_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          artisan_id: string
+          commission_bps?: number | null
+          created_at?: string
+          pagarme_recipient_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          artisan_id?: string
+          commission_bps?: number | null
+          created_at?: string
+          pagarme_recipient_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artisan_billing_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: true
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       artisan_materials: {
         Row: {
           artisan_id: string
@@ -147,7 +179,6 @@ export type Database = {
           average_production_days: number | null
           bio: string | null
           city: string | null
-          commission_bps: number | null
           cover_url: string | null
           created_at: string
           facebook: string | null
@@ -161,7 +192,6 @@ export type Database = {
           onboarding_skipped_at: string | null
           onboarding_started_at: string | null
           onboarding_step: string | null
-          pagarme_recipient_id: string | null
           production_capacity_monthly: number | null
           public_name: string | null
           receives_visitors: boolean
@@ -192,7 +222,6 @@ export type Database = {
           average_production_days?: number | null
           bio?: string | null
           city?: string | null
-          commission_bps?: number | null
           cover_url?: string | null
           created_at?: string
           facebook?: string | null
@@ -206,7 +235,6 @@ export type Database = {
           onboarding_skipped_at?: string | null
           onboarding_started_at?: string | null
           onboarding_step?: string | null
-          pagarme_recipient_id?: string | null
           production_capacity_monthly?: number | null
           public_name?: string | null
           receives_visitors?: boolean
@@ -237,7 +265,6 @@ export type Database = {
           average_production_days?: number | null
           bio?: string | null
           city?: string | null
-          commission_bps?: number | null
           cover_url?: string | null
           created_at?: string
           facebook?: string | null
@@ -251,7 +278,6 @@ export type Database = {
           onboarding_skipped_at?: string | null
           onboarding_started_at?: string | null
           onboarding_step?: string | null
-          pagarme_recipient_id?: string | null
           production_capacity_monthly?: number | null
           public_name?: string | null
           receives_visitors?: boolean
@@ -1055,7 +1081,6 @@ export type Database = {
           average_production_days: number | null
           bio: string | null
           city: string | null
-          commission_bps: number | null
           cover_url: string | null
           created_at: string
           facebook: string | null
@@ -1069,7 +1094,6 @@ export type Database = {
           onboarding_skipped_at: string | null
           onboarding_started_at: string | null
           onboarding_step: string | null
-          pagarme_recipient_id: string | null
           production_capacity_monthly: number | null
           public_name: string | null
           receives_visitors: boolean
@@ -1156,7 +1180,6 @@ export type Database = {
           average_production_days: number | null
           bio: string | null
           city: string | null
-          commission_bps: number | null
           cover_url: string | null
           created_at: string
           facebook: string | null
@@ -1170,7 +1193,6 @@ export type Database = {
           onboarding_skipped_at: string | null
           onboarding_started_at: string | null
           onboarding_step: string | null
-          pagarme_recipient_id: string | null
           production_capacity_monthly: number | null
           public_name: string | null
           receives_visitors: boolean
