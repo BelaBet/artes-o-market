@@ -1,14 +1,22 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { PRODUCTS } from "@/lib/data";
 import { CARRINHO_STORAGE_KEY } from "@/lib/storageKeys";
+import type { Peca } from "@/lib/catalogo";
 
 export interface CartItem {
-  id: number;
+  // number = peça do catálogo local; string (UUID) = peça vinda do banco.
+  // As duas convivem enquanto a vitrine não migra por completo.
+  id: number | string;
   name: string;
   artist: string;
   price: number;
   img: string;
   qty: number;
+  /** URL já resolvida, para peças do banco */
+  imageUrl?: string | null;
+  tint?: string | null;
+  /** limite de unidades, quando conhecido */
+  maxQty?: number;
 }
 
 interface CartContextType {
@@ -16,8 +24,10 @@ interface CartContextType {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   addItem: (productId: number) => void;
-  removeItem: (productId: number) => void;
-  updateQty: (productId: number, qty: number) => void;
+  /** adiciona uma peça vinda do banco (página de produto) */
+  addPeca: (peca: Peca) => void;
+  removeItem: (productId: number | string) => void;
+  updateQty: (productId: number | string, qty: number) => void;
   totalItems: number;
   totalPrice: number;
   clearCart: () => void;
@@ -63,11 +73,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setIsOpen(true);
   };
 
-  const removeItem = (productId: number) => {
+  const addPeca = (peca: Peca) => {
+    setItems((prev) => {
+      const existente = prev.find((i) => i.id === peca.id);
+      const limite = peca.stockMode === "unique" ? 1 : Math.max(peca.stockQuantity, 1);
+
+      if (existente) {
+        if (existente.qty >= (existente.maxQty ?? limite)) return prev;
+        return prev.map((i) => (i.id === peca.id ? { ...i, qty: i.qty + 1 } : i));
+      }
+
+      return [
+        ...prev,
+        {
+          id: peca.id,
+          name: peca.title,
+          artist: peca.artisan.shopName,
+          price: peca.priceCents / 100,
+          img: "",
+          imageUrl: peca.imageUrl,
+          tint: peca.tint,
+          qty: 1,
+          maxQty: limite,
+        },
+      ];
+    });
+    setIsOpen(true);
+  };
+
+  const removeItem = (productId: number | string) => {
     setItems((prev) => prev.filter((i) => i.id !== productId));
   };
 
-  const updateQty = (productId: number, qty: number) => {
+  const updateQty = (productId: number | string, qty: number) => {
     if (qty <= 0) {
       removeItem(productId);
       return;
@@ -81,7 +119,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.qty, 0);
 
   return (
-    <CartContext.Provider value={{ items, isOpen, setIsOpen, addItem, removeItem, updateQty, totalItems, totalPrice, clearCart }}>
+    <CartContext.Provider value={{ items, isOpen, setIsOpen, addItem, addPeca, removeItem, updateQty, totalItems, totalPrice, clearCart }}>
       {children}
     </CartContext.Provider>
   );

@@ -5,6 +5,8 @@ import { IMAGE_TINTS } from "@/lib/data";
 interface ImagemComPlaceholderProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   /** chave em IMAGES/IMAGE_TINTS — define a cor de fundo do placeholder */
   tintKey?: string;
+  /** cor média já resolvida (vinda do banco) */
+  tint?: string | null;
   /** true para a primeira dobra: carrega com prioridade em vez de lazy */
   prioridade?: boolean;
 }
@@ -16,13 +18,14 @@ interface ImagemComPlaceholderProps extends React.ImgHTMLAttributes<HTMLImageEle
  */
 const ImagemComPlaceholder = ({
   tintKey,
+  tint: tintDireto,
   prioridade = false,
   className,
   onLoad,
   ...props
 }: ImagemComPlaceholderProps) => {
   const [carregada, setCarregada] = useState(false);
-  const tint = tintKey ? IMAGE_TINTS[tintKey] : undefined;
+  const tint = tintDireto ?? (tintKey ? IMAGE_TINTS[tintKey] : undefined);
 
   return (
     <>

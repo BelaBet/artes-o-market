@@ -247,9 +247,12 @@ export function useSelecaoVocabulario(
       if (selecionado) {
         await supabase.from(ligacao).insert({ artisan_id: artisanId, [coluna]: id } as never);
       } else {
-        await (supabase.from(ligacao).delete() as any)
-          .eq("artisan_id", artisanId)
-          .eq(coluna, id);
+        // `ligacao` é dinâmico; sem este ponto fixo a inferência do
+        // supabase-js estoura em profundidade.
+        const remover = supabase.from(ligacao).delete() as unknown as {
+          eq: (col: string, val: string) => { eq: (col: string, val: string) => Promise<unknown> };
+        };
+        await remover.eq("artisan_id", artisanId).eq(coluna, id);
       }
     } catch {
       queryClient.setQueryData<string[]>(chave, anterior);
