@@ -47,6 +47,52 @@ export function useMinhaLoja() {
   };
 }
 
+/**
+ * Cria a loja sob demanda (ex.: clique em "Abrir Minha Loja").
+ *
+ * Se já existir, apenas devolve a existente. Idempotente: a função no banco
+ * usa o usuário logado e não duplica lojas.
+ */
+export function useAbrirMinhaLoja() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [criando, setCriando] = useState(false);
+
+  const abrirLoja = useCallback(async (): Promise<Loja | null> => {
+    if (!user) return null;
+    setCriando(true);
+    try {
+      const { data: existente } = await supabase
+        .from("artisans")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existente) {
+        queryClient.setQueryData(["minha-loja", user.id], existente);
+        return existente;
+      }
+
+      const nome =
+        (user.user_metadata?.display_name as string | undefined) ?? "Meu Ateliê";
+
+      const { data, error } = await supabase.rpc("garantir_minha_loja", {
+        _shop_name: nome,
+      });
+      if (error) throw error;
+
+      const nova = (data as unknown as Loja) ?? null;
+      if (nova) queryClient.setQueryData(["minha-loja", user.id], nova);
+      queryClient.invalidateQueries({ queryKey: ["minha-loja", user.id] });
+      return nova;
+    } finally {
+      setCriando(false);
+    }
+  }, [user, queryClient]);
+
+  return { abrirLoja, criando };
+}
+
 export type EtapaProgresso = { etapa: string; rotulo: string; concluida: boolean };
 
 export function useProgresso(artisanId: string | undefined) {
