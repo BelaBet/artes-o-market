@@ -1,10 +1,13 @@
+import { Link } from "react-router-dom";
 import { IMAGES, formatPrice } from "@/lib/data";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeroSectionProps {
   onExplore: () => void;
 }
 
 const HeroSection = ({ onExplore }: HeroSectionProps) => {
+  const { user } = useAuth();
   const heroItems = [
     { img: "pottery", name: "Cerâmica Torneada", price: 175 },
     { img: "stone", name: "Pedra-Sabão Pintada", price: 129 },
