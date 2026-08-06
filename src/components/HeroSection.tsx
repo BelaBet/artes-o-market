@@ -1,10 +1,13 @@
+import { Link } from "react-router-dom";
 import { IMAGES, formatPrice } from "@/lib/data";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeroSectionProps {
   onExplore: () => void;
 }
 
 const HeroSection = ({ onExplore }: HeroSectionProps) => {
+  const { user } = useAuth();
   const heroItems = [
     { img: "pottery", name: "Cerâmica Torneada", price: 175 },
     { img: "stone", name: "Pedra-Sabão Pintada", price: 129 },
@@ -39,9 +42,12 @@ const HeroSection = ({ onExplore }: HeroSectionProps) => {
             >
               Explorar Catálogo
             </button>
-            <button className="bg-transparent text-parchment border border-parchment/30 px-6 sm:px-7 py-3 cursor-pointer font-body font-medium text-[0.68rem] sm:text-[0.71rem] tracking-[0.14em] uppercase hover:border-parchment transition-all">
+            <Link
+              to={user ? "/painel" : "/entrar"}
+              className="bg-transparent text-parchment border border-parchment/30 px-6 sm:px-7 py-3 cursor-pointer font-body font-medium text-[0.68rem] sm:text-[0.71rem] tracking-[0.14em] uppercase hover:border-parchment transition-all inline-flex items-center"
+            >
               Abrir Minha Loja
-            </button>
+            </Link>
           </div>
           <div className="flex gap-x-3 gap-y-2 mt-6 sm:mt-7 animate-[fadeUp_1s_ease_both_0.78s] flex-wrap">
             {["✈️ 50+ países", "🔒 Checkout seguro", "↩️ 30 dias devolução", "🇧🇷 100% Brasileiro"].map((t, i) => (
