@@ -246,12 +246,23 @@ const MinhaLoja = () => {
             Agora podemos ajudar suas peças a chegar a mais compradores. Você pode completar o
             resto da sua loja quando quiser.
           </p>
-          <button
-            onClick={() => setModo("visao")}
-            className="bg-espresso text-parchment px-7 py-3 font-body text-[0.7rem] tracking-[0.14em] uppercase hover:brightness-125 transition-all"
-          >
-            Ir para minha loja
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2.5 justify-center">
+            <button
+              onClick={() => {
+                // Sai de Minha Loja e cai na aba de peças.
+                window.dispatchEvent(new CustomEvent("painel:abrir-aba", { detail: "pecas" }));
+              }}
+              className="bg-terra text-background px-6 py-3 font-body text-[0.7rem] tracking-[0.14em] uppercase hover:brightness-95 transition-all"
+            >
+              Cadastrar minha primeira peça
+            </button>
+            <button
+              onClick={() => setModo("visao")}
+              className="border border-border px-6 py-3 font-body text-[0.7rem] tracking-[0.14em] uppercase text-muted-foreground hover:text-foreground hover:border-foreground transition-colors"
+            >
+              Ir para minha loja
+            </button>
+          </div>
         </div>
       </div>
     );

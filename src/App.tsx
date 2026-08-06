@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import ProjetosSobMedidaPage from "./pages/ProjetosSobMedidaPage";
 import CriarProjetoPage from "./pages/CriarProjetoPage";
 import ProdutoPage from "./pages/ProdutoPage";
+import RedefinirSenhaPage from "./pages/RedefinirSenhaPage";
 import { MeusProjetosPage, ProjetoDetalhePage } from "./pages/MeusProjetosPage";
 import LoginPage from "./pages/LoginPage";
 import OAuthConsent from "./pages/OAuthConsent";
@@ -80,6 +81,7 @@ const App = () => (
 
               {/* Rotas sem header */}
               <Route path="/entrar" element={<ArtisanAuthPage />} />
+              <Route path="/redefinir-senha" element={<RedefinirSenhaPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="*" element={<NotFound />} />

@@ -1,15 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ORDERS, STATUS_MAP, formatPrice } from "@/lib/data";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import MinhaLoja from "@/components/painel/MinhaLoja";
 import Encomendas from "@/components/painel/Encomendas";
+import MinhasPecas from "@/components/painel/MinhasPecas";
 
 const DashboardPage = () => {
   const [tab, setTab] = useState("overview");
   usePageMeta("Painel do Artesão");
+
+  // Permite que uma tela interna peça a troca de aba (ex.: ao concluir o
+  // onboarding, ir direto para o cadastro da primeira peça).
+  useEffect(() => {
+    const abrir = (e: Event) => setTab((e as CustomEvent<string>).detail);
+    window.addEventListener("painel:abrir-aba", abrir);
+    return () => window.removeEventListener("painel:abrir-aba", abrir);
+  }, []);
   const tabs = [
     { key: "overview", icon: "⊞", label: "Visão Geral" },
     { key: "loja", icon: "⌂", label: "Minha Loja" },
+    { key: "pecas", icon: "◇", label: "Minhas Peças" },
     { key: "encomendas", icon: "✎", label: "Encomendas" },
     { key: "products", icon: "◈", label: "Produtos" },
     { key: "orders", icon: "⬡", label: "Pedidos" },
@@ -42,6 +52,8 @@ const DashboardPage = () => {
       <main className="p-4 md:p-7 bg-background">
         {tab === "loja" ? (
           <MinhaLoja />
+        ) : tab === "pecas" ? (
+          <MinhasPecas />
         ) : tab === "encomendas" ? (
           <Encomendas />
         ) : (
