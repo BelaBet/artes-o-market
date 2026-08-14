@@ -17,23 +17,38 @@ export type Database = {
       artisan_billing: {
         Row: {
           artisan_id: string
+          can_withdraw: boolean
           commission_bps: number | null
           created_at: string
+          kyc_status: string | null
+          kyc_url: string | null
+          kyc_url_expires_at: string | null
           pagarme_recipient_id: string | null
+          recipient_status: string | null
           updated_at: string
         }
         Insert: {
           artisan_id: string
+          can_withdraw?: boolean
           commission_bps?: number | null
           created_at?: string
+          kyc_status?: string | null
+          kyc_url?: string | null
+          kyc_url_expires_at?: string | null
           pagarme_recipient_id?: string | null
+          recipient_status?: string | null
           updated_at?: string
         }
         Update: {
           artisan_id?: string
+          can_withdraw?: boolean
           commission_bps?: number | null
           created_at?: string
+          kyc_status?: string | null
+          kyc_url?: string | null
+          kyc_url_expires_at?: string | null
           pagarme_recipient_id?: string | null
+          recipient_status?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -175,18 +190,27 @@ export type Database = {
         Row: {
           accepts_custom_orders: boolean
           accepts_large_orders: boolean
+          accessibility_notes: string | null
+          additional_notes: string | null
           avatar_url: string | null
           average_production_days: number | null
           bio: string | null
           city: string | null
+          company_document: string | null
+          company_name: string | null
+          corporate_min_quantity: number | null
           cover_url: string | null
           created_at: string
+          custom_order_notes: string | null
+          delivery_regions: string[]
           facebook: string | null
           has_ready_stock: boolean
           headline: string | null
           id: string
           instagram: string | null
+          issues_invoice: boolean
           logo_url: string | null
+          min_order_value_cents: number | null
           minimum_order_days: number | null
           onboarding_completed_at: string | null
           onboarding_skipped_at: string | null
@@ -204,10 +228,12 @@ export type Database = {
           slug: string
           state: string | null
           status: string
+          teaching_notes: string | null
           team_size: number | null
           updated_at: string
           user_id: string
           verified: boolean
+          visit_by_appointment: boolean
           website: string | null
           whatsapp: string | null
           whatsapp_publico: boolean
@@ -218,18 +244,27 @@ export type Database = {
         Insert: {
           accepts_custom_orders?: boolean
           accepts_large_orders?: boolean
+          accessibility_notes?: string | null
+          additional_notes?: string | null
           avatar_url?: string | null
           average_production_days?: number | null
           bio?: string | null
           city?: string | null
+          company_document?: string | null
+          company_name?: string | null
+          corporate_min_quantity?: number | null
           cover_url?: string | null
           created_at?: string
+          custom_order_notes?: string | null
+          delivery_regions?: string[]
           facebook?: string | null
           has_ready_stock?: boolean
           headline?: string | null
           id?: string
           instagram?: string | null
+          issues_invoice?: boolean
           logo_url?: string | null
+          min_order_value_cents?: number | null
           minimum_order_days?: number | null
           onboarding_completed_at?: string | null
           onboarding_skipped_at?: string | null
@@ -247,10 +282,12 @@ export type Database = {
           slug: string
           state?: string | null
           status?: string
+          teaching_notes?: string | null
           team_size?: number | null
           updated_at?: string
           user_id: string
           verified?: boolean
+          visit_by_appointment?: boolean
           website?: string | null
           whatsapp?: string | null
           whatsapp_publico?: boolean
@@ -261,18 +298,27 @@ export type Database = {
         Update: {
           accepts_custom_orders?: boolean
           accepts_large_orders?: boolean
+          accessibility_notes?: string | null
+          additional_notes?: string | null
           avatar_url?: string | null
           average_production_days?: number | null
           bio?: string | null
           city?: string | null
+          company_document?: string | null
+          company_name?: string | null
+          corporate_min_quantity?: number | null
           cover_url?: string | null
           created_at?: string
+          custom_order_notes?: string | null
+          delivery_regions?: string[]
           facebook?: string | null
           has_ready_stock?: boolean
           headline?: string | null
           id?: string
           instagram?: string | null
+          issues_invoice?: boolean
           logo_url?: string | null
+          min_order_value_cents?: number | null
           minimum_order_days?: number | null
           onboarding_completed_at?: string | null
           onboarding_skipped_at?: string | null
@@ -290,10 +336,12 @@ export type Database = {
           slug?: string
           state?: string | null
           status?: string
+          teaching_notes?: string | null
           team_size?: number | null
           updated_at?: string
           user_id?: string
           verified?: boolean
+          visit_by_appointment?: boolean
           website?: string | null
           whatsapp?: string | null
           whatsapp_publico?: boolean
@@ -335,6 +383,7 @@ export type Database = {
           id: string
           last_message_at: string
           product_id: string | null
+          request_id: string | null
         }
         Insert: {
           artisan_id: string
@@ -343,6 +392,7 @@ export type Database = {
           id?: string
           last_message_at?: string
           product_id?: string | null
+          request_id?: string | null
         }
         Update: {
           artisan_id?: string
@@ -351,6 +401,7 @@ export type Database = {
           id?: string
           last_message_at?: string
           product_id?: string | null
+          request_id?: string | null
         }
         Relationships: [
           {
@@ -363,6 +414,257 @@ export type Database = {
           {
             foreignKeyName: "conversations_product_id_fkey"
             columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "custom_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_request_attachments: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          request_id: string
+          storage_path: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          request_id: string
+          storage_path: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          request_id?: string
+          storage_path?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_request_attachments_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "custom_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_request_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          dimensions: string | null
+          id: string
+          name: string
+          notes: string | null
+          position: number
+          quantity: number | null
+          request_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          dimensions?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          position?: number
+          quantity?: number | null
+          request_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          dimensions?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          position?: number
+          quantity?: number | null
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_request_items_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "custom_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_request_matches: {
+        Row: {
+          artisan_id: string
+          decline_reason: string | null
+          id: string
+          match_reasons: string[]
+          match_score: number
+          request_id: string
+          responded_at: string | null
+          response_status: Database["public"]["Enums"]["match_response"]
+          sent_at: string
+          viewed_at: string | null
+        }
+        Insert: {
+          artisan_id: string
+          decline_reason?: string | null
+          id?: string
+          match_reasons?: string[]
+          match_score?: number
+          request_id: string
+          responded_at?: string | null
+          response_status?: Database["public"]["Enums"]["match_response"]
+          sent_at?: string
+          viewed_at?: string | null
+        }
+        Update: {
+          artisan_id?: string
+          decline_reason?: string | null
+          id?: string
+          match_reasons?: string[]
+          match_score?: number
+          request_id?: string
+          responded_at?: string | null
+          response_status?: Database["public"]["Enums"]["match_response"]
+          sent_at?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_request_matches_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_request_matches_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "custom_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_requests: {
+        Row: {
+          budget_max_cents: number | null
+          budget_min_cents: number | null
+          buyer_user_id: string
+          created_at: string
+          customizations: Json
+          delivery_city: string | null
+          delivery_postal_code: string | null
+          delivery_state: string | null
+          description: string | null
+          desired_date: string | null
+          desired_period: string | null
+          distribution_mode: Database["public"]["Enums"]["distribution_mode"]
+          expires_at: string | null
+          id: string
+          intended_use: string | null
+          max_proposals: number
+          number: number
+          published_at: string | null
+          quantity_max: number | null
+          quantity_min: number | null
+          request_type: Database["public"]["Enums"]["request_type"]
+          selected_artisan_id: string | null
+          source_product_id: string | null
+          status: Database["public"]["Enums"]["request_status"]
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          budget_max_cents?: number | null
+          budget_min_cents?: number | null
+          buyer_user_id: string
+          created_at?: string
+          customizations?: Json
+          delivery_city?: string | null
+          delivery_postal_code?: string | null
+          delivery_state?: string | null
+          description?: string | null
+          desired_date?: string | null
+          desired_period?: string | null
+          distribution_mode?: Database["public"]["Enums"]["distribution_mode"]
+          expires_at?: string | null
+          id?: string
+          intended_use?: string | null
+          max_proposals?: number
+          number?: never
+          published_at?: string | null
+          quantity_max?: number | null
+          quantity_min?: number | null
+          request_type: Database["public"]["Enums"]["request_type"]
+          selected_artisan_id?: string | null
+          source_product_id?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          budget_max_cents?: number | null
+          budget_min_cents?: number | null
+          buyer_user_id?: string
+          created_at?: string
+          customizations?: Json
+          delivery_city?: string | null
+          delivery_postal_code?: string | null
+          delivery_state?: string | null
+          description?: string | null
+          desired_date?: string | null
+          desired_period?: string | null
+          distribution_mode?: Database["public"]["Enums"]["distribution_mode"]
+          expires_at?: string | null
+          id?: string
+          intended_use?: string | null
+          max_proposals?: number
+          number?: never
+          published_at?: string | null
+          quantity_max?: number | null
+          quantity_min?: number | null
+          request_type?: Database["public"]["Enums"]["request_type"]
+          selected_artisan_id?: string | null
+          source_product_id?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_requests_selected_artisan_id_fkey"
+            columns: ["selected_artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_requests_source_product_id_fkey"
+            columns: ["source_product_id"]
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
@@ -610,6 +912,8 @@ export type Database = {
       }
       orders: {
         Row: {
+          boleto_line: string | null
+          boleto_url: string | null
           buyer_document: string | null
           buyer_email: string
           buyer_name: string
@@ -619,13 +923,18 @@ export type Database = {
           created_at: string
           discount_cents: number
           id: string
+          installments: number
           notes: string | null
           number: number
           pagarme_charge_id: string | null
           pagarme_order_id: string | null
           paid_at: string | null
+          payment_error: string | null
           payment_method: Database["public"]["Enums"]["payment_method"] | null
+          pix_expires_at: string | null
+          pix_qr_code: string | null
           platform_fee_cents: number
+          service_fee_cents: number
           shipping_cents: number
           shipping_city: string | null
           shipping_complement: string | null
@@ -640,6 +949,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          boleto_line?: string | null
+          boleto_url?: string | null
           buyer_document?: string | null
           buyer_email: string
           buyer_name: string
@@ -649,13 +960,18 @@ export type Database = {
           created_at?: string
           discount_cents?: number
           id?: string
+          installments?: number
           notes?: string | null
           number?: never
           pagarme_charge_id?: string | null
           pagarme_order_id?: string | null
           paid_at?: string | null
+          payment_error?: string | null
           payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          pix_expires_at?: string | null
+          pix_qr_code?: string | null
           platform_fee_cents?: number
+          service_fee_cents?: number
           shipping_cents?: number
           shipping_city?: string | null
           shipping_complement?: string | null
@@ -670,6 +986,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          boleto_line?: string | null
+          boleto_url?: string | null
           buyer_document?: string | null
           buyer_email?: string
           buyer_name?: string
@@ -679,13 +997,18 @@ export type Database = {
           created_at?: string
           discount_cents?: number
           id?: string
+          installments?: number
           notes?: string | null
           number?: never
           pagarme_charge_id?: string | null
           pagarme_order_id?: string | null
           paid_at?: string | null
+          payment_error?: string | null
           payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          pix_expires_at?: string | null
+          pix_qr_code?: string | null
           platform_fee_cents?: number
+          service_fee_cents?: number
           shipping_cents?: number
           shipping_city?: string | null
           shipping_complement?: string | null
@@ -701,22 +1024,72 @@ export type Database = {
         }
         Relationships: []
       }
+      pagarme_events: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_id: string
+          event_type: string
+          id: string
+          order_id: string | null
+          payload: Json
+          processed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_id: string
+          event_type: string
+          id?: string
+          order_id?: string | null
+          payload: Json
+          processed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_id?: string
+          event_type?: string
+          id?: string
+          order_id?: string | null
+          payload?: Json
+          processed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagarme_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           default_commission_bps: number
           id: boolean
+          service_fee_boleto_cents: number
+          service_fee_card_bps: number
+          service_fee_pix_bps: number
           support_email: string | null
           updated_at: string
         }
         Insert: {
           default_commission_bps?: number
           id?: boolean
+          service_fee_boleto_cents?: number
+          service_fee_card_bps?: number
+          service_fee_pix_bps?: number
           support_email?: string | null
           updated_at?: string
         }
         Update: {
           default_commission_bps?: number
           id?: boolean
+          service_fee_boleto_cents?: number
+          service_fee_card_bps?: number
+          service_fee_pix_bps?: number
           support_email?: string | null
           updated_at?: string
         }
@@ -1062,6 +1435,26 @@ export type Database = {
           },
         ]
       }
+      meu_recebimento: {
+        Row: {
+          artisan_id: string | null
+          cadastrado: boolean | null
+          can_withdraw: boolean | null
+          kyc_status: string | null
+          kyc_url: string | null
+          kyc_url_expires_at: string | null
+          recipient_status: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artisan_billing_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: true
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       avaliacao_apenas_resposta: {
@@ -1079,29 +1472,32 @@ export type Database = {
       }
       caminho_e_da_minha_loja: { Args: { _name: string }; Returns: boolean }
       comissao_bps: { Args: { _artisan_id: string }; Returns: number }
-      criar_minha_loja: {
-        Args: {
-          _bio?: string
-          _city?: string
-          _shop_name: string
-          _slug: string
-          _state?: string
-        }
+      concluir_onboarding: {
+        Args: never
         Returns: {
           accepts_custom_orders: boolean
           accepts_large_orders: boolean
+          accessibility_notes: string | null
+          additional_notes: string | null
           avatar_url: string | null
           average_production_days: number | null
           bio: string | null
           city: string | null
+          company_document: string | null
+          company_name: string | null
+          corporate_min_quantity: number | null
           cover_url: string | null
           created_at: string
+          custom_order_notes: string | null
+          delivery_regions: string[]
           facebook: string | null
           has_ready_stock: boolean
           headline: string | null
           id: string
           instagram: string | null
+          issues_invoice: boolean
           logo_url: string | null
+          min_order_value_cents: number | null
           minimum_order_days: number | null
           onboarding_completed_at: string | null
           onboarding_skipped_at: string | null
@@ -1119,10 +1515,81 @@ export type Database = {
           slug: string
           state: string | null
           status: string
+          teaching_notes: string | null
           team_size: number | null
           updated_at: string
           user_id: string
           verified: boolean
+          visit_by_appointment: boolean
+          website: string | null
+          whatsapp: string | null
+          whatsapp_publico: boolean
+          working_image_url: string | null
+          workshop_image_url: string | null
+          years_of_experience: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "artisans"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      criar_minha_loja: {
+        Args: {
+          _bio?: string
+          _city?: string
+          _shop_name: string
+          _slug: string
+          _state?: string
+        }
+        Returns: {
+          accepts_custom_orders: boolean
+          accepts_large_orders: boolean
+          accessibility_notes: string | null
+          additional_notes: string | null
+          avatar_url: string | null
+          average_production_days: number | null
+          bio: string | null
+          city: string | null
+          company_document: string | null
+          company_name: string | null
+          corporate_min_quantity: number | null
+          cover_url: string | null
+          created_at: string
+          custom_order_notes: string | null
+          delivery_regions: string[]
+          facebook: string | null
+          has_ready_stock: boolean
+          headline: string | null
+          id: string
+          instagram: string | null
+          issues_invoice: boolean
+          logo_url: string | null
+          min_order_value_cents: number | null
+          minimum_order_days: number | null
+          onboarding_completed_at: string | null
+          onboarding_skipped_at: string | null
+          onboarding_started_at: string | null
+          onboarding_step: string | null
+          production_capacity_monthly: number | null
+          public_name: string | null
+          receives_visitors: boolean
+          sells_to_architects: boolean
+          sells_to_companies: boolean
+          sells_to_people: boolean
+          sells_to_stores: boolean
+          ships_nationwide: boolean
+          shop_name: string
+          slug: string
+          state: string | null
+          status: string
+          teaching_notes: string | null
+          team_size: number | null
+          updated_at: string
+          user_id: string
+          verified: boolean
+          visit_by_appointment: boolean
           website: string | null
           whatsapp: string | null
           whatsapp_publico: boolean
@@ -1148,6 +1615,8 @@ export type Database = {
           _shipping_cents?: number
         }
         Returns: {
+          boleto_line: string | null
+          boleto_url: string | null
           buyer_document: string | null
           buyer_email: string
           buyer_name: string
@@ -1157,13 +1626,18 @@ export type Database = {
           created_at: string
           discount_cents: number
           id: string
+          installments: number
           notes: string | null
           number: number
           pagarme_charge_id: string | null
           pagarme_order_id: string | null
           paid_at: string | null
+          payment_error: string | null
           payment_method: Database["public"]["Enums"]["payment_method"] | null
+          pix_expires_at: string | null
+          pix_qr_code: string | null
           platform_fee_cents: number
+          service_fee_cents: number
           shipping_cents: number
           shipping_city: string | null
           shipping_complement: string | null
@@ -1184,23 +1658,121 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      definir_pagamento: {
+        Args: {
+          _installments?: number
+          _metodo: Database["public"]["Enums"]["payment_method"]
+          _order_id: string
+        }
+        Returns: {
+          boleto_line: string | null
+          boleto_url: string | null
+          buyer_document: string | null
+          buyer_email: string
+          buyer_name: string
+          buyer_phone: string | null
+          buyer_user_id: string
+          canceled_at: string | null
+          created_at: string
+          discount_cents: number
+          id: string
+          installments: number
+          notes: string | null
+          number: number
+          pagarme_charge_id: string | null
+          pagarme_order_id: string | null
+          paid_at: string | null
+          payment_error: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          pix_expires_at: string | null
+          pix_qr_code: string | null
+          platform_fee_cents: number
+          service_fee_cents: number
+          shipping_cents: number
+          shipping_city: string | null
+          shipping_complement: string | null
+          shipping_district: string | null
+          shipping_number: string | null
+          shipping_state: string | null
+          shipping_street: string | null
+          shipping_zipcode: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          subtotal_cents: number
+          total_cents: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      distribuir_encomenda: { Args: { _request_id: string }; Returns: number }
+      encomenda_e_minha: { Args: { _request_id: string }; Returns: boolean }
+      enviar_encomenda: {
+        Args: { _request_id: string }
+        Returns: {
+          budget_max_cents: number | null
+          budget_min_cents: number | null
+          buyer_user_id: string
+          created_at: string
+          customizations: Json
+          delivery_city: string | null
+          delivery_postal_code: string | null
+          delivery_state: string | null
+          description: string | null
+          desired_date: string | null
+          desired_period: string | null
+          distribution_mode: Database["public"]["Enums"]["distribution_mode"]
+          expires_at: string | null
+          id: string
+          intended_use: string | null
+          max_proposals: number
+          number: number
+          published_at: string | null
+          quantity_max: number | null
+          quantity_min: number | null
+          request_type: Database["public"]["Enums"]["request_type"]
+          selected_artisan_id: string | null
+          source_product_id: string | null
+          status: Database["public"]["Enums"]["request_status"]
+          title: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "custom_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       garantir_minha_loja: {
         Args: { _shop_name?: string }
         Returns: {
           accepts_custom_orders: boolean
           accepts_large_orders: boolean
+          accessibility_notes: string | null
+          additional_notes: string | null
           avatar_url: string | null
           average_production_days: number | null
           bio: string | null
           city: string | null
+          company_document: string | null
+          company_name: string | null
+          corporate_min_quantity: number | null
           cover_url: string | null
           created_at: string
+          custom_order_notes: string | null
+          delivery_regions: string[]
           facebook: string | null
           has_ready_stock: boolean
           headline: string | null
           id: string
           instagram: string | null
+          issues_invoice: boolean
           logo_url: string | null
+          min_order_value_cents: number | null
           minimum_order_days: number | null
           onboarding_completed_at: string | null
           onboarding_skipped_at: string | null
@@ -1218,10 +1790,12 @@ export type Database = {
           slug: string
           state: string | null
           status: string
+          teaching_notes: string | null
           team_size: number | null
           updated_at: string
           user_id: string
           verified: boolean
+          visit_by_appointment: boolean
           website: string | null
           whatsapp: string | null
           whatsapp_publico: boolean
@@ -1251,6 +1825,10 @@ export type Database = {
         Args: { _conversation_id: string }
         Returns: boolean
       }
+      participa_da_encomenda_no_caminho: {
+        Args: { _name: string }
+        Returns: boolean
+      }
       pedido_tem_item_meu: { Args: { _order_id: string }; Returns: boolean }
       pode_avaliar: { Args: { _order_item_id: string }; Returns: boolean }
       progresso_da_loja: {
@@ -1261,12 +1839,35 @@ export type Database = {
           rotulo: string
         }[]
       }
+      responder_encomenda: {
+        Args: {
+          _motivo?: string
+          _request_id: string
+          _resposta: Database["public"]["Enums"]["match_response"]
+        }
+        Returns: undefined
+      }
+      taxa_de_servico: {
+        Args: {
+          _metodo: Database["public"]["Enums"]["payment_method"]
+          _subtotal_cents: number
+        }
+        Returns: number
+      }
       unaccent_simples: { Args: { _texto: string }; Returns: string }
     }
     Enums: {
       app_role: "buyer" | "artisan" | "admin"
+      distribution_mode: "artesao_especifico" | "recomendados" | "aberta"
       experience_kind: "live" | "recorded" | "in_person" | "mentorship"
       listing_status: "draft" | "active" | "sold_out" | "archived"
+      match_response:
+        | "pendente"
+        | "visualizada"
+        | "interessado"
+        | "mais_informacoes"
+        | "recusada"
+        | "proposta_enviada"
       offering_type:
         | "product"
         | "custom_order"
@@ -1294,6 +1895,33 @@ export type Database = {
         | "canceled"
         | "refunded"
       payment_method: "pix" | "credit_card" | "boleto"
+      request_status:
+        | "rascunho"
+        | "enviada"
+        | "em_distribuicao"
+        | "recebendo_propostas"
+        | "em_negociacao"
+        | "proposta_escolhida"
+        | "aguardando_pagamento"
+        | "confirmada"
+        | "em_producao"
+        | "pronta_para_envio"
+        | "enviada_ao_cliente"
+        | "entregue"
+        | "concluida"
+        | "cancelada"
+        | "expirada"
+      request_type:
+        | "personalizar"
+        | "peca_nova"
+        | "quantidade"
+        | "brindes"
+        | "evento"
+        | "decoracao"
+        | "loja"
+        | "hotelaria"
+        | "arquitetura"
+        | "outro"
       stock_mode: "unique" | "quantity"
     }
     CompositeTypes: {
@@ -1423,8 +2051,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["buyer", "artisan", "admin"],
+      distribution_mode: ["artesao_especifico", "recomendados", "aberta"],
       experience_kind: ["live", "recorded", "in_person", "mentorship"],
       listing_status: ["draft", "active", "sold_out", "archived"],
+      match_response: [
+        "pendente",
+        "visualizada",
+        "interessado",
+        "mais_informacoes",
+        "recusada",
+        "proposta_enviada",
+      ],
       offering_type: [
         "product",
         "custom_order",
@@ -1454,6 +2091,35 @@ export const Constants = {
         "refunded",
       ],
       payment_method: ["pix", "credit_card", "boleto"],
+      request_status: [
+        "rascunho",
+        "enviada",
+        "em_distribuicao",
+        "recebendo_propostas",
+        "em_negociacao",
+        "proposta_escolhida",
+        "aguardando_pagamento",
+        "confirmada",
+        "em_producao",
+        "pronta_para_envio",
+        "enviada_ao_cliente",
+        "entregue",
+        "concluida",
+        "cancelada",
+        "expirada",
+      ],
+      request_type: [
+        "personalizar",
+        "peca_nova",
+        "quantidade",
+        "brindes",
+        "evento",
+        "decoracao",
+        "loja",
+        "hotelaria",
+        "arquitetura",
+        "outro",
+      ],
       stock_mode: ["unique", "quantity"],
     },
   },
