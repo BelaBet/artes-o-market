@@ -1354,12 +1354,15 @@ REVOKE ALL ON ALL FUNCTIONS IN SCHEMA private FROM PUBLIC, anon, authenticated;
 DROP POLICY IF EXISTS "Cada um vê o próprio perfil" ON public.profiles;
 CREATE POLICY "Cada um vê o próprio perfil" ON public.profiles
   FOR SELECT TO authenticated USING (auth.uid() = user_id OR public.is_admin());
+-- Restritas a authenticated: "TO public" inclui o papel anon. A checagem
+-- auth.uid() = user_id já barrava o anônimo, mas conceder INSERT/UPDATE a
+-- anon é frouxo — qualquer ajuste futuro na condição viraria brecha.
 DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 CREATE POLICY "Users can insert their own profile" ON public.profiles
-  FOR INSERT TO public WITH CHECK (auth.uid() = user_id);
+  FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 CREATE POLICY "Users can update their own profile" ON public.profiles
-  FOR UPDATE TO public USING (auth.uid() = user_id);
+  FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 -- user_roles: sem INSERT/UPDATE por usuário — papel não é autoatribuível.
 DROP POLICY IF EXISTS "Cada um vê os próprios papéis" ON public.user_roles;
