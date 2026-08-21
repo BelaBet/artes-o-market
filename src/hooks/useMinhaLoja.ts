@@ -247,7 +247,9 @@ export function useSelecaoVocabulario(
       if (selecionado) {
         await supabase.from(ligacao).insert({ artisan_id: artisanId, [coluna]: id } as never);
       } else {
-        await (supabase.from(ligacao).delete() as any)
+        await (supabase.from(ligacao).delete() as unknown as {
+          eq: (c: string, v: string) => { eq: (c: string, v: string) => Promise<unknown> };
+        })
           .eq("artisan_id", artisanId)
           .eq(coluna, id);
       }
