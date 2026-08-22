@@ -59,6 +59,13 @@ export type Database = {
             referencedRelation: "artisans"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "artisan_billing_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: true
+            referencedRelation: "artisans_publicas"
+            referencedColumns: ["id"]
+          },
         ]
       }
       artisan_materials: {
@@ -86,6 +93,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_materials_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
             referencedColumns: ["id"]
           },
           {
@@ -121,6 +135,13 @@ export type Database = {
             referencedRelation: "artisans"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "artisan_offerings_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
+            referencedColumns: ["id"]
+          },
         ]
       }
       artisan_styles: {
@@ -142,6 +163,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_styles_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
             referencedColumns: ["id"]
           },
           {
@@ -175,6 +203,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_techniques_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
             referencedColumns: ["id"]
           },
           {
@@ -412,6 +447,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "conversations_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "conversations_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -561,6 +603,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "custom_request_matches_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "custom_request_matches_request_id_fkey"
             columns: ["request_id"]
             isOneToOne: false
@@ -663,6 +712,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "custom_requests_selected_artisan_id_fkey"
+            columns: ["selected_artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "custom_requests_source_product_id_fkey"
             columns: ["source_product_id"]
             isOneToOne: false
@@ -738,6 +794,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "experiences_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
             referencedColumns: ["id"]
           },
         ]
@@ -885,6 +948,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
             referencedColumns: ["id"]
           },
           {
@@ -1200,6 +1270,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "products_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "products_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
@@ -1296,6 +1373,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: false
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
             referencedColumns: ["id"]
           },
           {
@@ -1433,7 +1517,152 @@ export type Database = {
             referencedRelation: "artisans"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "reviews_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans_publicas"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      artisans_publicas: {
+        Row: {
+          accepts_custom_orders: boolean | null
+          accepts_large_orders: boolean | null
+          accessibility_notes: string | null
+          additional_notes: string | null
+          avatar_url: string | null
+          average_production_days: number | null
+          bio: string | null
+          city: string | null
+          cover_url: string | null
+          created_at: string | null
+          custom_order_notes: string | null
+          delivery_regions: string[] | null
+          facebook: string | null
+          has_ready_stock: boolean | null
+          headline: string | null
+          id: string | null
+          instagram: string | null
+          logo_url: string | null
+          min_order_value_cents: number | null
+          minimum_order_days: number | null
+          production_capacity_monthly: number | null
+          public_name: string | null
+          receives_visitors: boolean | null
+          sells_to_architects: boolean | null
+          sells_to_companies: boolean | null
+          sells_to_people: boolean | null
+          sells_to_stores: boolean | null
+          ships_nationwide: boolean | null
+          shop_name: string | null
+          slug: string | null
+          state: string | null
+          status: string | null
+          teaching_notes: string | null
+          team_size: number | null
+          updated_at: string | null
+          verified: boolean | null
+          visit_by_appointment: boolean | null
+          website: string | null
+          whatsapp: string | null
+          whatsapp_publico: boolean | null
+          working_image_url: string | null
+          workshop_image_url: string | null
+          years_of_experience: number | null
+        }
+        Insert: {
+          accepts_custom_orders?: boolean | null
+          accepts_large_orders?: boolean | null
+          accessibility_notes?: string | null
+          additional_notes?: string | null
+          avatar_url?: string | null
+          average_production_days?: number | null
+          bio?: string | null
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          custom_order_notes?: string | null
+          delivery_regions?: string[] | null
+          facebook?: string | null
+          has_ready_stock?: boolean | null
+          headline?: string | null
+          id?: string | null
+          instagram?: string | null
+          logo_url?: string | null
+          min_order_value_cents?: number | null
+          minimum_order_days?: number | null
+          production_capacity_monthly?: number | null
+          public_name?: string | null
+          receives_visitors?: boolean | null
+          sells_to_architects?: boolean | null
+          sells_to_companies?: boolean | null
+          sells_to_people?: boolean | null
+          sells_to_stores?: boolean | null
+          ships_nationwide?: boolean | null
+          shop_name?: string | null
+          slug?: string | null
+          state?: string | null
+          status?: string | null
+          teaching_notes?: string | null
+          team_size?: number | null
+          updated_at?: string | null
+          verified?: boolean | null
+          visit_by_appointment?: boolean | null
+          website?: string | null
+          whatsapp?: never
+          whatsapp_publico?: boolean | null
+          working_image_url?: string | null
+          workshop_image_url?: string | null
+          years_of_experience?: number | null
+        }
+        Update: {
+          accepts_custom_orders?: boolean | null
+          accepts_large_orders?: boolean | null
+          accessibility_notes?: string | null
+          additional_notes?: string | null
+          avatar_url?: string | null
+          average_production_days?: number | null
+          bio?: string | null
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          custom_order_notes?: string | null
+          delivery_regions?: string[] | null
+          facebook?: string | null
+          has_ready_stock?: boolean | null
+          headline?: string | null
+          id?: string | null
+          instagram?: string | null
+          logo_url?: string | null
+          min_order_value_cents?: number | null
+          minimum_order_days?: number | null
+          production_capacity_monthly?: number | null
+          public_name?: string | null
+          receives_visitors?: boolean | null
+          sells_to_architects?: boolean | null
+          sells_to_companies?: boolean | null
+          sells_to_people?: boolean | null
+          sells_to_stores?: boolean | null
+          ships_nationwide?: boolean | null
+          shop_name?: string | null
+          slug?: string | null
+          state?: string | null
+          status?: string | null
+          teaching_notes?: string | null
+          team_size?: number | null
+          updated_at?: string | null
+          verified?: boolean | null
+          visit_by_appointment?: boolean | null
+          website?: string | null
+          whatsapp?: never
+          whatsapp_publico?: boolean | null
+          working_image_url?: string | null
+          workshop_image_url?: string | null
+          years_of_experience?: number | null
+        }
+        Relationships: []
       }
       meu_recebimento: {
         Row: {
@@ -1451,6 +1680,13 @@ export type Database = {
             columns: ["artisan_id"]
             isOneToOne: true
             referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "artisan_billing_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: true
+            referencedRelation: "artisans_publicas"
             referencedColumns: ["id"]
           },
         ]
@@ -1819,6 +2055,69 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      minha_loja: {
+        Args: never
+        Returns: {
+          accepts_custom_orders: boolean
+          accepts_large_orders: boolean
+          accessibility_notes: string | null
+          additional_notes: string | null
+          avatar_url: string | null
+          average_production_days: number | null
+          bio: string | null
+          city: string | null
+          company_document: string | null
+          company_name: string | null
+          corporate_min_quantity: number | null
+          cover_url: string | null
+          created_at: string
+          custom_order_notes: string | null
+          delivery_regions: string[]
+          facebook: string | null
+          has_ready_stock: boolean
+          headline: string | null
+          id: string
+          instagram: string | null
+          issues_invoice: boolean
+          logo_url: string | null
+          min_order_value_cents: number | null
+          minimum_order_days: number | null
+          onboarding_completed_at: string | null
+          onboarding_skipped_at: string | null
+          onboarding_started_at: string | null
+          onboarding_step: string | null
+          production_capacity_monthly: number | null
+          public_name: string | null
+          receives_visitors: boolean
+          sells_to_architects: boolean
+          sells_to_companies: boolean
+          sells_to_people: boolean
+          sells_to_stores: boolean
+          ships_nationwide: boolean
+          shop_name: string
+          slug: string
+          state: string | null
+          status: string
+          teaching_notes: string | null
+          team_size: number | null
+          updated_at: string
+          user_id: string
+          verified: boolean
+          visit_by_appointment: boolean
+          website: string | null
+          whatsapp: string | null
+          whatsapp_publico: boolean
+          working_image_url: string | null
+          workshop_image_url: string | null
+          years_of_experience: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "artisans"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       my_artisan_id: { Args: never; Returns: string }
       owns_artisan: { Args: { _artisan_id: string }; Returns: boolean }
       participa_da_conversa: {
@@ -1855,6 +2154,7 @@ export type Database = {
         Returns: number
       }
       unaccent_simples: { Args: { _texto: string }; Returns: string }
+      whatsapp_da_loja: { Args: { _artisan_id: string }; Returns: string }
     }
     Enums: {
       app_role: "buyer" | "artisan" | "admin"
