@@ -21,10 +21,9 @@ export function useMinhaLoja() {
     enabled: !!user,
     queryFn: async (): Promise<Loja | null> => {
       const { data: existente } = await supabase
-        .from("artisans")
-        .select("*")
-        .eq("user_id", user!.id)
+        .rpc("minha_loja")
         .maybeSingle();
+
 
       if (existente) return existente;
 
