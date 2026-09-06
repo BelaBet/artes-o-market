@@ -27,6 +27,15 @@ const ImagemComPlaceholder = ({
   const [carregada, setCarregada] = useState(false);
   const tint = tintDireto ?? (tintKey ? IMAGE_TINTS[tintKey] : undefined);
 
+  // Sem imagem nenhuma (produto/loja ainda sem foto): mostra só a cor de
+  // fundo, parada — sem isso, o <img src="undefined"> nunca dispara
+  // load/error e o pulso de "carregando" fica animando pra sempre.
+  if (!props.src) {
+    return (
+      <div aria-hidden className={cn(className, "absolute inset-0")} style={{ backgroundColor: tint ?? "hsl(var(--parchment))" }} />
+    );
+  }
+
   return (
     <>
       {/* Placeholder: cor média da foto + pulso sutil enquanto não chega */}

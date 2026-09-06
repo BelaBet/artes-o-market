@@ -1691,6 +1691,16 @@ export type Database = {
           },
         ]
       }
+      profiles_publicos: {
+        Row: {
+          avatar_url: string | null
+          city: string | null
+          display_name: string | null
+          state: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       avaliacao_apenas_resposta: {

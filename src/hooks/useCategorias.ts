@@ -23,11 +23,20 @@ export function useCategorias() {
       // Uma foto representativa por categoria: o primeiro produto ativo
       // que a usa. Puramente decorativo — sem categoria com produto
       // ainda, a tile some a imagem e mostra só o nome.
+      //
+      // O .limit(300) é uma rédea, não uma solução: com poucas categorias
+      // (hoje, 8) cobre o catálogo inteiro sem esforço, mas um catálogo
+      // grande pode ter uma categoria só com produtos além da página 300
+      // e a tile dela nunca ganha foto. A solução de verdade é um RPC/view
+      // com DISTINCT ON (category_id) no servidor — vale migrar pra isso
+      // quando o catálogo crescer.
       const { data: produtos } = await supabase
         .from("products")
         .select("category_id, product_images(storage_path, tint, position)")
         .eq("status", "active")
-        .not("category_id", "is", null);
+        .not("category_id", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(300);
 
       const imagemPorCategoria = new Map<string, { storage_path: string; tint: string | null }>();
       for (const p of produtos ?? []) {

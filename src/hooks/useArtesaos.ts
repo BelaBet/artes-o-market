@@ -113,7 +113,7 @@ export function useAvaliacoesDoArtesao(artisanId: string | undefined) {
 
       const autorIds = [...new Set(linhas.map((r) => r.author_id))];
       const { data: perfis } = autorIds.length
-        ? await supabase.from("profiles").select("user_id, display_name, city, state").in("user_id", autorIds)
+        ? await supabase.from("profiles_publicos").select("user_id, display_name, city, state").in("user_id", autorIds)
         : { data: [] as { user_id: string; display_name: string | null; city: string | null; state: string | null }[] };
       const perfilPorId = new Map((perfis ?? []).map((p) => [p.user_id, p]));
 

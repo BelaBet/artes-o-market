@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { resolverImagem } from "@/lib/imagens";
+import { agregarNotas } from "@/lib/avaliacoes";
 
 export interface ExperienciaCard {
   id: string;
@@ -36,14 +37,7 @@ export function useExperiencias() {
       const { data: avaliacoes } = ids.length
         ? await supabase.from("reviews").select("experience_id, rating").in("experience_id", ids)
         : { data: [] as { experience_id: string | null; rating: number }[] };
-      const notas = new Map<string, { soma: number; total: number }>();
-      for (const r of avaliacoes ?? []) {
-        if (!r.experience_id) continue;
-        const atual = notas.get(r.experience_id) ?? { soma: 0, total: 0 };
-        atual.soma += r.rating;
-        atual.total += 1;
-        notas.set(r.experience_id, atual);
-      }
+      const notas = agregarNotas((avaliacoes ?? []).map((r) => ({ chave: r.experience_id, rating: r.rating })));
 
       return linhas.map((e): ExperienciaCard => {
         const nota = notas.get(e.id);
@@ -57,7 +51,7 @@ export function useExperiencias() {
           location: e.location,
           durationMinutes: e.duration_minutes,
           price: e.price_cents / 100,
-          rating: nota ? nota.soma / nota.total : 0,
+          rating: nota?.media ?? 0,
           reviews: nota?.total ?? 0,
           img: resolverImagem(e.cover_path),
         };

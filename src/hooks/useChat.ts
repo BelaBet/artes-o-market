@@ -35,7 +35,7 @@ export function useConversas() {
 
       const buyerIds = [...new Set(linhas.map((c) => c.buyer_user_id))];
       const { data: perfis } = buyerIds.length
-        ? await supabase.from("profiles").select("user_id, display_name, avatar_url").in("user_id", buyerIds)
+        ? await supabase.from("profiles_publicos").select("user_id, display_name, avatar_url").in("user_id", buyerIds)
         : { data: [] as { user_id: string; display_name: string | null; avatar_url: string | null }[] };
       const perfilPorId = new Map((perfis ?? []).map((p) => [p.user_id, p]));
 

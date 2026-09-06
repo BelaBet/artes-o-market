@@ -88,6 +88,7 @@ Deno.serve(async (req) => {
   }
 
   const documento = (order.buyer_document ?? "").replace(/\D/g, "");
+  const telefone = (order.buyer_phone ?? "").replace(/\D/g, "");
   const payload: Record<string, unknown> = {
     code: order.number?.toString(),
     items: (order.order_items ?? []).map((it: { title: string; quantity: number; total_cents: number }) => ({
@@ -100,8 +101,8 @@ Deno.serve(async (req) => {
       email: order.buyer_email,
       type: documento.length > 11 ? "company" : "individual",
       document: documento || undefined,
-      phones: order.buyer_phone
-        ? { mobile_phone: { country_code: "55", area_code: order.buyer_phone.slice(0, 2), number: order.buyer_phone.slice(2) } }
+      phones: telefone
+        ? { mobile_phone: { country_code: "55", area_code: telefone.slice(0, 2), number: telefone.slice(2) } }
         : undefined,
     },
   };

@@ -30,12 +30,15 @@ Deno.serve(async (req) => {
   }
 
   const webhookSecret = Deno.env.get("PAGARME_WEBHOOK_SECRET");
-  if (webhookSecret) {
-    const auth = req.headers.get("authorization") ?? "";
-    const esperado = `Basic ${btoa(`webhook:${webhookSecret}`)}`;
-    if (auth !== esperado) {
-      return new Response(JSON.stringify({ error: "não autorizado" }), { status: 401 });
-    }
+  if (!webhookSecret) {
+    // Sem segredo configurado, não dá pra distinguir o Pagar.me de
+    // qualquer um que ache esta URL — recusa em vez de aceitar sem checar.
+    return new Response(JSON.stringify({ error: "PAGARME_WEBHOOK_SECRET não configurado" }), { status: 500 });
+  }
+  const auth = req.headers.get("authorization") ?? "";
+  const esperado = `Basic ${btoa(`webhook:${webhookSecret}`)}`;
+  if (auth !== esperado) {
+    return new Response(JSON.stringify({ error: "não autorizado" }), { status: 401 });
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -62,13 +65,19 @@ Deno.serve(async (req) => {
   }
 
   const pagarmeOrderId = evento.data?.order?.id ?? evento.data?.id;
-  const { data: order } = pagarmeOrderId
-    ? await admin
-        .from("orders")
-        .select("id, status")
-        .or(`pagarme_order_id.eq.${pagarmeOrderId},pagarme_charge_id.eq.${pagarmeOrderId}`)
-        .maybeSingle()
-    : { data: null };
+  // Duas buscas por igualdade em vez de um .or() com string interpolada:
+  // o id pode vir de qualquer jeito no payload, e um .or() montado por
+  // concatenação aceitaria vírgulas/parênteses do atacante como sintaxe
+  // de filtro (ver revisão de segurança).
+  let order: { id: string; status: string } | null = null;
+  if (pagarmeOrderId) {
+    const porOrderId = await admin.from("orders").select("id, status").eq("pagarme_order_id", pagarmeOrderId).maybeSingle();
+    order = porOrderId.data ?? null;
+    if (!order) {
+      const porChargeId = await admin.from("orders").select("id, status").eq("pagarme_charge_id", pagarmeOrderId).maybeSingle();
+      order = porChargeId.data ?? null;
+    }
+  }
 
   const novoStatus = EVENTO_PARA_STATUS[evento.type];
   let erro: string | null = null;

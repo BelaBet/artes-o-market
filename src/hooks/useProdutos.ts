@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { resolverImagem } from "@/lib/imagens";
+import { agregarNotas, type Nota } from "@/lib/avaliacoes";
 
 export type Badge = "dest" | "novo" | "off" | null;
 
@@ -37,23 +38,10 @@ function badgeDoProduto(row: {
   return null;
 }
 
-async function buscarAvaliacoesPorProduto(ids: string[]): Promise<Map<string, { media: number; total: number }>> {
-  const mapa = new Map<string, { media: number; total: number }>();
-  if (ids.length === 0) return mapa;
-
+async function buscarAvaliacoesPorProduto(ids: string[]): Promise<Map<string, Nota>> {
+  if (ids.length === 0) return new Map();
   const { data } = await supabase.from("reviews").select("product_id, rating").in("product_id", ids);
-  const somas = new Map<string, { soma: number; total: number }>();
-  for (const r of data ?? []) {
-    if (!r.product_id) continue;
-    const atual = somas.get(r.product_id) ?? { soma: 0, total: 0 };
-    atual.soma += r.rating;
-    atual.total += 1;
-    somas.set(r.product_id, atual);
-  }
-  for (const [id, { soma, total }] of somas) {
-    mapa.set(id, { media: total ? Math.round(soma / total) : 0, total });
-  }
-  return mapa;
+  return agregarNotas((data ?? []).map((r) => ({ chave: r.product_id, rating: r.rating })));
 }
 
 const SELECT_PRODUTO_CARD = `
@@ -96,7 +84,7 @@ async function mapearProdutos(linhas: LinhaProduto[]): Promise<ProdutoCard[]> {
       img: resolverImagem(imagem?.storage_path),
       tint: imagem?.tint ?? undefined,
       badge: badgeDoProduto(p),
-      stars: nota?.media ?? 0,
+      stars: nota ? Math.round(nota.media) : 0,
       reviews: nota?.total ?? 0,
       categorySlug: p.categories?.slug ?? null,
       stockQuantity: p.stock_quantity,
