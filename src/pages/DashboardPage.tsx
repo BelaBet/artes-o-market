@@ -1,18 +1,74 @@
 import { useState } from "react";
-import { ORDERS, STATUS_MAP, formatPrice } from "@/lib/data";
+import { STATUS_MAP, formatPriceCents } from "@/lib/data";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useMinhaLoja } from "@/hooks/useMinhaLoja";
+import { usePedidosDaLoja, useResumoFinanceiro } from "@/hooks/usePainelArtesao";
 import MinhaLoja from "@/components/painel/MinhaLoja";
+import ProdutosPainel from "@/components/painel/ProdutosPainel";
+
+const VisaoGeralEPedidos = ({ artisanId }: { artisanId: string }) => {
+  const { pedidos, loading } = usePedidosDaLoja(artisanId);
+  const resumo = useResumoFinanceiro(artisanId);
+
+  return (
+    <>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        {[
+          { icon: "◎", val: formatPriceCents(resumo.receitaPagaCents), label: "Receita" },
+          { icon: "⬡", val: String(resumo.pedidosPagos), label: "Pedidos pagos" },
+          { icon: "◈", val: String(resumo.produtosAtivos), label: "Produtos ativos" },
+          { icon: "◇", val: resumo.avaliacaoMedia ? resumo.avaliacaoMedia.toFixed(1) : "—", label: "Avaliação" },
+        ].map((m, i) => (
+          <div key={i} className="bg-background border border-border p-3 sm:p-4 hover:border-terra transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[1.05rem]">{m.icon}</span>
+            </div>
+            <div className="font-display text-[1.4rem] sm:text-[1.75rem]">{m.val}</div>
+            <div className="text-[0.6rem] sm:text-[0.62rem] tracking-[0.1em] uppercase text-muted-foreground">{m.label}</div>
+          </div>
+        ))}
+      </div>
+      <div className="bg-background border border-border">
+        <div className="flex items-center justify-between p-3 border-b border-border">
+          <span className="font-display text-[0.95rem] sm:text-[1rem]">Pedidos</span>
+        </div>
+        {loading ? (
+          <div className="p-4 text-[0.78rem] text-muted-foreground">Carregando…</div>
+        ) : pedidos.length === 0 ? (
+          <div className="p-4 text-[0.78rem] text-muted-foreground">Nenhum pedido ainda.</div>
+        ) : (
+          <>
+            <div className="hidden lg:grid grid-cols-5 gap-4 px-4 py-2 text-[0.6rem] tracking-[0.12em] uppercase text-muted-foreground border-b border-border">
+              <span>Nº</span><span>Comprador</span><span>Peça</span><span>Valor</span><span>Status</span>
+            </div>
+            {pedidos.map((p) => (
+              <div key={p.itemId} className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 items-start lg:items-center px-4 py-3 border-b border-border last:border-b-0 hover:bg-parchment/50 transition-colors">
+                <span className="text-[0.72rem] font-medium text-muted-foreground">#{p.number}</span>
+                <div className="lg:order-none order-2 col-span-2 lg:col-span-1">
+                  <div className="text-[0.78rem] font-medium">{p.buyerName}</div>
+                  <div className="text-[0.66rem] text-muted-foreground">{p.title} × {p.quantity}</div>
+                </div>
+                <span className="font-display text-[0.92rem] text-right lg:text-left">{formatPriceCents(p.totalCents)}</span>
+                <span className={`inline-block text-[0.55rem] sm:text-[0.56rem] tracking-[0.1em] uppercase font-semibold px-2 py-0.5 w-fit ${STATUS_MAP[p.status]?.className ?? ""}`}>
+                  {STATUS_MAP[p.status]?.label ?? p.status}
+                </span>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+    </>
+  );
+};
 
 const DashboardPage = () => {
   const [tab, setTab] = useState("overview");
   usePageMeta("Painel do Artesão");
+  const { loja } = useMinhaLoja();
   const tabs = [
     { key: "overview", icon: "⊞", label: "Visão Geral" },
     { key: "loja", icon: "⌂", label: "Minha História" },
     { key: "products", icon: "◈", label: "Produtos" },
-    { key: "orders", icon: "⬡", label: "Pedidos" },
-    { key: "finance", icon: "◎", label: "Financeiro" },
-    { key: "reviews", icon: "◇", label: "Avaliações" },
     { key: "settings", icon: "⊙", label: "Configurações" },
   ];
 
@@ -40,54 +96,21 @@ const DashboardPage = () => {
       <main className="p-4 md:p-7 bg-background">
         {tab === "loja" ? (
           <MinhaLoja />
+        ) : tab === "products" ? (
+          loja ? <ProdutosPainel artisanId={loja.id} /> : <p className="text-[0.8rem] text-muted-foreground">Carregando sua loja…</p>
+        ) : tab === "settings" ? (
+          <p className="text-[0.82rem] text-muted-foreground">Em breve.</p>
         ) : (
           <>
-        <div className="font-display text-[1.5rem] sm:text-[1.8rem] mb-1">Bom dia, Ana! 👋</div>
-        <div className="text-[0.72rem] sm:text-[0.74rem] text-muted-foreground mb-5 sm:mb-6">Resumo da sua loja hoje</div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-          {[
-            { icon: "◎", val: formatPrice(2847), label: "Receita", badge: "↑ +18%", up: true },
-            { icon: "⬡", val: "43", label: "Pedidos", badge: "↑ +12%", up: true },
-            { icon: "◈", val: "28", label: "Produtos", badge: "→", up: false },
-            { icon: "◇", val: "4.9", label: "Avaliação", badge: "↑ +0.1", up: true },
-          ].map((m, i) => (
-            <div key={i} className="bg-background border border-border p-3 sm:p-4 hover:border-terra transition-colors">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[1.05rem]">{m.icon}</span>
-                <span className={`text-[0.55rem] sm:text-[0.58rem] tracking-[0.07em] font-semibold px-1.5 py-0.5 ${m.up ? "bg-sage/10 text-sage" : "bg-gold/10 text-gold"}`}>{m.badge}</span>
-              </div>
-              <div className="font-display text-[1.4rem] sm:text-[1.75rem]">{m.val}</div>
-              <div className="text-[0.6rem] sm:text-[0.62rem] tracking-[0.1em] uppercase text-muted-foreground">{m.label}</div>
+            <div className="font-display text-[1.5rem] sm:text-[1.8rem] mb-1">
+              Olá{loja?.public_name || loja?.shop_name ? `, ${loja.public_name || loja.shop_name}` : ""}! 👋
             </div>
-          ))}
-        </div>
-        <div className="bg-background border border-border">
-          <div className="flex items-center justify-between p-3 border-b border-border">
-            <span className="font-display text-[0.95rem] sm:text-[1rem]">Pedidos Recentes</span>
-            <button className="bg-transparent border border-border px-2 py-1 font-body text-[0.58rem] tracking-[0.1em] uppercase cursor-pointer hover:bg-foreground hover:text-background hover:border-foreground transition-all">
-              Ver todos
-            </button>
-          </div>
-          <div className="hidden lg:grid grid-cols-5 gap-4 px-4 py-2 text-[0.6rem] tracking-[0.12em] uppercase text-muted-foreground border-b border-border">
-            <span>Nº</span><span>Comprador</span><span>Valor</span><span>Status</span><span>Ação</span>
-          </div>
-          {ORDERS.map((o) => (
-            <div key={o.id} className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 items-start lg:items-center px-4 py-3 border-b border-border last:border-b-0 hover:bg-parchment/50 transition-colors">
-              <span className="text-[0.72rem] font-medium text-muted-foreground">{o.id}</span>
-              <div className="lg:order-none order-2 col-span-2 lg:col-span-1">
-                <div className="text-[0.78rem] font-medium">{o.buyer}</div>
-                <div className="text-[0.66rem] text-muted-foreground">{o.items}</div>
-              </div>
-              <span className="font-display text-[0.92rem] text-right lg:text-left">{formatPrice(o.val)}</span>
-              <span className={`inline-block text-[0.55rem] sm:text-[0.56rem] tracking-[0.1em] uppercase font-semibold px-2 py-0.5 w-fit ${STATUS_MAP[o.status].className}`}>
-                {STATUS_MAP[o.status].label}
-              </span>
-              <button className="bg-transparent border border-border px-2 py-1 font-body text-[0.58rem] tracking-[0.1em] uppercase cursor-pointer hover:bg-foreground hover:text-background hover:border-foreground transition-all w-fit col-span-2 lg:col-span-1">
-                Detalhes
-              </button>
-            </div>
-          ))}
-        </div>
+            <div className="text-[0.72rem] sm:text-[0.74rem] text-muted-foreground mb-5 sm:mb-6">Resumo da sua loja</div>
+            {loja ? (
+              <VisaoGeralEPedidos artisanId={loja.id} />
+            ) : (
+              <p className="text-[0.8rem] text-muted-foreground">Carregando sua loja…</p>
+            )}
           </>
         )}
       </main>

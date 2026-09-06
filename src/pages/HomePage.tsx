@@ -24,7 +24,7 @@ const HomePage = () => {
     () =>
       produtos.filter(
         (p) =>
-          (category === "todas" || p.img === category) &&
+          (category === "todas" || p.categorySlug === category) &&
           (style === "todos" || p.badge === style),
       ),
     [produtos, category, style],

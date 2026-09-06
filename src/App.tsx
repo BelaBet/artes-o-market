@@ -19,6 +19,10 @@ import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OAuthConsent from "./pages/OAuthConsent";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import TermosPage from "./pages/TermosPage";
+import PrivacidadePage from "./pages/PrivacidadePage";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +58,24 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/checkout"
+                  element={
+                    <ProtectedRoute>
+                      <CheckoutPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/pedido/:id"
+                  element={
+                    <ProtectedRoute>
+                      <OrderConfirmationPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/termos" element={<TermosPage />} />
+                <Route path="/privacidade" element={<PrivacidadePage />} />
               </Route>
 
               {/* Rotas sem header */}

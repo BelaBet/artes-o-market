@@ -1,122 +1,28 @@
 import { useState } from "react";
-import { Star, MapPin, Play, Users, Award, ChevronRight, Sparkles, Clock } from "lucide-react";
+import { Star, MapPin, Play, Users, Award, Sparkles, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { IMAGES, formatPrice } from "@/lib/data";
 import ShareMenu from "@/components/ShareMenu";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useExperiencias, type ExperienciaCard } from "@/hooks/useExperiencias";
 
 // URL canônica de uma experiência — sem isso o compartilhamento
 // aponta sempre para a página atual, não para a peça em questão.
-const expUrl = (id: number) =>
+const expUrl = (id: string) =>
   typeof window !== "undefined" ? `${window.location.origin}/experiencias#exp-${id}` : "";
 
 type ExpType = "ao vivo" | "gravado" | "presencial" | "mentoria";
 
-interface Experience {
-  id: number;
-  featured?: boolean;
-  type: ExpType;
-  badge: string;
-  icon: JSX.Element;
-  title: string;
-  desc?: string;
-  creator: string;
-  location: string;
-  rating: number;
-  reviews: number;
-  price: number;
-  meta: string;
-  img: string;
-}
+const KIND_INFO: Record<ExperienciaCard["kind"], { type: ExpType; badge: string; icon: JSX.Element }> = {
+  live: { type: "ao vivo", badge: "Ao Vivo", icon: <Sparkles className="w-3 h-3" /> },
+  recorded: { type: "gravado", badge: "Gravado", icon: <Play className="w-3 h-3" /> },
+  in_person: { type: "presencial", badge: "Presencial", icon: <Users className="w-3 h-3" /> },
+  mentorship: { type: "mentoria", badge: "Mentoria", icon: <Award className="w-3 h-3" /> },
+};
 
-const EXPERIENCES: Experience[] = [
-  {
-    id: 1,
-    featured: true,
-    type: "ao vivo",
-    badge: "Ao Vivo",
-    icon: <Sparkles className="w-3 h-3" />,
-    title: "Torneamento em Barro: do Bloco à Peça",
-    desc: "Uma manhã inteira com Ana Lima, aprendendo a girar o torno e dar forma ao barro como há cinco gerações em Ouro Preto.",
-    creator: "Ana Lima",
-    location: "Ouro Preto, MG",
-    rating: 4.9,
-    reviews: 64,
-    price: 89,
-    meta: "2h · Turma de 12",
-    img: IMAGES.pottery,
-  },
-  {
-    id: 2,
-    type: "gravado",
-    badge: "Gravado",
-    icon: <Play className="w-3 h-3" />,
-    title: "Macramê Essencial: 6 Pontos para Sempre",
-    creator: "Carla B.",
-    location: "Salvador, BA",
-    rating: 5.0,
-    reviews: 132,
-    price: 65,
-    meta: "5 módulos · Vitalício",
-    img: IMAGES.weave,
-  },
-  {
-    id: 3,
-    type: "presencial",
-    badge: "Presencial",
-    icon: <Users className="w-3 h-3" />,
-    title: "Vivência: Escultura em Madeira",
-    creator: "Maria S.",
-    location: "Caruaru, PE",
-    rating: 4.8,
-    reviews: 41,
-    price: 220,
-    meta: "Dia inteiro · Limitado",
-    img: IMAGES.wood,
-  },
-  {
-    id: 4,
-    type: "mentoria",
-    badge: "Mentoria",
-    icon: <Award className="w-3 h-3" />,
-    title: "Mentoria 1:1 — Trançado de Buriti",
-    creator: "João N.",
-    location: "Tocantins, TO",
-    rating: 5.0,
-    reviews: 18,
-    price: 150,
-    meta: "60 min · Individual",
-    img: IMAGES.straw1,
-  },
-  {
-    id: 5,
-    type: "gravado",
-    badge: "Gravado",
-    icon: <Play className="w-3 h-3" />,
-    title: "Cestaria Tradicional em Vídeo",
-    creator: "Rosa A.",
-    location: "Campina Grande, PB",
-    rating: 4.9,
-    reviews: 76,
-    price: 70,
-    meta: "4 módulos · Vitalício",
-    img: IMAGES.basket,
-  },
-  {
-    id: 6,
-    type: "ao vivo",
-    badge: "Ao Vivo",
-    icon: <Sparkles className="w-3 h-3" />,
-    title: "Pedra-Sabão: Caixas Decorativas",
-    creator: "Teresa C.",
-    location: "Limoeiro, PE",
-    rating: 4.7,
-    reviews: 29,
-    price: 110,
-    meta: "3h · Turma de 8",
-    img: IMAGES.stone,
-  },
-];
+function metaDaExperiencia(e: ExperienciaCard): string {
+  return e.durationMinutes ? `${Math.round(e.durationMinutes / 60)}h` : "";
+}
 
 const CATEGORIES: { label: string; value: "todos" | ExpType; icon?: JSX.Element }[] = [
   { label: "Todas", value: "todos" },
@@ -158,12 +64,14 @@ const TypeBadge = ({ icon, children, light }: { icon: JSX.Element; children: Rea
   </span>
 );
 
-const FeaturedCard = ({ exp }: { exp: Experience }) => (
+const FeaturedCard = ({ exp }: { exp: ExperienciaCard }) => {
+  const info = KIND_INFO[exp.kind];
+  return (
   <article id={`exp-${exp.id}`} className="grid grid-cols-1 md:grid-cols-2 bg-espresso text-parchment overflow-hidden">
-    <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[380px] lg:min-h-[460px] overflow-hidden">
-      <img src={exp.img} alt={exp.title} className="absolute inset-0 w-full h-full object-cover brightness-[0.78] saturate-[0.9]" />
+    <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[380px] lg:min-h-[460px] overflow-hidden bg-parchment/10">
+      {exp.img && <img src={exp.img} alt={exp.title} className="absolute inset-0 w-full h-full object-cover brightness-[0.78] saturate-[0.9]" />}
       <div className="absolute top-3 left-3 flex gap-2 flex-wrap max-w-[calc(100%-4rem)]">
-        <TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge>
+        <TypeBadge icon={info.icon} light>{info.badge}</TypeBadge>
         <TypeBadge icon={<Sparkles className="w-3 h-3" />} light>Destaque</TypeBadge>
       </div>
       <div className="absolute top-3 right-3">
@@ -175,7 +83,9 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
       <h2 className="font-display font-light text-[1.55rem] sm:text-[1.9rem] md:text-[2rem] lg:text-[2.6rem] leading-[1.1] mb-4 break-words">
         {exp.title}
       </h2>
-      <p className="text-[0.8rem] sm:text-[0.85rem] font-light leading-[1.75] text-parchment/60 mb-6 sm:mb-7 max-w-[460px]">{exp.desc}</p>
+      {exp.description && (
+        <p className="text-[0.8rem] sm:text-[0.85rem] font-light leading-[1.75] text-parchment/60 mb-6 sm:mb-7 max-w-[460px]">{exp.description}</p>
+      )}
 
       <div className="flex items-center gap-3 mb-6 sm:mb-7">
         <div className="w-10 h-10 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center font-display text-gold-light shrink-0">
@@ -184,7 +94,8 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
         <div className="min-w-0">
           <div className="text-[0.78rem] text-parchment truncate">{exp.creator}</div>
           <div className="text-[0.66rem] text-parchment/50 flex items-center gap-1 flex-wrap">
-            <MapPin className="w-3 h-3 shrink-0" /> {exp.location} · <Stars rating={exp.rating} /> ({exp.reviews})
+            {exp.location && <><MapPin className="w-3 h-3 shrink-0" /> {exp.location} · </>}
+            {exp.reviews > 0 && <><Stars rating={exp.rating} /> ({exp.reviews})</>}
           </div>
         </div>
       </div>
@@ -192,7 +103,7 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
       <div className="flex items-center justify-between gap-4 pt-5 sm:pt-6 border-t border-parchment/15 flex-wrap">
         <div>
           <div className="font-display text-[1.5rem] sm:text-[1.8rem] text-gold-light">{formatPrice(exp.price)}</div>
-          <div className="text-[0.62rem] tracking-[0.12em] uppercase text-parchment/40 mt-0.5">{exp.meta}</div>
+          <div className="text-[0.62rem] tracking-[0.12em] uppercase text-parchment/40 mt-0.5">{metaDaExperiencia(exp)}</div>
         </div>
         <button className="bg-terra text-background border-none px-5 sm:px-7 py-3 cursor-pointer font-body font-medium text-[0.68rem] sm:text-[0.71rem] tracking-[0.14em] uppercase hover:brightness-90 hover:-translate-y-px transition-all whitespace-nowrap">
           Garantir Vaga
@@ -200,28 +111,37 @@ const FeaturedCard = ({ exp }: { exp: Experience }) => (
       </div>
     </div>
   </article>
-);
+  );
+};
 
-const ExperienceCard = ({ exp }: { exp: Experience }) => (
+const ExperienceCard = ({ exp }: { exp: ExperienciaCard }) => {
+  const info = KIND_INFO[exp.kind];
+  return (
   <article id={`exp-${exp.id}`} className="bg-card border border-border flex flex-col group h-full">
-    <div className="relative aspect-[4/3] overflow-hidden">
-      <img
-        src={exp.img}
-        alt={exp.title}
-        className="absolute inset-0 w-full h-full object-cover brightness-[0.92] group-hover:scale-[1.04] group-hover:brightness-[0.82] transition-all duration-[600ms]"
-      />
-      <div className="absolute top-3 left-3 max-w-[calc(100%-3.5rem)]"><TypeBadge icon={exp.icon} light>{exp.badge}</TypeBadge></div>
+    <div className="relative aspect-[4/3] overflow-hidden bg-parchment/40">
+      {exp.img && (
+        <img
+          src={exp.img}
+          alt={exp.title}
+          className="absolute inset-0 w-full h-full object-cover brightness-[0.92] group-hover:scale-[1.04] group-hover:brightness-[0.82] transition-all duration-[600ms]"
+        />
+      )}
+      <div className="absolute top-3 left-3 max-w-[calc(100%-3.5rem)]"><TypeBadge icon={info.icon} light>{info.badge}</TypeBadge></div>
       <div className="absolute top-3 right-3"><ShareMenu title={exp.title} url={expUrl(exp.id)} /></div>
-      <div className="absolute bottom-3 left-3 right-3 inline-flex items-center gap-1 bg-background/85 backdrop-blur px-2 py-1 text-[0.58rem] tracking-[0.1em] uppercase text-foreground w-fit max-w-full truncate">
-        <Clock className="w-3 h-3 shrink-0" /> <span className="truncate">{exp.meta}</span>
-      </div>
+      {metaDaExperiencia(exp) && (
+        <div className="absolute bottom-3 left-3 right-3 inline-flex items-center gap-1 bg-background/85 backdrop-blur px-2 py-1 text-[0.58rem] tracking-[0.1em] uppercase text-foreground w-fit max-w-full truncate">
+          <Clock className="w-3 h-3 shrink-0" /> <span className="truncate">{metaDaExperiencia(exp)}</span>
+        </div>
+      )}
     </div>
     <div className="p-4 sm:p-5 flex flex-col flex-1">
       <h3 className="font-display text-[1.05rem] sm:text-[1.15rem] leading-[1.2] mb-2 break-words">{exp.title}</h3>
       <div className="text-[0.7rem] text-muted-foreground mb-3 break-words">
-        por <span className="text-foreground">{exp.creator}</span> · {exp.location}
+        por <span className="text-foreground">{exp.creator}</span>{exp.location && ` · ${exp.location}`}
       </div>
-      <div className="mb-4"><Stars rating={exp.rating} /> <span className="text-[0.68rem] text-muted-foreground">({exp.reviews})</span></div>
+      {exp.reviews > 0 && (
+        <div className="mb-4"><Stars rating={exp.rating} /> <span className="text-[0.68rem] text-muted-foreground">({exp.reviews})</span></div>
+      )}
       <div className="mt-auto flex items-center justify-between gap-3 pt-4 border-t border-border flex-wrap">
         <div className="font-display text-[1.15rem] sm:text-[1.25rem] text-terra">{formatPrice(exp.price)}</div>
         <button className="bg-terra text-background px-3.5 sm:px-4 py-2 font-body text-[0.62rem] sm:text-[0.66rem] tracking-[0.14em] uppercase hover:bg-[hsl(18,56%,36%)] transition-colors whitespace-nowrap">
@@ -230,19 +150,35 @@ const ExperienceCard = ({ exp }: { exp: Experience }) => (
       </div>
     </div>
   </article>
-);
+  );
+};
 
 const ExperiencesPage = () => {
   const navigate = useNavigate();
   const onExplore = () => navigate("/catalogo");
   const [tab, setTab] = useState<"todos" | ExpType>("todos");
+  const { experiencias, loading } = useExperiencias();
   usePageMeta(
     "Experiências",
     "Aulas, vivências e mentorias com artesãos brasileiros: torno, macramê, madeira e mais — ao vivo, gravadas ou presenciais.",
   );
-  const featured = EXPERIENCES.find((e) => e.featured)!;
-  const rest = EXPERIENCES.filter((e) => !e.featured);
-  const filtered = tab === "todos" ? rest : rest.filter((e) => e.type === tab);
+  const featured = experiencias.find((e) => e.featured) ?? experiencias[0];
+  const rest = experiencias.filter((e) => e.id !== featured?.id);
+  const filtered = tab === "todos" ? rest : rest.filter((e) => KIND_INFO[e.kind].type === tab);
+
+  if (!loading && experiencias.length === 0) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
+        <div className="max-w-[420px] text-center">
+          <div className="font-display text-[1.4rem] mb-2">Ainda não há experiências publicadas</div>
+          <p className="text-[0.84rem] text-muted-foreground">Volte em breve — os artesãos estão preparando novas vivências.</p>
+        </div>
+      </div>
+    );
+  }
+  if (loading || !featured) {
+    return <div className="min-h-[60vh]" />;
+  }
 
   return (
     <div className="bg-background">
@@ -271,14 +207,6 @@ const ExperiencesPage = () => {
             <button className="bg-transparent text-parchment border border-parchment/30 px-7 py-3 font-body font-medium text-[0.71rem] tracking-[0.14em] uppercase hover:border-parchment transition-all">
               Quero Ensinar
             </button>
-          </div>
-          <div className="flex flex-wrap gap-7 mt-10 pt-7 border-t border-parchment/10">
-            {[["340+", "Experiências"], ["4.9", "Avaliação"], ["12k", "Alunos"]].map(([n, l]) => (
-              <div key={l}>
-                <div className="font-display text-[1.9rem] text-gold-light font-light">{n}</div>
-                <div className="text-[0.64rem] tracking-[0.12em] uppercase text-parchment/30 mt-0.5">{l}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -328,54 +256,6 @@ const ExperiencesPage = () => {
 
       {/* Divider */}
       <div className="max-w-[1320px] mx-auto h-px bg-gold/30 mx-4 md:mx-9" />
-
-      {/* Instructor spotlight */}
-      <section className="px-4 md:px-9 py-14 sm:py-20">
-        <div className="max-w-[1320px] mx-auto">
-          <div className="flex items-end justify-between gap-4 mb-8 flex-wrap">
-            <div>
-              <Eyebrow>Conheça quem ensina</Eyebrow>
-              <h2 className="font-display font-normal text-[1.65rem] sm:text-[2.1rem] leading-[1.15]">
-                Instrutores em <em className="italic text-terra">destaque</em>
-              </h2>
-            </div>
-            <button className="font-body text-[0.66rem] tracking-[0.14em] uppercase text-muted-foreground hover:text-terra transition-colors inline-flex items-center gap-1">
-              Ver todos <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] bg-parchment border border-border">
-            <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[380px] overflow-hidden">
-              <img src={IMAGES.ceramic} alt="Ana Lima" className="absolute inset-0 w-full h-full object-cover" />
-            </div>
-            <div className="p-7 sm:p-10 flex flex-col justify-center">
-              <h3 className="font-display text-[1.6rem] mb-1 flex items-center gap-2">
-                Ana Lima <Award className="w-4 h-4 text-gold" />
-              </h3>
-              <div className="text-[0.72rem] text-muted-foreground flex items-center gap-1 mb-3">
-                <MapPin className="w-3 h-3" /> Ouro Preto, MG
-              </div>
-              <p className="text-[0.85rem] text-foreground/70 leading-relaxed mb-6">Pedra-Sabão & Cerâmica</p>
-              <div className="grid grid-cols-3 gap-4 mb-7 py-5 border-y border-border">
-                {[["8", "Experiências"], ["4.9", "Avaliação"], ["1.2k", "Alunos"]].map(([n, l]) => (
-                  <div key={l}>
-                    <div className="font-display text-[1.4rem] text-terra">{n}</div>
-                    <div className="text-[0.58rem] tracking-[0.12em] uppercase text-muted-foreground mt-0.5">{l}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <button className="bg-espresso text-cream px-5 py-2.5 font-body text-[0.68rem] tracking-[0.14em] uppercase hover:bg-foreground transition-colors">
-                  Ver Experiências
-                </button>
-                <button className="bg-transparent border border-foreground text-foreground px-5 py-2.5 font-body text-[0.68rem] tracking-[0.14em] uppercase hover:bg-foreground hover:text-background transition-colors">
-                  Seguir
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CTA */}
       <section className="bg-espresso text-parchment px-4 md:px-9 py-16 sm:py-20 text-center">

@@ -97,7 +97,7 @@ var list_my_reviews_default = defineTool3({
       return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
     }
     const cap = Math.min(Math.max(limit ?? 20, 1), 100);
-    const { data, error } = await supabaseForUser3(ctx).from("reviews").select("id, rating, comment, product_name, reviewer_name, reviewer_city, created_at").eq("artisan_user_id", ctx.getUserId()).order("created_at", { ascending: false }).limit(cap);
+    const { data, error } = await supabaseForUser3(ctx).from("reviews_legacy").select("id, rating, comment, product_name, reviewer_name, reviewer_city, created_at").eq("artisan_user_id", ctx.getUserId()).order("created_at", { ascending: false }).limit(cap);
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: JSON.stringify(data ?? [], null, 2) }],

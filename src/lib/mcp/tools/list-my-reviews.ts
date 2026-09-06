@@ -23,7 +23,7 @@ export default defineTool({
     }
     const cap = Math.min(Math.max(limit ?? 20, 1), 100);
     const { data, error } = await supabaseForUser(ctx)
-      .from("reviews")
+      .from("reviews_legacy")
       .select("id, rating, comment, product_name, reviewer_name, reviewer_city, created_at")
       .eq("artisan_user_id", ctx.getUserId())
       .order("created_at", { ascending: false })

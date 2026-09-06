@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { IMAGES, PRODUCTS, BADGE_MAP, formatPrice } from "@/lib/data";
+import { BADGE_MAP, formatPrice } from "@/lib/data";
+import type { ProdutoCard } from "@/hooks/useProdutos";
 import { useCart } from "@/contexts/CartContext";
 import ImagemComPlaceholder from "@/components/ImagemComPlaceholder";
 import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 
 interface ProductGridProps {
-  products?: typeof PRODUCTS;
+  products: ProdutoCard[];
   onAddToCart?: () => void;
   /** exibe o esqueleto no lugar da grade */
   loading?: boolean;
@@ -13,15 +14,10 @@ interface ProductGridProps {
   skeletonCount?: number;
 }
 
-const ProductGrid = ({
-  products = PRODUCTS,
-  onAddToCart,
-  loading = false,
-  skeletonCount = 8,
-}: ProductGridProps) => {
+const ProductGrid = ({ products, onAddToCart, loading = false, skeletonCount = 8 }: ProductGridProps) => {
   const { addItem } = useCart();
-  const [favs, setFavs] = useState<Set<number>>(new Set());
-  const toggleFav = (id: number) =>
+  const [favs, setFavs] = useState<Set<string>>(new Set());
+  const toggleFav = (id: string) =>
     setFavs((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -60,9 +56,9 @@ const ProductGrid = ({
               {favs.has(p.id) ? "♥" : "♡"}
             </button>
             <ImagemComPlaceholder
-              src={IMAGES[p.img]}
+              src={p.img ?? undefined}
               alt={p.name}
-              tintKey={p.img}
+              tint={p.tint}
               prioridade={i < 4}
               className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[550ms] saturate-[0.86]"
             />
@@ -77,20 +73,23 @@ const ProductGrid = ({
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <div className="text-gold text-[0.58rem] sm:text-[0.64rem] tracking-[1px]">
-                  {"★".repeat(p.stars)}{"☆".repeat(5 - p.stars)}
-                  <span className="text-muted-foreground text-[0.55rem] sm:text-[0.61rem] ml-0.5 tracking-normal">({p.reviews})</span>
-                </div>
+                {p.reviews > 0 && (
+                  <div className="text-gold text-[0.58rem] sm:text-[0.64rem] tracking-[1px]">
+                    {"★".repeat(p.stars)}{"☆".repeat(5 - p.stars)}
+                    <span className="text-muted-foreground text-[0.55rem] sm:text-[0.61rem] ml-0.5 tracking-normal">({p.reviews})</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-1">
                   <span className="font-display text-[0.98rem] sm:text-[1.15rem] font-medium">{formatPrice(p.price)}</span>
                   {p.oldPrice && <span className="text-[0.6rem] sm:text-[0.7rem] text-muted-foreground line-through">{formatPrice(p.oldPrice)}</span>}
                 </div>
               </div>
               <button
-                onClick={(e) => { e.stopPropagation(); addItem(p.id); onAddToCart?.(); }}
-                className="bg-transparent border border-border cursor-pointer w-full sm:w-auto px-3 py-2 sm:py-1 font-body text-[0.62rem] sm:text-[0.6rem] tracking-[0.12em] uppercase font-medium hover:bg-foreground hover:text-background hover:border-foreground active:bg-foreground active:text-background transition-all shrink-0"
+                onClick={(e) => { e.stopPropagation(); addItem(p); onAddToCart?.(); }}
+                disabled={p.stockQuantity <= 0}
+                className="bg-transparent border border-border cursor-pointer w-full sm:w-auto px-3 py-2 sm:py-1 font-body text-[0.62rem] sm:text-[0.6rem] tracking-[0.12em] uppercase font-medium hover:bg-foreground hover:text-background hover:border-foreground active:bg-foreground active:text-background transition-all shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Adicionar
+                {p.stockQuantity <= 0 ? "Esgotado" : "Adicionar"}
               </button>
             </div>
           </div>
