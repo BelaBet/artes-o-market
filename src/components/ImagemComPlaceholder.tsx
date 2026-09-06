@@ -5,6 +5,8 @@ import { IMAGE_TINTS } from "@/lib/data";
 interface ImagemComPlaceholderProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   /** chave em IMAGES/IMAGE_TINTS — define a cor de fundo do placeholder */
   tintKey?: string;
+  /** cor (hex) direta do placeholder — tem prioridade sobre tintKey; usada por dados vindos do banco */
+  tint?: string;
   /** true para a primeira dobra: carrega com prioridade em vez de lazy */
   prioridade?: boolean;
 }
@@ -16,13 +18,23 @@ interface ImagemComPlaceholderProps extends React.ImgHTMLAttributes<HTMLImageEle
  */
 const ImagemComPlaceholder = ({
   tintKey,
+  tint: tintDireto,
   prioridade = false,
   className,
   onLoad,
   ...props
 }: ImagemComPlaceholderProps) => {
   const [carregada, setCarregada] = useState(false);
-  const tint = tintKey ? IMAGE_TINTS[tintKey] : undefined;
+  const tint = tintDireto ?? (tintKey ? IMAGE_TINTS[tintKey] : undefined);
+
+  // Sem imagem nenhuma (produto/loja ainda sem foto): mostra só a cor de
+  // fundo, parada — sem isso, o <img src="undefined"> nunca dispara
+  // load/error e o pulso de "carregando" fica animando pra sempre.
+  if (!props.src) {
+    return (
+      <div aria-hidden className={cn(className, "absolute inset-0")} style={{ backgroundColor: tint ?? "hsl(var(--parchment))" }} />
+    );
+  }
 
   return (
     <>

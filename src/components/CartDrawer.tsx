@@ -1,5 +1,7 @@
+import { useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
-import { IMAGES, formatPrice } from "@/lib/data";
+import { useAuth } from "@/contexts/AuthContext";
+import { formatPrice } from "@/lib/data";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import {
   Sheet,
@@ -12,6 +14,13 @@ import {
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, updateQty, removeItem, totalItems, totalPrice } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const finalizarCompra = () => {
+    setIsOpen(false);
+    navigate(user ? "/checkout" : "/login?next=/checkout");
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -42,11 +51,13 @@ const CartDrawer = () => {
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3 pb-4 border-b border-border last:border-b-0">
                   <div className="w-20 h-20 shrink-0 overflow-hidden bg-parchment">
-                    <img
-                      src={IMAGES[item.img]}
-                      alt={item.name}
-                      className="w-full h-full object-cover saturate-[0.86]"
-                    />
+                    {item.img && (
+                      <img
+                        src={item.img}
+                        alt={item.name}
+                        className="w-full h-full object-cover saturate-[0.86]"
+                      />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-display font-medium text-sm leading-tight mb-0.5 truncate">
@@ -96,7 +107,10 @@ const CartDrawer = () => {
               <p className="text-[0.6rem] text-muted-foreground tracking-wide">
                 Frete calculado no checkout · Parcele em até 6x
               </p>
-              <button className="w-full bg-foreground text-background font-body text-xs tracking-[0.14em] uppercase font-medium py-3 hover:bg-espresso transition-colors">
+              <button
+                onClick={finalizarCompra}
+                className="w-full bg-foreground text-background font-body text-xs tracking-[0.14em] uppercase font-medium py-3 hover:bg-espresso transition-colors"
+              >
                 Finalizar Compra
               </button>
               <button

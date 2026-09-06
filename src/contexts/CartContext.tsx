@@ -1,13 +1,14 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { PRODUCTS } from "@/lib/data";
+import type { ProdutoCard } from "@/hooks/useProdutos";
 import { CARRINHO_STORAGE_KEY } from "@/lib/storageKeys";
 
 export interface CartItem {
-  id: number;
+  id: string;
   name: string;
   artist: string;
   price: number;
-  img: string;
+  priceCents: number;
+  img: string | null;
   qty: number;
 }
 
@@ -15,9 +16,9 @@ interface CartContextType {
   items: CartItem[];
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  addItem: (productId: number) => void;
-  removeItem: (productId: number) => void;
-  updateQty: (productId: number, qty: number) => void;
+  addItem: (produto: ProdutoCard) => void;
+  removeItem: (productId: string) => void;
+  updateQty: (productId: string, qty: number) => void;
   totalItems: number;
   totalPrice: number;
   clearCart: () => void;
@@ -50,24 +51,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items]);
 
-  const addItem = (productId: number) => {
+  const addItem = (produto: ProdutoCard) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === productId);
+      const existing = prev.find((i) => i.id === produto.id);
       if (existing) {
-        return prev.map((i) => (i.id === productId ? { ...i, qty: i.qty + 1 } : i));
+        return prev.map((i) => (i.id === produto.id ? { ...i, qty: i.qty + 1 } : i));
       }
-      const product = PRODUCTS.find((p) => p.id === productId);
-      if (!product) return prev;
-      return [...prev, { id: product.id, name: product.name, artist: product.artist, price: product.price, img: product.img, qty: 1 }];
+      return [
+        ...prev,
+        { id: produto.id, name: produto.name, artist: produto.artist, price: produto.price, priceCents: produto.priceCents, img: produto.img, qty: 1 },
+      ];
     });
     setIsOpen(true);
   };
 
-  const removeItem = (productId: number) => {
+  const removeItem = (productId: string) => {
     setItems((prev) => prev.filter((i) => i.id !== productId));
   };
 
-  const updateQty = (productId: number, qty: number) => {
+  const updateQty = (productId: string, qty: number) => {
     if (qty <= 0) {
       removeItem(productId);
       return;
