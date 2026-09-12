@@ -5,6 +5,7 @@ import { useMinhaLoja } from "@/hooks/useMinhaLoja";
 import { usePedidosDaLoja, useResumoFinanceiro } from "@/hooks/usePainelArtesao";
 import MinhaLoja from "@/components/painel/MinhaLoja";
 import ProdutosPainel from "@/components/painel/ProdutosPainel";
+import RecebimentoPainel from "@/components/painel/RecebimentoPainel";
 
 const VisaoGeralEPedidos = ({ artisanId }: { artisanId: string }) => {
   const { pedidos, loading } = usePedidosDaLoja(artisanId);
@@ -99,7 +100,7 @@ const DashboardPage = () => {
         ) : tab === "products" ? (
           loja ? <ProdutosPainel artisanId={loja.id} /> : <p className="text-[0.8rem] text-muted-foreground">Carregando sua loja…</p>
         ) : tab === "settings" ? (
-          <p className="text-[0.82rem] text-muted-foreground">Em breve.</p>
+          loja ? <RecebimentoPainel artisanId={loja.id} /> : <p className="text-[0.8rem] text-muted-foreground">Carregando sua loja…</p>
         ) : (
           <>
             <div className="font-display text-[1.5rem] sm:text-[1.8rem] mb-1">
