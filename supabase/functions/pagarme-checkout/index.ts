@@ -11,6 +11,15 @@
 //
 // Nunca recebe dados de cartão brutos: o front-end tokeniza o cartão
 // direto com o Pagar.me (chave pública) e manda só o `card_token` aqui.
+//
+// Split de pagamento: se o artesão de um item já tem pagarme_recipient_id
+// (criado via a função criar-recebedor + stone-split-service), a fatia
+// dele (order_items.artisan_amount_cents, já calculada por criar_pedido
+// com a NOSSA comissão — platform_settings.default_commission_bps, não
+// o modelo Hotmart do stone-split-service) vai direto pro recipient dele
+// no split nativo do Pagar.me. O resto (comissão da plataforma + itens
+// de artesão ainda sem recipient configurado) fica implícito na conta
+// principal, dona da secret key — normal quando o split não cobre 100%.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const PAGARME_API = "https://api.pagar.me/core/v5";
@@ -71,7 +80,7 @@ Deno.serve(async (req) => {
 
   const { data: order, error: orderError } = await admin
     .from("orders")
-    .select("*, order_items(title, quantity, total_cents)")
+    .select("*, order_items(title, quantity, total_cents, artisan_id, artisan_amount_cents)")
     .eq("id", corpo.order_id)
     .maybeSingle();
   if (orderError || !order) {
@@ -89,9 +98,37 @@ Deno.serve(async (req) => {
 
   const documento = (order.buyer_document ?? "").replace(/\D/g, "");
   const telefone = (order.buyer_phone ?? "").replace(/\D/g, "");
+  type ItemPedido = { title: string; quantity: number; total_cents: number; artisan_id: string; artisan_amount_cents: number };
+  const itens: ItemPedido[] = order.order_items ?? [];
+
+  // Split nativo do Pagar.me: um recipient por artesão que já tem
+  // pagarme_recipient_id, com a fatia que criar_pedido já calculou pra
+  // ele (artisan_amount_cents, na NOSSA comissão). Artesão sem
+  // recipient ainda: a fatia dele fica implícita na conta principal até
+  // ele terminar o cadastro de recebimento.
+  const somaPorArtesao = new Map<string, number>();
+  for (const it of itens) {
+    somaPorArtesao.set(it.artisan_id, (somaPorArtesao.get(it.artisan_id) ?? 0) + it.artisan_amount_cents);
+  }
+  const artisanIds = [...somaPorArtesao.keys()];
+  const { data: recebedores } = artisanIds.length
+    ? await admin.from("artisan_billing").select("artisan_id, pagarme_recipient_id").in("artisan_id", artisanIds)
+    : { data: [] as { artisan_id: string; pagarme_recipient_id: string | null }[] };
+  const recipientPorArtesao = new Map(
+    (recebedores ?? []).filter((r) => r.pagarme_recipient_id).map((r) => [r.artisan_id, r.pagarme_recipient_id as string]),
+  );
+  const split = artisanIds
+    .filter((id) => recipientPorArtesao.has(id))
+    .map((id) => ({
+      recipient_id: recipientPorArtesao.get(id),
+      amount: somaPorArtesao.get(id)!,
+      type: "flat" as const,
+      options: { charge_processing_fee: false, liable: false, charge_remainder_fee: false },
+    }));
+
   const payload: Record<string, unknown> = {
     code: order.number?.toString(),
-    items: (order.order_items ?? []).map((it: { title: string; quantity: number; total_cents: number }) => ({
+    items: itens.map((it) => ({
       amount: it.total_cents,
       description: it.title.slice(0, 255),
       quantity: it.quantity,
@@ -108,12 +145,13 @@ Deno.serve(async (req) => {
   };
 
   if (order.payment_method === "pix") {
-    payload.payments = [{ payment_method: "pix", pix: { expires_in: 3600 } }];
+    payload.payments = [{ payment_method: "pix", pix: { expires_in: 3600 }, ...(split.length ? { split } : {}) }];
   } else if (order.payment_method === "boleto") {
     payload.payments = [
       {
         payment_method: "boleto",
         boleto: { instructions: "Pagável em qualquer banco até o vencimento.", due_at: new Date(Date.now() + 3 * 86400_000).toISOString() },
+        ...(split.length ? { split } : {}),
       },
     ];
   } else if (order.payment_method === "credit_card") {
@@ -124,6 +162,7 @@ Deno.serve(async (req) => {
       {
         payment_method: "credit_card",
         credit_card: { installments: order.installments ?? 1, card_token: corpo.card_token },
+        ...(split.length ? { split } : {}),
       },
     ];
   }
