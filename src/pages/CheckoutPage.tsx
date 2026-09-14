@@ -14,7 +14,7 @@ const rotulo = "block text-[0.6rem] tracking-[0.16em] uppercase text-muted-foreg
 const ENDERECO_VAZIO: Endereco = { zipcode: "", street: "", number: "", complement: "", district: "", city: "", state: "" };
 
 const CheckoutPage = () => {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice, clearCart, requerEndereco } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { finalizar, processando, erro } = useCheckout();
@@ -41,14 +41,16 @@ const CheckoutPage = () => {
   }
 
   const camposObrigatoriosPreenchidos =
-    nome.trim() && email.trim() && endereco.street && endereco.number && endereco.district && endereco.city && endereco.state;
+    nome.trim() &&
+    email.trim() &&
+    (!requerEndereco || (endereco.street && endereco.number && endereco.district && endereco.city && endereco.state));
 
   const finalizarCompra = async () => {
     if (!camposObrigatoriosPreenchidos) {
-      toast.error("Preencha nome, e-mail e endereço de entrega.");
+      toast.error(requerEndereco ? "Preencha nome, e-mail e endereço de entrega." : "Preencha nome e e-mail.");
       return;
     }
-    const pedido = await finalizar(items, { name: nome, email, phone: telefone, document: documento }, endereco, metodo);
+    const pedido = await finalizar(items, { name: nome, email, phone: telefone, document: documento }, requerEndereco ? endereco : null, metodo);
     if (pedido) {
       clearCart();
       navigate(`/pedido/${pedido.id}`);
@@ -83,39 +85,41 @@ const CheckoutPage = () => {
             </div>
           </section>
 
-          <section>
-            <h2 className="text-[0.62rem] tracking-[0.18em] uppercase text-terra mb-4">Endereço de entrega</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={rotulo}>CEP</label>
-                <input className={campo} value={endereco.zipcode} onChange={(e) => setEndereco({ ...endereco, zipcode: e.target.value })} />
+          {requerEndereco && (
+            <section>
+              <h2 className="text-[0.62rem] tracking-[0.18em] uppercase text-terra mb-4">Endereço de entrega</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={rotulo}>CEP</label>
+                  <input className={campo} value={endereco.zipcode} onChange={(e) => setEndereco({ ...endereco, zipcode: e.target.value })} />
+                </div>
+                <div>
+                  <label className={rotulo}>Cidade</label>
+                  <input className={campo} value={endereco.city} onChange={(e) => setEndereco({ ...endereco, city: e.target.value })} />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className={rotulo}>Rua</label>
+                  <input className={campo} value={endereco.street} onChange={(e) => setEndereco({ ...endereco, street: e.target.value })} />
+                </div>
+                <div>
+                  <label className={rotulo}>Número</label>
+                  <input className={campo} value={endereco.number} onChange={(e) => setEndereco({ ...endereco, number: e.target.value })} />
+                </div>
+                <div>
+                  <label className={rotulo}>Complemento</label>
+                  <input className={campo} value={endereco.complement} onChange={(e) => setEndereco({ ...endereco, complement: e.target.value })} />
+                </div>
+                <div>
+                  <label className={rotulo}>Bairro</label>
+                  <input className={campo} value={endereco.district} onChange={(e) => setEndereco({ ...endereco, district: e.target.value })} />
+                </div>
+                <div>
+                  <label className={rotulo}>Estado (UF)</label>
+                  <input maxLength={2} className={campo} value={endereco.state} onChange={(e) => setEndereco({ ...endereco, state: e.target.value.toUpperCase() })} />
+                </div>
               </div>
-              <div>
-                <label className={rotulo}>Cidade</label>
-                <input className={campo} value={endereco.city} onChange={(e) => setEndereco({ ...endereco, city: e.target.value })} />
-              </div>
-              <div className="sm:col-span-2">
-                <label className={rotulo}>Rua</label>
-                <input className={campo} value={endereco.street} onChange={(e) => setEndereco({ ...endereco, street: e.target.value })} />
-              </div>
-              <div>
-                <label className={rotulo}>Número</label>
-                <input className={campo} value={endereco.number} onChange={(e) => setEndereco({ ...endereco, number: e.target.value })} />
-              </div>
-              <div>
-                <label className={rotulo}>Complemento</label>
-                <input className={campo} value={endereco.complement} onChange={(e) => setEndereco({ ...endereco, complement: e.target.value })} />
-              </div>
-              <div>
-                <label className={rotulo}>Bairro</label>
-                <input className={campo} value={endereco.district} onChange={(e) => setEndereco({ ...endereco, district: e.target.value })} />
-              </div>
-              <div>
-                <label className={rotulo}>Estado (UF)</label>
-                <input maxLength={2} className={campo} value={endereco.state} onChange={(e) => setEndereco({ ...endereco, state: e.target.value.toUpperCase() })} />
-              </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           <section>
             <h2 className="text-[0.62rem] tracking-[0.18em] uppercase text-terra mb-4">Pagamento</h2>

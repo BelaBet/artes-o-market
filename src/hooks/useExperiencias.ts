@@ -5,6 +5,7 @@ import { agregarNotas } from "@/lib/avaliacoes";
 
 export interface ExperienciaCard {
   id: string;
+  slug: string;
   featured: boolean;
   kind: "live" | "recorded" | "in_person" | "mentorship";
   title: string;
@@ -13,9 +14,14 @@ export interface ExperienciaCard {
   location: string | null;
   durationMinutes: number | null;
   price: number;
+  priceCents: number;
   rating: number;
   reviews: number;
   img: string | null;
+  /** null = sem limite de vagas. */
+  capacity: number | null;
+  seatsTaken: number;
+  soldOut: boolean;
 }
 
 export function useExperiencias() {
@@ -25,7 +31,8 @@ export function useExperiencias() {
       const { data, error } = await supabase
         .from("experiences")
         .select(`
-          id, featured, kind, title, description, price_cents, duration_minutes, location, cover_path, cover_tint,
+          id, slug, featured, kind, title, description, price_cents, duration_minutes, location, cover_path, cover_tint,
+          capacity, seats_taken, status,
           artisans(shop_name, public_name)
         `)
         .in("status", ["active", "sold_out"])
@@ -43,6 +50,7 @@ export function useExperiencias() {
         const nota = notas.get(e.id);
         return {
           id: e.id,
+          slug: e.slug,
           featured: e.featured,
           kind: e.kind,
           title: e.title,
@@ -51,9 +59,13 @@ export function useExperiencias() {
           location: e.location,
           durationMinutes: e.duration_minutes,
           price: e.price_cents / 100,
+          priceCents: e.price_cents,
           rating: nota?.media ?? 0,
           reviews: nota?.total ?? 0,
           img: resolverImagem(e.cover_path),
+          capacity: e.capacity,
+          seatsTaken: e.seats_taken,
+          soldOut: e.status === "sold_out" || (e.capacity != null && e.seats_taken >= e.capacity),
         };
       });
     },
