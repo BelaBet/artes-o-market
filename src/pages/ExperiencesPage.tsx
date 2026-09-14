@@ -5,6 +5,7 @@ import { IMAGES, formatPrice } from "@/lib/data";
 import ShareMenu from "@/components/ShareMenu";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useExperiencias, type ExperienciaCard } from "@/hooks/useExperiencias";
+import { useCart } from "@/contexts/CartContext";
 
 // URL canônica de uma experiência — sem isso o compartilhamento
 // aponta sempre para a página atual, não para a peça em questão.
@@ -66,6 +67,7 @@ const TypeBadge = ({ icon, children, light }: { icon: JSX.Element; children: Rea
 
 const FeaturedCard = ({ exp }: { exp: ExperienciaCard }) => {
   const info = KIND_INFO[exp.kind];
+  const { addExperience } = useCart();
   return (
   <article id={`exp-${exp.id}`} className="grid grid-cols-1 md:grid-cols-2 bg-espresso text-parchment overflow-hidden">
     <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[380px] lg:min-h-[460px] overflow-hidden bg-parchment/10">
@@ -105,8 +107,12 @@ const FeaturedCard = ({ exp }: { exp: ExperienciaCard }) => {
           <div className="font-display text-[1.5rem] sm:text-[1.8rem] text-gold-light">{formatPrice(exp.price)}</div>
           <div className="text-[0.62rem] tracking-[0.12em] uppercase text-parchment/40 mt-0.5">{metaDaExperiencia(exp)}</div>
         </div>
-        <button className="bg-terra text-background border-none px-5 sm:px-7 py-3 cursor-pointer font-body font-medium text-[0.68rem] sm:text-[0.71rem] tracking-[0.14em] uppercase hover:brightness-90 hover:-translate-y-px transition-all whitespace-nowrap">
-          Garantir Vaga
+        <button
+          onClick={() => addExperience(exp)}
+          disabled={exp.soldOut}
+          className="bg-terra text-background border-none px-5 sm:px-7 py-3 cursor-pointer font-body font-medium text-[0.68rem] sm:text-[0.71rem] tracking-[0.14em] uppercase hover:brightness-90 hover:-translate-y-px transition-all whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0"
+        >
+          {exp.soldOut ? "Esgotado" : "Garantir Vaga"}
         </button>
       </div>
     </div>
@@ -116,6 +122,7 @@ const FeaturedCard = ({ exp }: { exp: ExperienciaCard }) => {
 
 const ExperienceCard = ({ exp }: { exp: ExperienciaCard }) => {
   const info = KIND_INFO[exp.kind];
+  const { addExperience } = useCart();
   return (
   <article id={`exp-${exp.id}`} className="bg-card border border-border flex flex-col group h-full">
     <div className="relative aspect-[4/3] overflow-hidden bg-parchment/40">
@@ -144,8 +151,12 @@ const ExperienceCard = ({ exp }: { exp: ExperienciaCard }) => {
       )}
       <div className="mt-auto flex items-center justify-between gap-3 pt-4 border-t border-border flex-wrap">
         <div className="font-display text-[1.15rem] sm:text-[1.25rem] text-terra">{formatPrice(exp.price)}</div>
-        <button className="bg-terra text-background px-3.5 sm:px-4 py-2 font-body text-[0.62rem] sm:text-[0.66rem] tracking-[0.14em] uppercase hover:bg-[hsl(18,56%,36%)] transition-colors whitespace-nowrap">
-          Participar
+        <button
+          onClick={() => addExperience(exp)}
+          disabled={exp.soldOut}
+          className="bg-terra text-background px-3.5 sm:px-4 py-2 font-body text-[0.62rem] sm:text-[0.66rem] tracking-[0.14em] uppercase hover:bg-[hsl(18,56%,36%)] transition-colors whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {exp.soldOut ? "Esgotado" : "Participar"}
         </button>
       </div>
     </div>

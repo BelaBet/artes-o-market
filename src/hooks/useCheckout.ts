@@ -29,7 +29,7 @@ export function useCheckout() {
   const finalizar = async (
     itens: CartItem[],
     comprador: DadosComprador,
-    endereco: Endereco,
+    endereco: Endereco | null,
     metodo: MetodoPagamento,
     installments = 1,
   ): Promise<Tables<"orders"> | null> => {
@@ -37,12 +37,12 @@ export function useCheckout() {
     setErro(null);
     try {
       const { data: pedido, error: erroPedido } = await supabase.rpc("criar_pedido", {
-        _itens: itens.map((i) => ({ kind: "product", id: i.id, quantity: i.qty })),
+        _itens: itens.map((i) => ({ kind: i.kind, id: i.id, quantity: i.qty })),
         _buyer_name: comprador.name,
         _buyer_email: comprador.email,
         _buyer_phone: comprador.phone || null,
         _buyer_document: comprador.document || null,
-        _shipping: endereco,
+        _shipping: endereco ?? {},
         _shipping_cents: 0,
       });
       if (erroPedido) throw erroPedido;
