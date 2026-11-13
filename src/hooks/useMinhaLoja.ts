@@ -24,8 +24,12 @@ export function useMinhaLoja() {
         .rpc("minha_loja")
         .maybeSingle();
 
-
-      if (existente) return existente;
+      // Quando não existe loja, o PostgREST devolve o composto "vazio" da
+      // função como um objeto com todo campo null (não um JSON null de
+      // verdade) — então `if (existente)` sozinho é sempre verdadeiro e
+      // nunca cria a loja. `id` é a única coluna que nunca é null numa
+      // loja real.
+      if (existente?.id) return existente;
 
       const nome =
         (user!.user_metadata?.display_name as string | undefined) ?? "Meu Ateliê";
@@ -65,8 +69,7 @@ export function useAbrirMinhaLoja() {
         .rpc("minha_loja")
         .maybeSingle();
 
-
-      if (existente) {
+      if (existente?.id) {
         queryClient.setQueryData(["minha-loja", user.id], existente);
         return existente;
       }
