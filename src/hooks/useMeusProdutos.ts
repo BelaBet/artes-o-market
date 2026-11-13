@@ -94,6 +94,10 @@ export function useSalvarProduto(artisanId: string | undefined) {
             description: dados.description || null,
             price_cents: dados.priceCents,
             stock_quantity: dados.stockQuantity,
+            // "unique" (o default da coluna) só permite stock_quantity <= 1;
+            // o painel não distingue peça única de peça com várias
+            // unidades, então usamos sempre "quantity".
+            stock_mode: "quantity",
             status: dados.status,
             category_id: dados.categoryId,
           })
@@ -127,6 +131,7 @@ export function useSalvarProduto(artisanId: string | undefined) {
             description: dados.description || null,
             price_cents: dados.priceCents,
             stock_quantity: dados.stockQuantity,
+            stock_mode: "quantity",
             status: dados.status,
             category_id: dados.categoryId,
           })

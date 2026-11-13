@@ -62,8 +62,9 @@ const FormularioProduto = ({ artisanId, produto, onFechar }: FormularioProdutoPr
         toast.success("Produto criado");
       }
       onFechar();
-    } catch {
-      toast.error("Não foi possível salvar o produto agora.");
+    } catch (erro) {
+      const mensagem = erro instanceof Error ? erro.message : null;
+      toast.error(mensagem ? `Não foi possível salvar: ${mensagem}` : "Não foi possível salvar o produto agora.");
     }
   };
 
