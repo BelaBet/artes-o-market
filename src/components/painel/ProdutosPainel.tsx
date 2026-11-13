@@ -40,6 +40,11 @@ const FormularioProduto = ({ artisanId, produto, onFechar }: FormularioProdutoPr
       : VAZIO,
   );
   const [imagem, setImagem] = useState<File | null>(null);
+  // Texto digitado do preço fica separado de priceCents: se o value do
+  // input viesse de (priceCents / 100).toFixed(2) a cada tecla, o campo
+  // reformatava "X.00" a cada dígito e travava o cursor nas casas
+  // decimais, impedindo digitar a parte inteira com mais de 2 dígitos.
+  const [precoTexto, setPrecoTexto] = useState(dados.priceCents ? (dados.priceCents / 100).toFixed(2) : "");
 
   const salvar = async () => {
     if (!dados.title.trim() || dados.priceCents <= 0) {
@@ -91,12 +96,17 @@ const FormularioProduto = ({ artisanId, produto, onFechar }: FormularioProdutoPr
         <div>
           <label className={rotulo}>Preço (R$)</label>
           <input
-            type="number"
-            step="0.01"
-            min="0"
+            type="text"
+            inputMode="decimal"
+            placeholder="0,00"
             className={campo}
-            value={dados.priceCents ? (dados.priceCents / 100).toFixed(2) : ""}
-            onChange={(e) => setDados({ ...dados, priceCents: Math.round(Number(e.target.value || 0) * 100) })}
+            value={precoTexto}
+            onChange={(e) => {
+              const texto = e.target.value;
+              setPrecoTexto(texto);
+              const numero = Number(texto.replace(",", "."));
+              setDados({ ...dados, priceCents: Number.isFinite(numero) ? Math.round(numero * 100) : 0 });
+            }}
           />
         </div>
         <div>

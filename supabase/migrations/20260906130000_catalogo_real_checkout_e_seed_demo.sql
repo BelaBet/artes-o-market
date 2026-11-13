@@ -83,7 +83,8 @@ INSERT INTO public.categories (slug, name, position) VALUES
   ('ceramica',    'Cerâmica',    5),
   ('barro',       'Barro',       6),
   ('cestos',      'Cestos',      7),
-  ('tecidos',     'Tecidos',     8)
+  ('tecidos',     'Tecidos',     8),
+  ('outros',      'Outros',      99)
 ON CONFLICT (slug) DO NOTHING;
 
 -- ---------------------------------------------------------------------
