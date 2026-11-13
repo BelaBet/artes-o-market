@@ -40,13 +40,12 @@ const FormularioProduto = ({ artisanId, produto, onFechar }: FormularioProdutoPr
       : VAZIO,
   );
   const [imagem, setImagem] = useState<File | null>(null);
-  // Texto digitado do preço fica separado de priceCents: se o value do
-  // input viesse de (priceCents / 100).toFixed(2) a cada tecla, o campo
-  // reformatava "X.00" a cada dígito e travava o cursor nas casas
-  // decimais, impedindo digitar a parte inteira com mais de 2 dígitos.
-  const [precoTexto, setPrecoTexto] = useState(
-    dados.priceCents ? (dados.priceCents / 100).toFixed(2).replace(".", ",") : "",
-  );
+  // Máscara de dinheiro: só os dígitos digitados importam (eles SÃO os
+  // centavos), a vírgula e o separador de milhar aparecem sozinhos —
+  // igual a um app de banco. Guardar o preço já formatado como texto e
+  // reformatar a cada tecla (ex.: via toFixed) trava o cursor nas casas
+  // decimais e impede digitar mais números.
+  const [precoDigitos, setPrecoDigitos] = useState(dados.priceCents ? String(dados.priceCents) : "");
 
   const salvar = async () => {
     if (!dados.title.trim() || dados.priceCents <= 0) {
@@ -100,15 +99,17 @@ const FormularioProduto = ({ artisanId, produto, onFechar }: FormularioProdutoPr
           <label className={rotulo}>Preço (R$)</label>
           <input
             type="text"
-            inputMode="decimal"
+            inputMode="numeric"
             placeholder="0,00"
             className={campo}
-            value={precoTexto}
+            value={(Number(precoDigitos || "0") / 100).toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
             onChange={(e) => {
-              const texto = e.target.value;
-              setPrecoTexto(texto);
-              const numero = Number(texto.replace(",", "."));
-              setDados({ ...dados, priceCents: Number.isFinite(numero) ? Math.round(numero * 100) : 0 });
+              const digitos = e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+              setPrecoDigitos(digitos);
+              setDados({ ...dados, priceCents: Number(digitos || "0") });
             }}
           />
         </div>
