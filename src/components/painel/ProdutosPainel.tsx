@@ -44,7 +44,9 @@ const FormularioProduto = ({ artisanId, produto, onFechar }: FormularioProdutoPr
   // input viesse de (priceCents / 100).toFixed(2) a cada tecla, o campo
   // reformatava "X.00" a cada dígito e travava o cursor nas casas
   // decimais, impedindo digitar a parte inteira com mais de 2 dígitos.
-  const [precoTexto, setPrecoTexto] = useState(dados.priceCents ? (dados.priceCents / 100).toFixed(2) : "");
+  const [precoTexto, setPrecoTexto] = useState(
+    dados.priceCents ? (dados.priceCents / 100).toFixed(2).replace(".", ",") : "",
+  );
 
   const salvar = async () => {
     if (!dados.title.trim() || dados.priceCents <= 0) {
