@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { useAutocorrecaoGlobal } from "@/hooks/useAutocorrecaoGlobal";
 import CartDrawer from "@/components/CartDrawer";
 import MarketLayout from "@/components/MarketLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -26,70 +27,74 @@ import PrivacidadePage from "./pages/PrivacidadePage";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <CartDrawer />
-            <Routes>
-              {/* Rotas com header do marketplace */}
-              <Route element={<MarketLayout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/catalogo" element={<CatalogPage />} />
-                <Route path="/experiencias" element={<ExperiencesPage />} />
-                <Route path="/artesao/:slug" element={<ArtisanProfilePage />} />
-                <Route
-                  path="/painel"
-                  element={
-                    <ProtectedRoute>
-                      <DashboardPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/mensagens"
-                  element={
-                    <ProtectedRoute>
-                      <ChatPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/checkout"
-                  element={
-                    <ProtectedRoute>
-                      <CheckoutPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/pedido/:id"
-                  element={
-                    <ProtectedRoute>
-                      <OrderConfirmationPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/termos" element={<TermosPage />} />
-                <Route path="/privacidade" element={<PrivacidadePage />} />
-              </Route>
+const App = () => {
+  useAutocorrecaoGlobal();
 
-              {/* Rotas sem header */}
-              <Route path="/entrar" element={<ArtisanAuthPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </CartProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <CartDrawer />
+              <Routes>
+                {/* Rotas com header do marketplace */}
+                <Route element={<MarketLayout />}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/catalogo" element={<CatalogPage />} />
+                  <Route path="/experiencias" element={<ExperiencesPage />} />
+                  <Route path="/artesao/:slug" element={<ArtisanProfilePage />} />
+                  <Route
+                    path="/painel"
+                    element={
+                      <ProtectedRoute>
+                        <DashboardPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/mensagens"
+                    element={
+                      <ProtectedRoute>
+                        <ChatPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/checkout"
+                    element={
+                      <ProtectedRoute>
+                        <CheckoutPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/pedido/:id"
+                    element={
+                      <ProtectedRoute>
+                        <OrderConfirmationPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="/termos" element={<TermosPage />} />
+                  <Route path="/privacidade" element={<PrivacidadePage />} />
+                </Route>
+
+                {/* Rotas sem header */}
+                <Route path="/entrar" element={<ArtisanAuthPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </CartProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
