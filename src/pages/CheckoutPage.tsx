@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCheckout, type Endereco, type MetodoPagamento } from "@/hooks/useCheckout";
 import { formatPrice } from "@/lib/data";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { tokenizarCartao } from "@/lib/pagarme";
 import { toast } from "sonner";
 
 const campo =
@@ -27,6 +28,12 @@ const CheckoutPage = () => {
   const [endereco, setEndereco] = useState<Endereco>(ENDERECO_VAZIO);
   const [metodo, setMetodo] = useState<MetodoPagamento>("pix");
   const [buscandoCep, setBuscandoCep] = useState(false);
+  const [numeroCartao, setNumeroCartao] = useState("");
+  const [nomeCartao, setNomeCartao] = useState("");
+  const [validadeCartao, setValidadeCartao] = useState("");
+  const [cvvCartao, setCvvCartao] = useState("");
+  const [parcelas, setParcelas] = useState(1);
+  const [tokenizando, setTokenizando] = useState(false);
 
   const buscarEnderecoPeloCep = async (cepDigitado: string) => {
     const cep = cepDigitado.replace(/\D/g, "");
@@ -69,14 +76,47 @@ const CheckoutPage = () => {
   const camposObrigatoriosPreenchidos =
     nome.trim() &&
     email.trim() &&
-    (!requerEndereco || (endereco.street && endereco.number && endereco.district && endereco.city && endereco.state));
+    (!requerEndereco || (endereco.street && endereco.number && endereco.district && endereco.city && endereco.state)) &&
+    (metodo !== "credit_card" || (numeroCartao.trim() && nomeCartao.trim() && validadeCartao.trim() && cvvCartao.trim()));
 
   const finalizarCompra = async () => {
     if (!camposObrigatoriosPreenchidos) {
-      toast.error(requerEndereco ? "Preencha nome, e-mail e endereço de entrega." : "Preencha nome e e-mail.");
+      toast.error(
+        metodo === "credit_card"
+          ? "Preencha nome, e-mail e os dados do cartão."
+          : requerEndereco
+            ? "Preencha nome, e-mail e endereço de entrega."
+            : "Preencha nome e e-mail.",
+      );
       return;
     }
-    const pedido = await finalizar(items, { name: nome, email, phone: telefone, document: documento }, requerEndereco ? endereco : null, metodo);
+
+    let cardToken: string | undefined;
+    if (metodo === "credit_card") {
+      setTokenizando(true);
+      try {
+        cardToken = await tokenizarCartao({
+          numero: numeroCartao,
+          nomeTitular: nomeCartao,
+          validade: validadeCartao,
+          cvv: cvvCartao,
+        });
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Não foi possível validar o cartão.");
+        return;
+      } finally {
+        setTokenizando(false);
+      }
+    }
+
+    const pedido = await finalizar(
+      items,
+      { name: nome, email, phone: telefone, document: documento },
+      requerEndereco ? endereco : null,
+      metodo,
+      metodo === "credit_card" ? parcelas : 1,
+      cardToken,
+    );
     if (pedido) {
       clearCart();
       navigate(`/pedido/${pedido.id}`);
@@ -162,22 +202,85 @@ const CheckoutPage = () => {
             <h2 className="text-[0.62rem] tracking-[0.18em] uppercase text-terra mb-4">Pagamento</h2>
             <div className="flex flex-col sm:flex-row gap-2">
               {([
-                { key: "pix", label: "Pix", disabled: false },
-                { key: "boleto", label: "Boleto", disabled: false },
-                { key: "credit_card", label: "Cartão de crédito", disabled: true },
+                { key: "pix", label: "Pix" },
+                { key: "boleto", label: "Boleto" },
+                { key: "credit_card", label: "Cartão de crédito" },
               ] as const).map((op) => (
                 <button
                   key={op.key}
-                  disabled={op.disabled}
                   onClick={() => setMetodo(op.key)}
-                  className={`flex-1 border px-4 py-3 text-[0.72rem] tracking-[0.08em] uppercase transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                  className={`flex-1 border px-4 py-3 text-[0.72rem] tracking-[0.08em] uppercase transition-colors ${
                     metodo === op.key ? "border-terra bg-terra/5 text-terra" : "border-border text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {op.label}{op.disabled ? " (em breve)" : ""}
+                  {op.label}
                 </button>
               ))}
             </div>
+
+            {metodo === "credit_card" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div className="sm:col-span-2">
+                  <label className={rotulo}>Número do cartão</label>
+                  <input
+                    className={campo}
+                    inputMode="numeric"
+                    maxLength={19}
+                    placeholder="0000 0000 0000 0000"
+                    value={numeroCartao}
+                    onChange={(e) => setNumeroCartao(e.target.value.replace(/[^\d\s]/g, ""))}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className={rotulo}>Nome impresso no cartão</label>
+                  <input
+                    className={campo}
+                    placeholder="Como está no cartão"
+                    value={nomeCartao}
+                    onChange={(e) => setNomeCartao(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className={rotulo}>Validade (MM/AA)</label>
+                  <input
+                    className={campo}
+                    inputMode="numeric"
+                    maxLength={5}
+                    placeholder="12/30"
+                    value={validadeCartao}
+                    onChange={(e) => {
+                      const digitos = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      setValidadeCartao(digitos.length > 2 ? `${digitos.slice(0, 2)}/${digitos.slice(2)}` : digitos);
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className={rotulo}>CVV</label>
+                  <input
+                    className={campo}
+                    inputMode="numeric"
+                    maxLength={4}
+                    placeholder="123"
+                    value={cvvCartao}
+                    onChange={(e) => setCvvCartao(e.target.value.replace(/\D/g, ""))}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className={rotulo}>Parcelas</label>
+                  <select
+                    className={campo}
+                    value={parcelas}
+                    onChange={(e) => setParcelas(Number(e.target.value))}
+                  >
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+                      <option key={n} value={n}>
+                        {n}x {n === 1 ? "à vista" : `de ${formatPrice(totalPrice / n)}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
           </section>
         </div>
 
@@ -198,10 +301,10 @@ const CheckoutPage = () => {
           {erro && <p className="text-[0.76rem] text-destructive mb-3">{erro}</p>}
           <button
             onClick={finalizarCompra}
-            disabled={processando}
+            disabled={processando || tokenizando}
             className="w-full bg-espresso text-parchment py-3 font-body text-[0.7rem] tracking-[0.14em] uppercase hover:brightness-125 transition-all disabled:opacity-50"
           >
-            {processando ? "Processando…" : "Confirmar pedido"}
+            {tokenizando ? "Validando cartão…" : processando ? "Processando…" : "Confirmar pedido"}
           </button>
         </aside>
       </div>

@@ -32,6 +32,7 @@ export function useCheckout() {
     endereco: Endereco | null,
     metodo: MetodoPagamento,
     installments = 1,
+    cardToken?: string,
   ): Promise<Tables<"orders"> | null> => {
     setProcessando(true);
     setErro(null);
@@ -58,7 +59,7 @@ export function useCheckout() {
         data: { session },
       } = await supabase.auth.getSession();
       const { data: cobranca, error: erroCobranca } = await supabase.functions.invoke("pagarme-checkout", {
-        body: { order_id: pedido.id },
+        body: { order_id: pedido.id, card_token: cardToken },
         headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
       if (erroCobranca) throw erroCobranca;
