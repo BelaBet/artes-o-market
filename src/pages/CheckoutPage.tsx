@@ -26,6 +26,32 @@ const CheckoutPage = () => {
   const [documento, setDocumento] = useState("");
   const [endereco, setEndereco] = useState<Endereco>(ENDERECO_VAZIO);
   const [metodo, setMetodo] = useState<MetodoPagamento>("pix");
+  const [buscandoCep, setBuscandoCep] = useState(false);
+
+  const buscarEnderecoPeloCep = async (cepDigitado: string) => {
+    const cep = cepDigitado.replace(/\D/g, "");
+    if (cep.length !== 8) return;
+    setBuscandoCep(true);
+    try {
+      const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const dados = await resposta.json();
+      if (dados.erro) {
+        toast.error("CEP não encontrado. Preencha o endereço manualmente.");
+        return;
+      }
+      setEndereco((atual) => ({
+        ...atual,
+        street: dados.logradouro || atual.street,
+        district: dados.bairro || atual.district,
+        city: dados.localidade || atual.city,
+        state: dados.uf || atual.state,
+      }));
+    } catch {
+      // Sem internet ou ViaCEP fora do ar: segue com o preenchimento manual.
+    } finally {
+      setBuscandoCep(false);
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -90,8 +116,19 @@ const CheckoutPage = () => {
               <h2 className="text-[0.62rem] tracking-[0.18em] uppercase text-terra mb-4">Endereço de entrega</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className={rotulo}>CEP</label>
-                  <input className={campo} value={endereco.zipcode} onChange={(e) => setEndereco({ ...endereco, zipcode: e.target.value })} />
+                  <label className={rotulo}>CEP{buscandoCep ? " · buscando…" : ""}</label>
+                  <input
+                    className={campo}
+                    value={endereco.zipcode}
+                    maxLength={9}
+                    onChange={(e) => {
+                      const zipcode = e.target.value;
+                      setEndereco({ ...endereco, zipcode });
+                      void buscarEnderecoPeloCep(zipcode);
+                    }}
+                    onBlur={(e) => void buscarEnderecoPeloCep(e.target.value)}
+                    placeholder="00000-000"
+                  />
                 </div>
                 <div>
                   <label className={rotulo}>Cidade</label>
