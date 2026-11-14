@@ -8,7 +8,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetFooter,
   SheetDescription,
 } from "@/components/ui/sheet";
 
@@ -99,7 +98,7 @@ const CartDrawer = () => {
               ))}
             </div>
 
-            <SheetFooter className="flex-col gap-3 px-6 py-5 border-t border-border bg-parchment">
+            <div className="flex flex-col gap-3 px-6 py-5 border-t border-border bg-parchment">
               <div className="flex items-center justify-between w-full">
                 <span className="text-xs tracking-[0.1em] uppercase text-muted-foreground font-medium">Subtotal</span>
                 <span className="font-display text-lg font-medium">{formatPrice(totalPrice)}</span>
@@ -119,7 +118,7 @@ const CartDrawer = () => {
               >
                 Continuar Comprando
               </button>
-            </SheetFooter>
+            </div>
           </>
         )}
       </SheetContent>
