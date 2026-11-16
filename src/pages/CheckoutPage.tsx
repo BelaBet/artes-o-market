@@ -6,6 +6,7 @@ import { useCheckout, type Endereco, type MetodoPagamento } from "@/hooks/useChe
 import { formatPrice } from "@/lib/data";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { tokenizarCartao } from "@/lib/pagarme";
+import { mascararDocumento, documentoValido } from "@/lib/documento";
 import { toast } from "sonner";
 
 const campo =
@@ -73,20 +74,29 @@ const CheckoutPage = () => {
     );
   }
 
+  const documentoPreenchido = documento.trim().length > 0;
+  const documentoOk = !documentoPreenchido || documentoValido(documento);
+
   const camposObrigatoriosPreenchidos =
     nome.trim() &&
     email.trim() &&
+    documentoPreenchido &&
+    documentoOk &&
     (!requerEndereco || (endereco.street && endereco.number && endereco.district && endereco.city && endereco.state)) &&
     (metodo !== "credit_card" || (numeroCartao.trim() && nomeCartao.trim() && validadeCartao.trim() && cvvCartao.trim()));
 
   const finalizarCompra = async () => {
     if (!camposObrigatoriosPreenchidos) {
       toast.error(
-        metodo === "credit_card"
-          ? "Preencha nome, e-mail e os dados do cartão."
-          : requerEndereco
-            ? "Preencha nome, e-mail e endereço de entrega."
-            : "Preencha nome e e-mail.",
+        !documentoPreenchido
+          ? "Informe o CPF ou CNPJ."
+          : !documentoOk
+            ? "O CPF/CNPJ informado não é válido."
+            : metodo === "credit_card"
+              ? "Preencha nome, e-mail e os dados do cartão."
+              : requerEndereco
+                ? "Preencha nome, e-mail e endereço de entrega."
+                : "Preencha nome e e-mail.",
       );
       return;
     }
@@ -145,8 +155,18 @@ const CheckoutPage = () => {
                 <input className={campo} value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="11999999999" />
               </div>
               <div>
-                <label className={rotulo}>CPF/CNPJ (opcional)</label>
-                <input className={campo} value={documento} onChange={(e) => setDocumento(e.target.value)} />
+                <label className={rotulo}>CPF/CNPJ</label>
+                <input
+                  className={campo}
+                  value={documento}
+                  maxLength={18}
+                  inputMode="numeric"
+                  placeholder="000.000.000-00"
+                  onChange={(e) => setDocumento(mascararDocumento(e.target.value))}
+                />
+                {!documentoOk && (
+                  <p className="text-[0.7rem] text-destructive mt-1">CPF/CNPJ inválido.</p>
+                )}
               </div>
             </div>
           </section>
