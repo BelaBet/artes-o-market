@@ -92,4 +92,9 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  worker: {
+    // src/workers/corretor.worker.ts usa import ES — sem isso, o worker
+    // bundlaria em IIFE (padrão do Vite) e o import quebraria.
+    format: "es",
+  },
 }));

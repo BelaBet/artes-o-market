@@ -1,23 +1,37 @@
 // Corretor ortográfico (pt-BR) usado pela auto-correção global dos campos
 // de texto do site (ver src/hooks/useAutocorrecaoGlobal.ts).
 //
-// O dicionário Hunspell (aff+dic) tem ~5MB — fica em public/dict/ como
-// arquivo estático (não entra no bundle JS) e só é buscado quando o
-// usuário realmente sai de um campo de texto pela primeira vez.
-import nspell from "nspell";
+// O dicionário Hunspell (aff+dic) tem ~5MB e montar o corretor a partir
+// dele é pesado — por isso roda inteiro dentro de um Web Worker
+// (src/workers/corretor.worker.ts), nunca na thread principal, pra não
+// travar a tela na primeira vez que o usuário sai de um campo de texto.
+import type { PedidoVerificacao, RespostaVerificacao } from "@/workers/corretor.worker";
 
-type Corretor = ReturnType<typeof nspell>;
+let worker: Worker | null = null;
+let proximoId = 0;
+const pendentes = new Map<number, (resposta: RespostaVerificacao) => void>();
 
-let corretorPromise: Promise<Corretor> | null = null;
-
-function carregarCorretor(): Promise<Corretor> {
-  if (!corretorPromise) {
-    corretorPromise = Promise.all([
-      fetch("/dict/pt-BR.aff").then((r) => r.text()),
-      fetch("/dict/pt-BR.dic").then((r) => r.text()),
-    ]).then(([aff, dic]) => nspell({ aff, dic }));
+function obterWorker(): Worker {
+  if (!worker) {
+    worker = new Worker(new URL("../workers/corretor.worker.ts", import.meta.url), { type: "module" });
+    worker.onmessage = (evento: MessageEvent<RespostaVerificacao>) => {
+      const resolver = pendentes.get(evento.data.id);
+      if (resolver) {
+        resolver(evento.data);
+        pendentes.delete(evento.data.id);
+      }
+    };
   }
-  return corretorPromise;
+  return worker;
+}
+
+function verificarPalavra(palavra: string): Promise<RespostaVerificacao> {
+  return new Promise((resolve) => {
+    const id = proximoId++;
+    pendentes.set(id, resolve);
+    const pedido: PedidoVerificacao = { id, palavra };
+    obterWorker().postMessage(pedido);
+  });
 }
 
 const CONECTIVOS = new Set(["de", "da", "do", "das", "dos", "e"]);
@@ -67,14 +81,13 @@ async function corrigirPalavra(palavra: string): Promise<string> {
   if (!SO_LETRAS.test(palavra) || palavra.length < 3) return palavra;
   if (palavra === palavra.toUpperCase()) return palavra; // sigla, não mexe
 
-  const corretor = await carregarCorretor();
-  if (corretor.correct(palavra)) return palavra;
+  const { correta, sugestao } = await verificarPalavra(palavra);
+  if (correta) return palavra;
 
   // Nomes próprios (começam com maiúscula fora do início da frase) o
   // dicionário não conhece — arriscado "corrigir" pra outra palavra.
   if (COMECA_MAIUSCULA.test(palavra)) return palavra;
 
-  const [sugestao] = corretor.suggest(palavra);
   if (!sugestao || distancia(palavra, sugestao.toLowerCase()) > 2) return palavra;
   return sugestao;
 }
