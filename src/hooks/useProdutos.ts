@@ -12,6 +12,7 @@ export interface ProdutoCard {
   artist: string;
   artisanSlug: string;
   city: string;
+  state: string;
   price: number;
   priceCents: number;
   oldPrice?: number;
@@ -78,6 +79,7 @@ async function mapearProdutos(linhas: LinhaProduto[]): Promise<ProdutoCard[]> {
       artist: artesao?.public_name || artesao?.shop_name || "Artesão",
       artisanSlug: artesao?.slug ?? "",
       city: artesao ? `${artesao.city ?? ""}${artesao.city && artesao.state ? ", " : ""}${artesao.state ?? ""}` : "",
+      state: artesao?.state ?? "",
       price: p.price_cents / 100,
       priceCents: p.price_cents,
       oldPrice: p.compare_at_price_cents ? p.compare_at_price_cents / 100 : undefined,

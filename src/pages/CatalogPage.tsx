@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ProductGrid from "@/components/ProductGrid";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/data";
@@ -6,24 +6,72 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useProdutos } from "@/hooks/useProdutos";
+import { useCategorias } from "@/hooks/useCategorias";
+
+const NOME_DO_ESTADO: Record<string, string> = {
+  AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas", BA: "Bahia", CE: "Ceará",
+  DF: "Distrito Federal", ES: "Espírito Santo", GO: "Goiás", MA: "Maranhão",
+  MT: "Mato Grosso", MS: "Mato Grosso do Sul", MG: "Minas Gerais", PA: "Pará",
+  PB: "Paraíba", PR: "Paraná", PE: "Pernambuco", PI: "Piauí", RJ: "Rio de Janeiro",
+  RN: "Rio Grande do Norte", RS: "Rio Grande do Sul", RO: "Rondônia", RR: "Roraima",
+  SC: "Santa Catarina", SP: "São Paulo", SE: "Sergipe", TO: "Tocantins",
+};
+
+const PRECO_MAXIMO_PADRAO = 500;
 
 const CatalogPage = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { produtos, loading } = useProdutos();
+  const { categorias } = useCategorias();
   // ?skeleton=1 força o estado de carregamento — útil para conferir o
   // esqueleto no celular sem precisar estrangular a rede no DevTools.
   const [searchParams] = useSearchParams();
   const forcarSkeleton = searchParams.get("skeleton") === "1";
   const termoBusca = (searchParams.get("busca") ?? "").trim().toLowerCase();
-  const produtosFiltrados = termoBusca
-    ? produtos.filter((p) =>
-        [p.name, p.artist, p.city].some((campo) => campo?.toLowerCase().includes(termoBusca)),
-      )
-    : produtos;
   usePageMeta(
     "Catálogo",
     "Explore peças únicas de artesanato brasileiro: cerâmica, madeira, macramê, palha e pedra-sabão, direto de quem faz.",
   );
+
+  const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<string[]>([]);
+  const [estadosSelecionados, setEstadosSelecionados] = useState<string[]>([]);
+  const [avaliacaoMinima, setAvaliacaoMinima] = useState(0);
+  const [precoMax, setPrecoMax] = useState(PRECO_MAXIMO_PADRAO);
+  const [ordenacao, setOrdenacao] = useState("relevancia");
+
+  const estadosDisponiveis = useMemo(
+    () => [...new Set(produtos.map((p) => p.state).filter(Boolean))].sort(),
+    [produtos],
+  );
+
+  const alternarSelecao = (lista: string[], valor: string, set: (v: string[]) => void) => {
+    set(lista.includes(valor) ? lista.filter((v) => v !== valor) : [...lista, valor]);
+  };
+
+  const produtosFiltrados = useMemo(() => {
+    let lista = produtos;
+    if (termoBusca) {
+      lista = lista.filter((p) => [p.name, p.artist, p.city].some((c) => c?.toLowerCase().includes(termoBusca)));
+    }
+    if (categoriasSelecionadas.length > 0) {
+      lista = lista.filter((p) => p.categorySlug && categoriasSelecionadas.includes(p.categorySlug));
+    }
+    if (estadosSelecionados.length > 0) {
+      lista = lista.filter((p) => estadosSelecionados.includes(p.state));
+    }
+    if (avaliacaoMinima > 0) {
+      lista = lista.filter((p) => p.stars >= avaliacaoMinima);
+    }
+    lista = lista.filter((p) => p.price <= precoMax);
+
+    if (ordenacao === "menor-preco") lista = [...lista].sort((a, b) => a.price - b.price);
+    else if (ordenacao === "melhor-avaliacao") lista = [...lista].sort((a, b) => b.stars - a.stars);
+    // "relevancia" e "mais-novos" mantêm a ordem que já vem do banco
+    // (criados mais recentes primeiro) — não há um critério de
+    // relevância separado implementado ainda.
+
+    return lista;
+  }, [produtos, termoBusca, categoriasSelecionadas, estadosSelecionados, avaliacaoMinima, precoMax, ordenacao]);
 
   const Filters = (
     <>
@@ -37,30 +85,75 @@ const CatalogPage = () => {
           <X className="w-4 h-4" />
         </button>
       </div>
-      {[
-        { label: "Categoria", opts: ["Cerâmica", "Madeira", "Macramê", "Palha", "Pedra-Sabão"] },
-        { label: "Avaliação", opts: ["5 estrelas", "4+ estrelas", "3+ estrelas"] },
-        { label: "Estado", opts: ["Minas Gerais", "Bahia", "Pernambuco", "São Paulo"] },
-      ].map((g) => (
-        <div key={g.label} className="mb-5">
-          <div className="text-[0.58rem] tracking-[0.18em] uppercase text-muted-foreground mb-2">{g.label}</div>
-          {g.opts.map((o) => (
-            <label key={o} className="flex items-center gap-2 text-[0.78rem] mb-1.5 cursor-pointer hover:text-terra transition-colors">
-              <input type="checkbox" className="accent-terra" />{o}
+
+      <div className="mb-5">
+        <div className="text-[0.58rem] tracking-[0.18em] uppercase text-muted-foreground mb-2">Categoria</div>
+        {categorias.map((c) => (
+          <label key={c.slug} className="flex items-center gap-2 text-[0.78rem] mb-1.5 cursor-pointer hover:text-terra transition-colors">
+            <input
+              type="checkbox"
+              className="accent-terra"
+              checked={categoriasSelecionadas.includes(c.slug)}
+              onChange={() => alternarSelecao(categoriasSelecionadas, c.slug, setCategoriasSelecionadas)}
+            />
+            {c.name}
+          </label>
+        ))}
+      </div>
+
+      <div className="mb-5">
+        <div className="text-[0.58rem] tracking-[0.18em] uppercase text-muted-foreground mb-2">Avaliação</div>
+        {[5, 4, 3].map((n) => (
+          <label key={n} className="flex items-center gap-2 text-[0.78rem] mb-1.5 cursor-pointer hover:text-terra transition-colors">
+            <input
+              type="radio"
+              name="avaliacao"
+              className="accent-terra"
+              checked={avaliacaoMinima === n}
+              onChange={() => setAvaliacaoMinima(n)}
+            />
+            {n === 5 ? "5 estrelas" : `${n}+ estrelas`}
+          </label>
+        ))}
+        {avaliacaoMinima > 0 && (
+          <button onClick={() => setAvaliacaoMinima(0)} className="text-[0.7rem] text-terra underline mt-1">
+            Limpar
+          </button>
+        )}
+      </div>
+
+      {estadosDisponiveis.length > 0 && (
+        <div className="mb-5">
+          <div className="text-[0.58rem] tracking-[0.18em] uppercase text-muted-foreground mb-2">Estado</div>
+          {estadosDisponiveis.map((uf) => (
+            <label key={uf} className="flex items-center gap-2 text-[0.78rem] mb-1.5 cursor-pointer hover:text-terra transition-colors">
+              <input
+                type="checkbox"
+                className="accent-terra"
+                checked={estadosSelecionados.includes(uf)}
+                onChange={() => alternarSelecao(estadosSelecionados, uf, setEstadosSelecionados)}
+              />
+              {NOME_DO_ESTADO[uf] ?? uf}
             </label>
           ))}
         </div>
-      ))}
+      )}
+
       <div className="mb-5">
         <div className="text-[0.58rem] tracking-[0.18em] uppercase text-muted-foreground mb-2">Faixa de preço</div>
-        <input type="range" min="0" max="500" defaultValue={250} className="w-full accent-terra my-2" />
+        <input
+          type="range"
+          min="0"
+          max={PRECO_MAXIMO_PADRAO}
+          value={precoMax}
+          onChange={(e) => setPrecoMax(Number(e.target.value))}
+          className="w-full accent-terra my-2"
+        />
         <div className="flex justify-between text-[0.7rem] text-muted-foreground">
-          <span>{formatPrice(0)}</span><span>{formatPrice(500)}</span>
+          <span>{formatPrice(0)}</span>
+          <span>até {formatPrice(precoMax)}</span>
         </div>
       </div>
-      <label className="flex items-center gap-2 text-[0.78rem] cursor-pointer hover:text-terra transition-colors mt-1">
-        <input type="checkbox" className="accent-terra" />✈️ Frete grátis
-      </label>
     </>
   );
 
@@ -98,8 +191,15 @@ const CatalogPage = () => {
               )}
             </span>
           </div>
-          <select className="border border-border bg-transparent px-2.5 py-1.5 font-body text-[0.7rem] tracking-[0.06em] outline-none cursor-pointer">
-            <option>Relevância</option><option>Menor preço</option><option>Melhor avaliação</option><option>Mais novos</option>
+          <select
+            value={ordenacao}
+            onChange={(e) => setOrdenacao(e.target.value)}
+            className="border border-border bg-transparent px-2.5 py-1.5 font-body text-[0.7rem] tracking-[0.06em] outline-none cursor-pointer"
+          >
+            <option value="relevancia">Relevância</option>
+            <option value="menor-preco">Menor preço</option>
+            <option value="melhor-avaliacao">Melhor avaliação</option>
+            <option value="mais-novos">Mais novos</option>
           </select>
         </div>
         <ProductGrid products={produtosFiltrados} loading={loading || forcarSkeleton} />

@@ -20,6 +20,7 @@ function produto(overrides: Partial<ProdutoCard> = {}): ProdutoCard {
     artist: "Artesã de Teste",
     artisanSlug: "artesa-de-teste",
     city: "Teste, TS",
+    state: "TS",
     price: 100,
     priceCents: 10000,
     img: null,
