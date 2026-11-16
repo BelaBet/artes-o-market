@@ -49,7 +49,7 @@ const App = () => {
                   <Route
                     path="/painel"
                     element={
-                      <ProtectedRoute>
+                      <ProtectedRoute redirectTo="/entrar">
                         <DashboardPage />
                       </ProtectedRoute>
                     }

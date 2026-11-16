@@ -2,7 +2,13 @@ import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
-const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+interface ProtectedRouteProps {
+  children: ReactNode;
+  /** Pra onde mandar quem não está logado. "/painel" (artesão) usa /entrar; o resto (checkout, mensagens) usa /login. */
+  redirectTo?: string;
+}
+
+const ProtectedRoute = ({ children, redirectTo = "/login" }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
@@ -19,7 +25,11 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   }
 
   if (!user) {
-    return <Navigate to="/entrar" replace state={{ from: location.pathname }} />;
+    // /login lê o destino por query string (?next=); /entrar lê por state.from.
+    if (redirectTo === "/login") {
+      return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
+    }
+    return <Navigate to={redirectTo} replace state={{ from: location.pathname }} />;
   }
 
   return <>{children}</>;

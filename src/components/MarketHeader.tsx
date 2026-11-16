@@ -115,12 +115,20 @@ const MarketHeader = () => {
                 Sair
               </button>
             ) : (
-              <Link
-                to="/entrar"
-                className="border border-foreground font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-foreground px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
-              >
-                Entrar
-              </Link>
+              <>
+                <Link
+                  to="/entrar"
+                  className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+                >
+                  Vender no site
+                </Link>
+                <Link
+                  to="/login"
+                  className="border border-foreground font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-foreground px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
+                >
+                  Entrar
+                </Link>
+              </>
             )}
           </nav>
 
@@ -191,13 +199,22 @@ const MarketHeader = () => {
                   Sair
                 </button>
               ) : (
-                <Link
-                  to="/entrar"
-                  onClick={() => setMenuOpen(false)}
-                  className="block text-center w-full border border-foreground py-2.5 font-body text-[0.72rem] tracking-[0.14em] uppercase"
-                >
-                  Entrar
-                </Link>
+                <div className="flex flex-col gap-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="block text-center w-full border border-foreground py-2.5 font-body text-[0.72rem] tracking-[0.14em] uppercase"
+                  >
+                    Entrar
+                  </Link>
+                  <Link
+                    to="/entrar"
+                    onClick={() => setMenuOpen(false)}
+                    className="block text-center w-full font-body text-[0.68rem] tracking-[0.1em] uppercase text-muted-foreground py-1.5"
+                  >
+                    Vender no site
+                  </Link>
+                </div>
               )}
             </div>
           </div>
