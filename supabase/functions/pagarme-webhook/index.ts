@@ -7,10 +7,14 @@
 // o status muda — esta função só decide QUAL status gravar.
 //
 // Configuração necessária:
-//   PAGARME_WEBHOOK_SECRET — mesmo valor configurado como senha do
-//     Basic Auth na URL do webhook cadastrada no painel do Pagar.me
-//     (https://dashboard.pagar.me > Webhooks). Sem isso, qualquer um
-//     que descobrisse esta URL poderia forjar "pagamento aprovado".
+//   PAGARME_WEBHOOK_SECRET — o Pagar.me não manda nenhuma autenticação
+//     própria no POST (nem Basic Auth, nem assinatura — só um POST puro
+//     na URL cadastrada), então o segredo vai embutido na própria URL
+//     como query string, igual ela mesma for cadastrada no painel do
+//     Pagar.me (Webhooks > editar a URL):
+//       .../functions/v1/pagarme-webhook?token=<PAGARME_WEBHOOK_SECRET>
+//     Sem isso, qualquer um que descobrisse esta URL poderia forjar
+//     "pagamento aprovado".
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY — já disponíveis por padrão
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -35,9 +39,8 @@ Deno.serve(async (req) => {
     // qualquer um que ache esta URL — recusa em vez de aceitar sem checar.
     return new Response(JSON.stringify({ error: "PAGARME_WEBHOOK_SECRET não configurado" }), { status: 500 });
   }
-  const auth = req.headers.get("authorization") ?? "";
-  const esperado = `Basic ${btoa(`webhook:${webhookSecret}`)}`;
-  if (auth !== esperado) {
+  const token = new URL(req.url).searchParams.get("token") ?? "";
+  if (token !== webhookSecret) {
     return new Response(JSON.stringify({ error: "não autorizado" }), { status: 401 });
   }
 
