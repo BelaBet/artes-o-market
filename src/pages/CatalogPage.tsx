@@ -14,6 +14,12 @@ const CatalogPage = () => {
   // esqueleto no celular sem precisar estrangular a rede no DevTools.
   const [searchParams] = useSearchParams();
   const forcarSkeleton = searchParams.get("skeleton") === "1";
+  const termoBusca = (searchParams.get("busca") ?? "").trim().toLowerCase();
+  const produtosFiltrados = termoBusca
+    ? produtos.filter((p) =>
+        [p.name, p.artist, p.city].some((campo) => campo?.toLowerCase().includes(termoBusca)),
+      )
+    : produtos;
   usePageMeta(
     "Catálogo",
     "Explore peças únicas de artesanato brasileiro: cerâmica, madeira, macramê, palha e pedra-sabão, direto de quem faz.",
@@ -86,7 +92,8 @@ const CatalogPage = () => {
                 <Skeleton className="h-[0.9rem] w-[5.5rem] rounded-none inline-block align-middle" />
               ) : (
                 <>
-                  <strong className="text-foreground">{produtos.length}</strong> produtos
+                  <strong className="text-foreground">{produtosFiltrados.length}</strong> produtos
+                  {termoBusca && <> para "{searchParams.get("busca")}"</>}
                 </>
               )}
             </span>
@@ -95,7 +102,7 @@ const CatalogPage = () => {
             <option>Relevância</option><option>Menor preço</option><option>Melhor avaliação</option><option>Mais novos</option>
           </select>
         </div>
-        <ProductGrid products={produtos} loading={loading || forcarSkeleton} />
+        <ProductGrid products={produtosFiltrados} loading={loading || forcarSkeleton} />
       </div>
     </div>
   );

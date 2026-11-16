@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { KeyboardEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, Search, ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -11,6 +12,17 @@ const MarketHeader = () => {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [termoBusca, setTermoBusca] = useState("");
+
+  const buscar = () => {
+    const termo = termoBusca.trim();
+    navigate(termo ? `/catalogo?busca=${encodeURIComponent(termo)}` : "/catalogo");
+    setSearchOpen(false);
+  };
+
+  const aoPressionarTecla = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") buscar();
+  };
 
   const isLoggedIn = !!user;
 
@@ -56,8 +68,13 @@ const MarketHeader = () => {
 
           {/* Desktop search */}
           <div className="hidden md:flex flex-1 max-w-[320px] items-center gap-2 border-b border-border pb-1 focus-within:border-terra transition-colors">
-            <span className="text-muted-foreground text-[0.88rem]">⌕</span>
+            <button onClick={buscar} aria-label="Buscar" className="text-muted-foreground text-[0.88rem] bg-transparent border-none cursor-pointer p-0">
+              ⌕
+            </button>
             <input
+              value={termoBusca}
+              onChange={(e) => setTermoBusca(e.target.value)}
+              onKeyDown={aoPressionarTecla}
               className="flex-1 border-none bg-transparent outline-none font-body text-[0.8rem] text-foreground placeholder:text-muted-foreground"
               placeholder="Buscar artesanato, artesãos…"
             />
@@ -166,9 +183,14 @@ const MarketHeader = () => {
         {/* Mobile search input */}
         {searchOpen && (
           <div className="md:hidden pb-3 px-1 flex items-center gap-2 border-b border-border">
-            <Search className="w-4 h-4 text-muted-foreground" />
+            <button onClick={buscar} aria-label="Buscar" className="bg-transparent border-none cursor-pointer p-0">
+              <Search className="w-4 h-4 text-muted-foreground" />
+            </button>
             <input
               autoFocus
+              value={termoBusca}
+              onChange={(e) => setTermoBusca(e.target.value)}
+              onKeyDown={aoPressionarTecla}
               className="flex-1 border-none bg-transparent outline-none font-body text-sm py-1 placeholder:text-muted-foreground"
               placeholder="Buscar artesanato, artesãos…"
             />
