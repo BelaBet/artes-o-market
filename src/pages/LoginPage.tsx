@@ -39,6 +39,32 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [emailParaConfirmar, setEmailParaConfirmar] = useState<string | null>(null);
+  const [reenviando, setReenviando] = useState(false);
+  const [cooldownReenvio, setCooldownReenvio] = useState(0);
+
+  useEffect(() => {
+    if (cooldownReenvio <= 0) return;
+    const timer = setTimeout(() => setCooldownReenvio((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldownReenvio]);
+
+  const reenviarEmailConfirmacao = async () => {
+    if (!emailParaConfirmar || cooldownReenvio > 0) return;
+    setReenviando(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: emailParaConfirmar,
+      options: { emailRedirectTo: `${window.location.origin}${next}` },
+    });
+    if (error) {
+      toast.error(mensagemAmigavel(error.message));
+    } else {
+      toast.success("E-mail reenviado! Veja sua caixa de entrada (e o spam).");
+      setCooldownReenvio(30);
+    }
+    setReenviando(false);
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -78,8 +104,7 @@ const LoginPage = () => {
       if (error) {
         setErro(mensagemAmigavel(error.message));
       } else {
-        toast.success("Conta criada! Verifique seu email para confirmar.");
-        window.location.replace(next);
+        setEmailParaConfirmar(email);
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -92,6 +117,42 @@ const LoginPage = () => {
     }
     setLoading(false);
   };
+
+  if (emailParaConfirmar) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-parchment px-4">
+        <div className="w-full max-w-[420px] text-center">
+          <div className="font-display font-semibold text-[2rem] mb-6">
+            Feito <em className="italic text-terra">à Mão</em>
+          </div>
+          <div className="bg-background border border-border p-8">
+            <h1 className="font-display text-[1.3rem] mb-3">Confirme seu e-mail</h1>
+            <p className="text-[0.82rem] text-muted-foreground mb-6">
+              Enviamos um link de confirmação para <strong className="text-foreground">{emailParaConfirmar}</strong>.
+              Abra sua caixa de entrada (e a pasta de spam) e clique no link para ativar sua conta.
+            </p>
+            <button
+              onClick={reenviarEmailConfirmacao}
+              disabled={reenviando || cooldownReenvio > 0}
+              className="w-full bg-espresso text-parchment border-none py-3 cursor-pointer font-body font-medium text-[0.7rem] tracking-[0.16em] uppercase hover:brightness-125 transition-all disabled:opacity-50"
+            >
+              {reenviando
+                ? "Enviando…"
+                : cooldownReenvio > 0
+                  ? `Aguarde ${cooldownReenvio}s para reenviar`
+                  : "Reenviar e-mail"}
+            </button>
+            <button
+              onClick={() => setEmailParaConfirmar(null)}
+              className="w-full mt-3 bg-transparent border-none cursor-pointer font-body text-[0.74rem] text-muted-foreground hover:text-terra transition-colors"
+            >
+              Usar outro e-mail
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-parchment px-4">
