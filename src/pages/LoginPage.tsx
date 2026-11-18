@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/contexts/CartContext";
+import { codificarCarrinho } from "@/lib/cartRecovery";
 import { toast } from "sonner";
 
 // Only allow same-origin, path-only redirects.
@@ -32,6 +34,20 @@ function mensagemAmigavel(mensagem: string): string {
 const LoginPage = () => {
   const [params] = useSearchParams();
   const next = safeNext(params.get("next"));
+  const { items: itensDoCarrinho } = useCart();
+
+  // Leva o carrinho embutido na própria URL de confirmação — o link do
+  // e-mail quase sempre abre em outro navegador/app (não no que a pessoa
+  // usava pra comprar), então o carrinho salvo em localStorage não existe
+  // ali. O CartProvider lê esse parâmetro e restaura ao montar.
+  const redirecionamentoComCarrinho = (): string => {
+    const url = new URL(next, window.location.origin);
+    if (itensDoCarrinho.length > 0) {
+      url.searchParams.set("cart", codificarCarrinho(itensDoCarrinho));
+    }
+    return url.toString();
+  };
+
   const [mode, setMode] = useState<"login" | "register" | "recover">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -55,7 +71,7 @@ const LoginPage = () => {
     const { error } = await supabase.auth.resend({
       type: "signup",
       email: emailParaConfirmar,
-      options: { emailRedirectTo: `${window.location.origin}${next}` },
+      options: { emailRedirectTo: redirecionamentoComCarrinho() },
     });
     if (error) {
       toast.error(mensagemAmigavel(error.message));
@@ -98,7 +114,7 @@ const LoginPage = () => {
         password,
         options: {
           data: { display_name: displayName },
-          emailRedirectTo: `${window.location.origin}${next}`,
+          emailRedirectTo: redirecionamentoComCarrinho(),
         },
       });
       if (error) {

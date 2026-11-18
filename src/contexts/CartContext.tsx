@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import type { ProdutoCard } from "@/hooks/useProdutos";
 import type { ExperienciaCard } from "@/hooks/useExperiencias";
 import { CARRINHO_STORAGE_KEY } from "@/lib/storageKeys";
+import { decodificarCarrinho, buscarItensParaRestaurar } from "@/lib/cartRecovery";
 
 export type CartItemKind = "product" | "experience";
 
@@ -59,6 +60,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // localStorage indisponível (modo privado, cota cheia) — segue em memória.
     }
   }, [items]);
+
+  // Recupera um carrinho embutido na URL (?cart=...) — é como o link de
+  // confirmação de e-mail leva o carrinho de volta quando ele abre num
+  // navegador diferente de onde a compra começou (ver src/lib/cartRecovery.ts
+  // e o emailRedirectTo em LoginPage.tsx). Roda uma vez, ao montar.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const resumoBruto = url.searchParams.get("cart");
+    if (!resumoBruto) return;
+
+    url.searchParams.delete("cart");
+    window.history.replaceState({}, "", url.toString());
+
+    const resumo = decodificarCarrinho(resumoBruto);
+    if (resumo.length === 0) return;
+
+    buscarItensParaRestaurar(resumo)
+      .then((encontrados) => {
+        setItems((prev) => {
+          const existentes = new Set(prev.map((i) => i.id));
+          const novos = encontrados.filter((i) => !existentes.has(i.id));
+          return novos.length > 0 ? [...prev, ...novos] : prev;
+        });
+      })
+      .catch(() => {
+        // Falha ao restaurar (produto removido, sem rede): segue com o
+        // carrinho local que já tiver, sem travar a página.
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const addItem = (produto: ProdutoCard) => {
     setItems((prev) => {
