@@ -62,7 +62,23 @@ export function useCheckout() {
         body: { order_id: pedido.id, card_token: cardToken },
         headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
-      if (erroCobranca) throw erroCobranca;
+      if (erroCobranca) {
+        // Pra qualquer status != 2xx, o supabase-js joga um erro genérico
+        // ("Edge Function returned a non-2xx status code") e descarta o
+        // corpo — a mensagem real que a função mandou (ex.: "The item
+        // Code is required") só existe dentro de context, a Response bruta.
+        let mensagem = erroCobranca.message;
+        const contexto = (erroCobranca as { context?: Response }).context;
+        if (contexto instanceof Response) {
+          try {
+            const corpo = await contexto.clone().json();
+            if (corpo?.error) mensagem = corpo.error;
+          } catch {
+            // corpo não é JSON: mantém a mensagem genérica
+          }
+        }
+        throw new Error(mensagem);
+      }
       if (cobranca?.error) throw new Error(cobranca.error);
 
       const { data: pedidoFinal } = await supabase.from("orders").select("*").eq("id", pedido.id).single();

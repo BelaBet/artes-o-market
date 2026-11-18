@@ -128,10 +128,13 @@ Deno.serve(async (req) => {
 
   const payload: Record<string, unknown> = {
     code: order.number?.toString(),
-    items: itens.map((it) => ({
+    items: itens.map((it, i) => ({
       amount: it.total_cents,
       description: it.title.slice(0, 255),
       quantity: it.quantity,
+      // Exigido pelo Pagar.me para gerar boleto ("The item Code is
+      // required") — pra Pix passava sem ele, então passou despercebido.
+      code: `${order.number ?? order.id}-${i + 1}`,
     })),
     customer: {
       name: order.buyer_name,
@@ -184,6 +187,19 @@ Deno.serve(async (req) => {
   }
 
   const charge = resultado.charges?.[0];
+
+  // O Pagar.me responde 200 mesmo quando a cobrança é recusada (o status
+  // "failed" vem dentro do JSON, não no HTTP) — sem este check, um boleto
+  // ou Pix recusado virava pedido "pending" sem link nenhum e sem aviso.
+  if (resultado.status === "failed" || charge?.status === "failed") {
+    const motivo =
+      charge?.last_transaction?.gateway_response?.errors?.[0]?.message ??
+      resultado?.message ??
+      "O pagamento foi recusado.";
+    await admin.from("orders").update({ payment_error: motivo }).eq("id", order.id);
+    return new Response(JSON.stringify({ error: motivo }), { status: 502, headers });
+  }
+
   const atualizacao: Record<string, unknown> = {
     pagarme_order_id: resultado.id,
     pagarme_charge_id: charge?.id ?? null,
