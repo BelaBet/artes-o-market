@@ -15,6 +15,7 @@ export default {
       fontFamily: {
         display: ["Cormorant Garamond", "serif"],
         body: ["Jost", "sans-serif"],
+        times: ["Times New Roman", "Times", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",

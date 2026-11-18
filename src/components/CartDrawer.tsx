@@ -29,7 +29,7 @@ const CartDrawer = () => {
             Seu Carrinho
           </SheetTitle>
           <SheetDescription className="text-xs tracking-[0.1em] uppercase text-muted-foreground">
-            {totalItems} {totalItems === 1 ? "item" : "itens"}
+            <span className="font-times">{totalItems}</span> {totalItems === 1 ? "item" : "itens"}
           </SheetDescription>
         </SheetHeader>
 
@@ -73,7 +73,7 @@ const CartDrawer = () => {
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-8 text-center text-xs font-medium">{item.qty}</span>
+                        <span className="w-8 text-center text-xs font-medium font-times">{item.qty}</span>
                         <button
                           onClick={() => updateQty(item.id, item.qty + 1)}
                           className="w-7 h-7 flex items-center justify-center hover:bg-parchment transition-colors"
@@ -82,7 +82,7 @@ const CartDrawer = () => {
                         </button>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-display text-sm font-medium">
+                        <span className="font-times text-sm font-medium">
                           {formatPrice(item.price * item.qty)}
                         </span>
                         <button
@@ -101,7 +101,7 @@ const CartDrawer = () => {
             <div className="flex flex-col gap-3 px-6 py-5 border-t border-border bg-parchment">
               <div className="flex items-center justify-between w-full">
                 <span className="text-xs tracking-[0.1em] uppercase text-muted-foreground font-medium">Subtotal</span>
-                <span className="font-display text-lg font-medium">{formatPrice(totalPrice)}</span>
+                <span className="font-times text-lg font-medium">{formatPrice(totalPrice)}</span>
               </div>
               <p className="text-[0.6rem] text-muted-foreground tracking-wide">
                 Frete calculado no checkout · Parcele em até 6x
