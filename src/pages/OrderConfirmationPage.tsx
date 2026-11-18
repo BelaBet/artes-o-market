@@ -68,7 +68,7 @@ const OrderConfirmationPage = () => {
 
   return (
     <div className="max-w-[560px] mx-auto px-4 py-14 sm:py-20 text-center">
-      <div className="text-[0.62rem] tracking-[0.2em] uppercase text-terra mb-3">Pedido #{pedido.number}</div>
+      <div className="text-[0.62rem] tracking-[0.2em] uppercase text-terra mb-3">Pedido #<span className="font-times">{pedido.number}</span></div>
       <h1 className="font-display text-[1.8rem] sm:text-[2.2rem] font-light mb-2">Obrigado pela compra!</h1>
       <p className="text-[0.84rem] text-muted-foreground mb-6">
         Status atual: <strong className="text-foreground">{STATUS_MAP[pedido.status]?.label ?? pedido.status}</strong>
@@ -125,7 +125,7 @@ const OrderConfirmationPage = () => {
         <p className="text-[0.78rem] text-destructive mb-6">{pedido.payment_error}</p>
       )}
 
-      <div className="font-display text-[1.3rem] mb-8">{formatPriceCents(pedido.total_cents)}</div>
+      <div className="font-times text-[1.3rem] mb-8">{formatPriceCents(pedido.total_cents)}</div>
 
       <Link to="/catalogo" className="text-[0.74rem] tracking-[0.1em] uppercase text-terra hover:underline">
         Continuar comprando

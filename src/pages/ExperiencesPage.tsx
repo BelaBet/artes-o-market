@@ -97,14 +97,14 @@ const FeaturedCard = ({ exp }: { exp: ExperienciaCard }) => {
           <div className="text-[0.78rem] text-parchment truncate">{exp.creator}</div>
           <div className="text-[0.66rem] text-parchment/50 flex items-center gap-1 flex-wrap">
             {exp.location && <><MapPin className="w-3 h-3 shrink-0" /> {exp.location} · </>}
-            {exp.reviews > 0 && <><Stars rating={exp.rating} /> ({exp.reviews})</>}
+            {exp.reviews > 0 && <><Stars rating={exp.rating} /> <span className="font-times">({exp.reviews})</span></>}
           </div>
         </div>
       </div>
 
       <div className="flex items-center justify-between gap-4 pt-5 sm:pt-6 border-t border-parchment/15 flex-wrap">
         <div>
-          <div className="font-display text-[1.5rem] sm:text-[1.8rem] text-gold-light">{formatPrice(exp.price)}</div>
+          <div className="font-times text-[1.5rem] sm:text-[1.8rem] text-gold-light">{formatPrice(exp.price)}</div>
           <div className="text-[0.62rem] tracking-[0.12em] uppercase text-parchment/40 mt-0.5">{metaDaExperiencia(exp)}</div>
         </div>
         <button
@@ -147,10 +147,10 @@ const ExperienceCard = ({ exp }: { exp: ExperienciaCard }) => {
         por <span className="text-foreground">{exp.creator}</span>{exp.location && ` · ${exp.location}`}
       </div>
       {exp.reviews > 0 && (
-        <div className="mb-4"><Stars rating={exp.rating} /> <span className="text-[0.68rem] text-muted-foreground">({exp.reviews})</span></div>
+        <div className="mb-4"><Stars rating={exp.rating} /> <span className="font-times text-[0.68rem] text-muted-foreground">({exp.reviews})</span></div>
       )}
       <div className="mt-auto flex items-center justify-between gap-3 pt-4 border-t border-border flex-wrap">
-        <div className="font-display text-[1.15rem] sm:text-[1.25rem] text-terra">{formatPrice(exp.price)}</div>
+        <div className="font-times text-[1.15rem] sm:text-[1.25rem] text-terra">{formatPrice(exp.price)}</div>
         <button
           onClick={() => addExperience(exp)}
           disabled={exp.soldOut}

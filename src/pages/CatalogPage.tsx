@@ -150,8 +150,8 @@ const CatalogPage = () => {
           className="w-full accent-terra my-2"
         />
         <div className="flex justify-between text-[0.7rem] text-muted-foreground">
-          <span>{formatPrice(0)}</span>
-          <span>até {formatPrice(precoMax)}</span>
+          <span className="font-times">{formatPrice(0)}</span>
+          <span>até <span className="font-times">{formatPrice(precoMax)}</span></span>
         </div>
       </div>
     </>
@@ -185,7 +185,7 @@ const CatalogPage = () => {
                 <Skeleton className="h-[0.9rem] w-[5.5rem] rounded-none inline-block align-middle" />
               ) : (
                 <>
-                  <strong className="text-foreground">{produtosFiltrados.length}</strong> produtos
+                  <strong className="font-times text-foreground">{produtosFiltrados.length}</strong> produtos
                   {termoBusca && <> para "{searchParams.get("busca")}"</>}
                 </>
               )}

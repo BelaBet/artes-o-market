@@ -101,7 +101,7 @@ const FormularioProduto = ({ artisanId, produto, onFechar }: FormularioProdutoPr
             type="text"
             inputMode="numeric"
             placeholder="0,00"
-            className={campo}
+            className={`${campo} font-times`}
             value={(Number(precoDigitos || "0") / 100).toLocaleString("pt-BR", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
@@ -118,7 +118,7 @@ const FormularioProduto = ({ artisanId, produto, onFechar }: FormularioProdutoPr
           <input
             type="number"
             min="0"
-            className={campo}
+            className={`${campo} font-times`}
             value={dados.stockQuantity}
             onChange={(e) => setDados({ ...dados, stockQuantity: Math.max(0, Number(e.target.value || 0)) })}
           />
@@ -225,7 +225,7 @@ const ProdutosPainel = ({ artisanId }: { artisanId: string }) => {
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-[0.85rem] truncate">{p.title}</div>
                 <div className="text-[0.7rem] text-muted-foreground">
-                  {formatPriceCents(p.priceCents)} · estoque {p.stockQuantity} ·{" "}
+                  <span className="font-times">{formatPriceCents(p.priceCents)}</span> · estoque <span className="font-times">{p.stockQuantity}</span> ·{" "}
                   <span className={p.status === "active" ? "text-sage" : "text-muted-foreground"}>
                     {p.status === "draft" ? "rascunho" : p.status === "archived" ? "arquivado" : p.status === "sold_out" ? "esgotado" : "ativo"}
                   </span>

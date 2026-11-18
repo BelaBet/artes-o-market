@@ -288,7 +288,7 @@ const CheckoutPage = () => {
                 <div className="sm:col-span-2">
                   <label className={rotulo}>Parcelas</label>
                   <select
-                    className={campo}
+                    className={`${campo} font-times`}
                     value={parcelas}
                     onChange={(e) => setParcelas(Number(e.target.value))}
                   >
@@ -309,14 +309,14 @@ const CheckoutPage = () => {
           <div className="space-y-2 mb-4">
             {items.map((i) => (
               <div key={i.id} className="flex justify-between text-[0.78rem]">
-                <span className="text-muted-foreground">{i.name} × {i.qty}</span>
-                <span>{formatPrice(i.price * i.qty)}</span>
+                <span className="text-muted-foreground">{i.name} × <span className="font-times">{i.qty}</span></span>
+                <span className="font-times">{formatPrice(i.price * i.qty)}</span>
               </div>
             ))}
           </div>
           <div className="flex justify-between font-display text-[1.1rem] pt-3 border-t border-border mb-5">
             <span>Total</span>
-            <span>{formatPrice(totalPrice)}</span>
+            <span className="font-times">{formatPrice(totalPrice)}</span>
           </div>
           {erro && <p className="text-[0.76rem] text-destructive mb-3">{erro}</p>}
           <button

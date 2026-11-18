@@ -94,7 +94,7 @@ const ArtisanProfilePage = () => {
                     { v: String(artisanProducts.length), l: "Produtos" },
                   ].map((s, i) => (
                     <div key={i} className="flex items-center gap-1.5">
-                      <span className="font-display text-[1.3rem] text-gold-light font-light">{s.v}</span>
+                      <span className="font-times text-[1.3rem] text-gold-light font-light">{s.v}</span>
                       <span className="text-[0.56rem] tracking-[0.12em] uppercase text-parchment/30">{s.l}</span>
                     </div>
                   ))}
@@ -170,11 +170,11 @@ const ArtisanProfilePage = () => {
                         {p.reviews > 0 && (
                           <div className="text-gold text-[0.62rem] sm:text-[0.64rem] tracking-[1px]">
                             {"★".repeat(p.stars)}{"☆".repeat(5 - p.stars)}
-                            <span className="text-muted-foreground text-[0.6rem] ml-0.5 tracking-normal">({p.reviews})</span>
+                            <span className="font-times text-muted-foreground text-[0.6rem] ml-0.5 tracking-normal">({p.reviews})</span>
                           </div>
                         )}
-                        <span className="font-display text-[1.05rem] sm:text-[1.15rem] font-medium">{formatPrice(p.price)}</span>
-                        {p.oldPrice && <span className="text-[0.68rem] sm:text-[0.7rem] text-muted-foreground line-through ml-1">{formatPrice(p.oldPrice)}</span>}
+                        <span className="font-times text-[1.05rem] sm:text-[1.15rem] font-medium">{formatPrice(p.price)}</span>
+                        {p.oldPrice && <span className="font-times text-[0.68rem] sm:text-[0.7rem] text-muted-foreground line-through ml-1">{formatPrice(p.oldPrice)}</span>}
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); addItem(p); }}
@@ -204,9 +204,9 @@ const ArtisanProfilePage = () => {
                 </h2>
               </div>
               <div className="text-left sm:text-right">
-                <div className="font-display text-[1.8rem] sm:text-[2.2rem] text-terra font-light leading-tight">{avgRating}</div>
+                <div className="font-times text-[1.8rem] sm:text-[2.2rem] text-terra font-light leading-tight">{avgRating}</div>
                 <div className="text-gold text-[0.7rem] sm:text-[0.72rem] tracking-[1px]">{"★".repeat(Math.round(Number(avgRating)))}</div>
-                <div className="text-[0.6rem] text-muted-foreground tracking-[0.08em]">{reviews.length} avaliações</div>
+                <div className="text-[0.6rem] text-muted-foreground tracking-[0.08em]"><span className="font-times">{reviews.length}</span> avaliações</div>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

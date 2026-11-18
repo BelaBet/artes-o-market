@@ -76,12 +76,12 @@ const ProductGrid = ({ products, onAddToCart, loading = false, skeletonCount = 8
                 {p.reviews > 0 && (
                   <div className="text-gold text-[0.58rem] sm:text-[0.64rem] tracking-[1px]">
                     {"★".repeat(p.stars)}{"☆".repeat(5 - p.stars)}
-                    <span className="text-muted-foreground text-[0.55rem] sm:text-[0.61rem] ml-0.5 tracking-normal">({p.reviews})</span>
+                    <span className="font-times text-muted-foreground text-[0.55rem] sm:text-[0.61rem] ml-0.5 tracking-normal">({p.reviews})</span>
                   </div>
                 )}
                 <div className="flex items-center gap-1">
-                  <span className="font-display text-[0.98rem] sm:text-[1.15rem] font-medium">{formatPrice(p.price)}</span>
-                  {p.oldPrice && <span className="text-[0.6rem] sm:text-[0.7rem] text-muted-foreground line-through">{formatPrice(p.oldPrice)}</span>}
+                  <span className="font-times text-[0.98rem] sm:text-[1.15rem] font-medium">{formatPrice(p.price)}</span>
+                  {p.oldPrice && <span className="font-times text-[0.6rem] sm:text-[0.7rem] text-muted-foreground line-through">{formatPrice(p.oldPrice)}</span>}
                 </div>
               </div>
               <button

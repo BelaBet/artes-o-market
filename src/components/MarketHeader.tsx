@@ -118,7 +118,7 @@ const MarketHeader = () => {
             >
               Carrinho
               {totalItems > 0 && (
-                <span className="inline-flex items-center justify-center bg-terra text-background w-[15px] h-[15px] rounded-full text-[0.56rem] font-semibold ml-0.5">
+                <span className="font-times inline-flex items-center justify-center bg-terra text-background w-[15px] h-[15px] rounded-full text-[0.56rem] font-semibold ml-0.5">
                   {totalItems}
                 </span>
               )}
@@ -165,7 +165,7 @@ const MarketHeader = () => {
             >
               <ShoppingBag className="w-[18px] h-[18px]" />
               {totalItems > 0 && (
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center bg-terra text-background min-w-[16px] h-[16px] rounded-full text-[0.55rem] font-semibold px-1">
+                <span className="font-times absolute top-0 right-0 inline-flex items-center justify-center bg-terra text-background min-w-[16px] h-[16px] rounded-full text-[0.55rem] font-semibold px-1">
                   {totalItems}
                 </span>
               )}

@@ -97,7 +97,7 @@ const HeroSection = ({ onExplore }: HeroSectionProps) => {
               { n: "4.9", l: "Avaliação" },
             ].map((s, i) => (
               <div key={i}>
-                <div className="font-display text-[1.6rem] sm:text-[1.9rem] text-gold-light font-light">{s.n}</div>
+                <div className="font-times text-[1.6rem] sm:text-[1.9rem] text-gold-light font-light">{s.n}</div>
                 <div className="text-[0.6rem] sm:text-[0.64rem] tracking-[0.12em] uppercase text-parchment/30 mt-0.5">{s.l}</div>
               </div>
             ))}
@@ -123,7 +123,7 @@ const HeroSection = ({ onExplore }: HeroSectionProps) => {
             </span>
             <div className="absolute bottom-0 left-0 right-0 p-3.5 bg-gradient-to-t from-espresso/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <div className="text-background text-[0.7rem] font-medium tracking-[0.06em]">{item.name}</div>
-              <div className="text-gold-light font-display text-[0.95rem]">{formatPrice(item.price)}</div>
+              <div className="text-gold-light font-times text-[0.95rem]">{formatPrice(item.price)}</div>
             </div>
           </div>
         ))}

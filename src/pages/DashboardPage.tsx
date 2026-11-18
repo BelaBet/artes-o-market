@@ -24,7 +24,7 @@ const VisaoGeralEPedidos = ({ artisanId }: { artisanId: string }) => {
             <div className="flex items-center justify-between mb-2">
               <span className="text-[1.05rem]">{m.icon}</span>
             </div>
-            <div className="font-display text-[1.4rem] sm:text-[1.75rem]">{m.val}</div>
+            <div className="font-times text-[1.4rem] sm:text-[1.75rem]">{m.val}</div>
             <div className="text-[0.6rem] sm:text-[0.62rem] tracking-[0.1em] uppercase text-muted-foreground">{m.label}</div>
           </div>
         ))}
@@ -44,12 +44,12 @@ const VisaoGeralEPedidos = ({ artisanId }: { artisanId: string }) => {
             </div>
             {pedidos.map((p) => (
               <div key={p.itemId} className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 items-start lg:items-center px-4 py-3 border-b border-border last:border-b-0 hover:bg-parchment/50 transition-colors">
-                <span className="text-[0.72rem] font-medium text-muted-foreground">#{p.number}</span>
+                <span className="font-times text-[0.72rem] font-medium text-muted-foreground">#{p.number}</span>
                 <div className="lg:order-none order-2 col-span-2 lg:col-span-1">
                   <div className="text-[0.78rem] font-medium">{p.buyerName}</div>
-                  <div className="text-[0.66rem] text-muted-foreground">{p.title} × {p.quantity}</div>
+                  <div className="text-[0.66rem] text-muted-foreground">{p.title} × <span className="font-times">{p.quantity}</span></div>
                 </div>
-                <span className="font-display text-[0.92rem] text-right lg:text-left">{formatPriceCents(p.totalCents)}</span>
+                <span className="font-times text-[0.92rem] text-right lg:text-left">{formatPriceCents(p.totalCents)}</span>
                 <span className={`inline-block text-[0.55rem] sm:text-[0.56rem] tracking-[0.1em] uppercase font-semibold px-2 py-0.5 w-fit ${STATUS_MAP[p.status]?.className ?? ""}`}>
                   {STATUS_MAP[p.status]?.label ?? p.status}
                 </span>
