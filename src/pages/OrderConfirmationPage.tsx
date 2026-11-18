@@ -13,6 +13,7 @@ const OrderConfirmationPage = () => {
   usePageMeta("Seu pedido");
   const [qrCodeImagem, setQrCodeImagem] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
+  const [copiadoBoleto, setCopiadoBoleto] = useState(false);
 
   const { data: pedido, isLoading } = useQuery({
     queryKey: ["pedido", id],
@@ -46,6 +47,18 @@ const OrderConfirmationPage = () => {
       setTimeout(() => setCopiado(false), 2000);
     } catch {
       toast.error("Não foi possível copiar automaticamente. Selecione o código manualmente.");
+    }
+  };
+
+  const copiarLinhaBoleto = async () => {
+    if (!pedido?.boleto_line) return;
+    try {
+      await navigator.clipboard.writeText(pedido.boleto_line);
+      setCopiadoBoleto(true);
+      toast.success("Número do boleto copiado!");
+      setTimeout(() => setCopiadoBoleto(false), 2000);
+    } catch {
+      toast.error("Não foi possível copiar automaticamente. Selecione o número manualmente.");
     }
   };
 
@@ -88,6 +101,20 @@ const OrderConfirmationPage = () => {
       {pedido.payment_method === "boleto" && pedido.boleto_url && pedido.status === "pending" && (
         <div className="border border-border p-6 mb-6 text-left">
           <div className="text-[0.7rem] tracking-[0.1em] uppercase text-muted-foreground mb-3">Pague com boleto</div>
+
+          {pedido.boleto_line && (
+            <>
+              <input readOnly value={pedido.boleto_line} className="w-full border border-border p-2 text-[0.72rem] font-mono mb-2" />
+              <button
+                onClick={copiarLinhaBoleto}
+                className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-body text-[0.7rem] tracking-[0.1em] uppercase font-medium py-3 hover:bg-espresso transition-colors mb-3"
+              >
+                {copiadoBoleto ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiadoBoleto ? "Número copiado" : "Copiar número do boleto"}
+              </button>
+            </>
+          )}
+
           <a href={pedido.boleto_url} target="_blank" rel="noreferrer" className="text-terra underline text-[0.82rem]">
             Abrir boleto
           </a>
