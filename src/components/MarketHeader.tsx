@@ -34,6 +34,8 @@ const MarketHeader = () => {
       ? [
           { to: "/painel", label: "Painel do Artesão" },
           { to: "/mensagens", label: "Mensagens" },
+          { to: "/minhas-compras", label: "Minhas Compras" },
+          { to: "/perfil", label: "Meu Perfil" },
         ]
       : []),
   ];
@@ -108,6 +110,18 @@ const MarketHeader = () => {
                   className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   Minha Loja
+                </Link>
+                <Link
+                  to="/minhas-compras"
+                  className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+                >
+                  Minhas Compras
+                </Link>
+                <Link
+                  to="/perfil"
+                  className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+                >
+                  Meu Perfil
                 </Link>
               </>
             )}

@@ -22,6 +22,8 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OAuthConsent from "./pages/OAuthConsent";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import ProfilePage from "./pages/ProfilePage";
+import MyOrdersPage from "./pages/MyOrdersPage";
 import TermosPage from "./pages/TermosPage";
 import PrivacidadePage from "./pages/PrivacidadePage";
 
@@ -75,6 +77,22 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <OrderConfirmationPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/perfil"
+                    element={
+                      <ProtectedRoute>
+                        <ProfilePage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/minhas-compras"
+                    element={
+                      <ProtectedRoute>
+                        <MyOrdersPage />
                       </ProtectedRoute>
                     }
                   />
