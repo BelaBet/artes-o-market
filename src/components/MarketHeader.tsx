@@ -1,12 +1,14 @@
 import { useState } from "react";
 import type { KeyboardEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, Search, ShoppingBag } from "lucide-react";
+import { Menu, X, Search, ShoppingBag, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import { useAuth } from "@/contexts/AuthContext";
 
 const MarketHeader = () => {
   const { setIsOpen, totalItems } = useCart();
+  const { favoritos } = useFavorites();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -30,6 +32,7 @@ const MarketHeader = () => {
     { to: "/", label: "Início" },
     { to: "/catalogo", label: "Catálogo" },
     { to: "/experiencias", label: "Experiências" },
+    { to: "/favoritos", label: "Favoritos" },
     ...(isLoggedIn
       ? [
           { to: "/painel", label: "Painel do Artesão" },
@@ -126,6 +129,18 @@ const MarketHeader = () => {
               </>
             )}
 
+            <Link
+              to="/favoritos"
+              className="font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
+            >
+              Favoritos
+              {favoritos.length > 0 && (
+                <span className="font-times inline-flex items-center justify-center bg-terra text-background w-[15px] h-[15px] rounded-full text-[0.56rem] font-semibold ml-0.5">
+                  {favoritos.length}
+                </span>
+              )}
+            </Link>
+
             <button
               onClick={() => setIsOpen(true)}
               className="bg-transparent border-none cursor-pointer font-body text-[0.7rem] font-medium tracking-[0.1em] uppercase text-muted-foreground px-3 py-1.5 hover:text-foreground transition-colors whitespace-nowrap"
@@ -172,6 +187,14 @@ const MarketHeader = () => {
             >
               <Search className="w-[18px] h-[18px]" />
             </button>
+            <Link to="/favoritos" aria-label="Favoritos" className="relative p-2 text-foreground">
+              <Heart className="w-[18px] h-[18px]" />
+              {favoritos.length > 0 && (
+                <span className="font-times absolute top-0 right-0 inline-flex items-center justify-center bg-terra text-background min-w-[16px] h-[16px] rounded-full text-[0.55rem] font-semibold px-1">
+                  {favoritos.length}
+                </span>
+              )}
+            </Link>
             <button
               onClick={() => setIsOpen(true)}
               aria-label="Carrinho"

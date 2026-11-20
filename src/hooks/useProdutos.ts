@@ -138,3 +138,104 @@ export function useProdutosDoArtesao(artisanId: string | undefined) {
 
   return { produtos: query.data ?? [], loading: query.isLoading };
 }
+
+/**
+ * Busca vários produtos pelo id, na mesma ordem da lista pedida — usada
+ * pelos favoritos e pelos últimos visualizados, onde essa ordem (quem foi
+ * curtido/visto mais recentemente) é o que importa, não a de criação.
+ */
+export function useProdutosPorIds(ids: string[]) {
+  const chave = ids.join(",");
+  const query = useQuery({
+    queryKey: ["produtos-por-ids", chave],
+    enabled: ids.length > 0,
+    queryFn: async (): Promise<ProdutoCard[]> => {
+      const { data, error } = await supabase
+        .from("products")
+        .select(SELECT_PRODUTO_CARD)
+        .in("id", ids)
+        .in("status", ["active", "sold_out"]);
+      if (error) throw error;
+      const cartoes = await mapearProdutos(data ?? []);
+      const porId = new Map(cartoes.map((c) => [c.id, c]));
+      return ids.map((id) => porId.get(id)).filter((c): c is ProdutoCard => !!c);
+    },
+    staleTime: 15_000,
+  });
+
+  return { produtos: ids.length > 0 ? query.data ?? [] : [], loading: ids.length > 0 && query.isLoading };
+}
+
+export interface ProdutoDetalhe extends ProdutoCard {
+  description: string | null;
+  images: string[];
+}
+
+export function useProdutoPorSlug(slug: string | undefined) {
+  const query = useQuery({
+    queryKey: ["produto", slug],
+    enabled: !!slug,
+    queryFn: async (): Promise<ProdutoDetalhe | null> => {
+      const { data, error } = await supabase
+        .from("products")
+        .select(`description, ${SELECT_PRODUTO_CARD}`)
+        .eq("slug", slug!)
+        .in("status", ["active", "sold_out"])
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return null;
+      const [cartao] = await mapearProdutos([data]);
+      const imagens = [...(data.product_images ?? [])]
+        .sort((a, b) => a.position - b.position)
+        .map((img) => resolverImagem(img.storage_path))
+        .filter((src): src is string => !!src);
+      return { ...cartao, description: data.description, images: imagens };
+    },
+    staleTime: 30_000,
+  });
+
+  return { produto: query.data ?? null, loading: query.isLoading };
+}
+
+export interface AvaliacaoProduto {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string | null;
+  date: string;
+}
+
+/** Avaliações reais (pós-compra) de um produto específico. */
+export function useAvaliacoesDoProduto(productId: string | undefined) {
+  const query = useQuery({
+    queryKey: ["avaliacoes-produto", productId],
+    enabled: !!productId,
+    queryFn: async (): Promise<AvaliacaoProduto[]> => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id, rating, comment, created_at, author_id")
+        .eq("product_id", productId!)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      const linhas = data ?? [];
+
+      const autorIds = [...new Set(linhas.map((r) => r.author_id))];
+      const { data: perfis } = autorIds.length
+        ? await supabase.from("profiles_publicos").select("user_id, display_name").in("user_id", autorIds)
+        : { data: [] as { user_id: string; display_name: string | null }[] };
+      const nomePorId = new Map((perfis ?? []).map((p) => [p.user_id, p.display_name]));
+
+      return linhas.map((r) => ({
+        id: r.id,
+        name: nomePorId.get(r.author_id) || "Comprador",
+        rating: r.rating,
+        comment: r.comment,
+        date: r.created_at,
+      }));
+    },
+    staleTime: 30_000,
+  });
+
+  return { avaliacoes: query.data ?? [], loading: query.isLoading };
+}

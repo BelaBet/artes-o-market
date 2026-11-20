@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { useAutocorrecaoGlobal } from "@/hooks/useAutocorrecaoGlobal";
 import CartDrawer from "@/components/CartDrawer";
 import MarketLayout from "@/components/MarketLayout";
@@ -24,6 +25,8 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import ProfilePage from "./pages/ProfilePage";
 import MyOrdersPage from "./pages/MyOrdersPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
+import FavoritesPage from "./pages/FavoritesPage";
 import TermosPage from "./pages/TermosPage";
 import PrivacidadePage from "./pages/PrivacidadePage";
 
@@ -36,79 +39,83 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <CartDrawer />
-              <Routes>
-                {/* Rotas com header do marketplace */}
-                <Route element={<MarketLayout />}>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/catalogo" element={<CatalogPage />} />
-                  <Route path="/experiencias" element={<ExperiencesPage />} />
-                  <Route path="/artesao/:slug" element={<ArtisanProfilePage />} />
-                  <Route
-                    path="/painel"
-                    element={
-                      <ProtectedRoute redirectTo="/entrar">
-                        <DashboardPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/mensagens"
-                    element={
-                      <ProtectedRoute>
-                        <ChatPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/checkout"
-                    element={
-                      <ProtectedRoute>
-                        <CheckoutPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/pedido/:id"
-                    element={
-                      <ProtectedRoute>
-                        <OrderConfirmationPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/perfil"
-                    element={
-                      <ProtectedRoute>
-                        <ProfilePage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/minhas-compras"
-                    element={
-                      <ProtectedRoute>
-                        <MyOrdersPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="/termos" element={<TermosPage />} />
-                  <Route path="/privacidade" element={<PrivacidadePage />} />
-                </Route>
+          <FavoritesProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <CartDrawer />
+                <Routes>
+                  {/* Rotas com header do marketplace */}
+                  <Route element={<MarketLayout />}>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/catalogo" element={<CatalogPage />} />
+                    <Route path="/experiencias" element={<ExperiencesPage />} />
+                    <Route path="/produto/:slug" element={<ProductDetailPage />} />
+                    <Route path="/artesao/:slug" element={<ArtisanProfilePage />} />
+                    <Route path="/favoritos" element={<FavoritesPage />} />
+                    <Route
+                      path="/painel"
+                      element={
+                        <ProtectedRoute redirectTo="/entrar">
+                          <DashboardPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/mensagens"
+                      element={
+                        <ProtectedRoute>
+                          <ChatPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/checkout"
+                      element={
+                        <ProtectedRoute>
+                          <CheckoutPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/pedido/:id"
+                      element={
+                        <ProtectedRoute>
+                          <OrderConfirmationPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/perfil"
+                      element={
+                        <ProtectedRoute>
+                          <ProfilePage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/minhas-compras"
+                      element={
+                        <ProtectedRoute>
+                          <MyOrdersPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route path="/termos" element={<TermosPage />} />
+                    <Route path="/privacidade" element={<PrivacidadePage />} />
+                  </Route>
 
-                {/* Rotas sem header */}
-                <Route path="/entrar" element={<ArtisanAuthPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
-                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
+                  {/* Rotas sem header */}
+                  <Route path="/entrar" element={<ArtisanAuthPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </FavoritesProvider>
         </CartProvider>
       </AuthProvider>
     </QueryClientProvider>

@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { formatPrice, BADGE_MAP } from "@/lib/data";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import { useArtesaoPorSlug, useAvaliacoesDoArtesao } from "@/hooks/useArtesaos";
 import { useProdutosDoArtesao } from "@/hooks/useProdutos";
 import { useIniciarConversa } from "@/hooks/useChat";
@@ -16,7 +16,7 @@ const ArtisanProfilePage = () => {
   const { addItem } = useCart();
   const { user } = useAuth();
   const iniciarConversa = useIniciarConversa();
-  const [favs, setFavs] = useState<Set<string>>(new Set());
+  const { isFavorito, alternarFavorito } = useFavorites();
   const { artesao, loading: carregandoArtesao } = useArtesaoPorSlug(slug);
   const { produtos: artisanProducts, loading: carregandoProdutos } = useProdutosDoArtesao(artesao?.id);
   const { avaliacoes: reviews } = useAvaliacoesDoArtesao(artesao?.id);
@@ -50,13 +50,6 @@ const ArtisanProfilePage = () => {
   const avgRating = reviews.length
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : null;
-  const toggleFav = (id: string) =>
-    setFavs((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
 
   return (
     <div className="min-h-[80vh]">
@@ -142,7 +135,11 @@ const ArtisanProfilePage = () => {
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {artisanProducts.map((p) => (
-                <div key={p.id} className="bg-background cursor-pointer border border-border border-r-0 border-b-0 last:border-r hover:bg-parchment transition-colors relative group">
+                <Link
+                  key={p.id}
+                  to={`/produto/${p.slug}`}
+                  className="bg-background cursor-pointer border border-border border-r-0 border-b-0 last:border-r hover:bg-parchment transition-colors relative group block"
+                >
                   <div className="aspect-square overflow-hidden relative bg-parchment">
                     {p.badge && (
                       <span className={`absolute top-2.5 left-2.5 text-[0.56rem] tracking-[0.1em] uppercase font-semibold px-2 py-0.5 z-[2] ${BADGE_MAP[p.badge].className}`}>
@@ -150,10 +147,10 @@ const ArtisanProfilePage = () => {
                       </span>
                     )}
                     <button
-                      className={`absolute top-2.5 right-2.5 bg-background/90 border border-border w-7 h-7 rounded-full cursor-pointer text-[0.78rem] flex items-center justify-center transition-all z-[2] hover:bg-background ${favs.has(p.id) ? "text-terra" : ""}`}
-                      onClick={(e) => { e.stopPropagation(); toggleFav(p.id); }}
+                      className={`absolute top-2.5 right-2.5 bg-background/90 border border-border w-7 h-7 rounded-full cursor-pointer text-[0.78rem] flex items-center justify-center transition-all z-[2] hover:bg-background ${isFavorito(p.id) ? "text-terra" : ""}`}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); alternarFavorito(p.id); }}
                     >
-                      {favs.has(p.id) ? "♥" : "♡"}
+                      {isFavorito(p.id) ? "♥" : "♡"}
                     </button>
                     <ImagemComPlaceholder
                       src={p.img ?? undefined}
@@ -177,7 +174,7 @@ const ArtisanProfilePage = () => {
                         {p.oldPrice && <span className="font-times text-[0.68rem] sm:text-[0.7rem] text-muted-foreground line-through ml-1">{formatPrice(p.oldPrice)}</span>}
                       </div>
                       <button
-                        onClick={(e) => { e.stopPropagation(); addItem(p); }}
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); addItem(p); }}
                         disabled={p.stockQuantity <= 0}
                         className="bg-transparent border border-border cursor-pointer px-3 py-1 font-body text-[0.58rem] sm:text-[0.6rem] tracking-[0.12em] uppercase font-medium hover:bg-foreground hover:text-background hover:border-foreground transition-all self-start sm:self-auto disabled:opacity-40"
                       >
@@ -185,7 +182,7 @@ const ArtisanProfilePage = () => {
                       </button>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

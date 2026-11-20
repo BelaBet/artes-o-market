@@ -3,12 +3,15 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import ProductGrid from "@/components/ProductGrid";
 import { CartProvider } from "@/contexts/CartContext";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import type { ProdutoCard } from "@/hooks/useProdutos";
 
 const renderizar = (ui: React.ReactElement) =>
   render(
     <MemoryRouter>
-      <CartProvider>{ui}</CartProvider>
+      <CartProvider>
+        <FavoritesProvider>{ui}</FavoritesProvider>
+      </CartProvider>
     </MemoryRouter>,
   );
 

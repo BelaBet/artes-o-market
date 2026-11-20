@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { Link } from "react-router-dom";
 import { BADGE_MAP, formatPrice } from "@/lib/data";
 import type { ProdutoCard } from "@/hooks/useProdutos";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import ImagemComPlaceholder from "@/components/ImagemComPlaceholder";
 import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 
@@ -16,14 +17,7 @@ interface ProductGridProps {
 
 const ProductGrid = ({ products, onAddToCart, loading = false, skeletonCount = 8 }: ProductGridProps) => {
   const { addItem } = useCart();
-  const [favs, setFavs] = useState<Set<string>>(new Set());
-  const toggleFav = (id: string) =>
-    setFavs((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const { isFavorito, alternarFavorito } = useFavorites();
 
   if (loading) return <ProductGridSkeleton quantidade={skeletonCount} />;
 
@@ -41,7 +35,11 @@ const ProductGrid = ({ products, onAddToCart, loading = false, skeletonCount = 8
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-px bg-border border border-border">
       {products.map((p, i) => (
-        <div key={p.id} className="bg-background cursor-pointer hover:bg-parchment transition-colors relative group">
+        <Link
+          key={p.id}
+          to={`/produto/${p.slug}`}
+          className="bg-background cursor-pointer hover:bg-parchment transition-colors relative group block"
+        >
           <div className="aspect-square overflow-hidden relative bg-parchment">
             {p.badge && (
               <span className={`absolute top-2 sm:top-2.5 left-2 sm:left-2.5 text-[0.5rem] sm:text-[0.56rem] tracking-[0.1em] uppercase font-semibold px-1.5 sm:px-2 py-0.5 z-[2] ${BADGE_MAP[p.badge].className}`}>
@@ -49,11 +47,11 @@ const ProductGrid = ({ products, onAddToCart, loading = false, skeletonCount = 8
               </span>
             )}
             <button
-              className={`absolute top-2 sm:top-2.5 right-2 sm:right-2.5 bg-background/90 border border-border w-8 h-8 sm:w-7 sm:h-7 rounded-full cursor-pointer text-[0.85rem] sm:text-[0.78rem] flex items-center justify-center transition-all z-[2] hover:bg-background active:scale-90 ${favs.has(p.id) ? "text-terra" : ""}`}
-              aria-label={favs.has(p.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-              onClick={(e) => { e.stopPropagation(); toggleFav(p.id); }}
+              className={`absolute top-2 sm:top-2.5 right-2 sm:right-2.5 bg-background/90 border border-border w-8 h-8 sm:w-7 sm:h-7 rounded-full cursor-pointer text-[0.85rem] sm:text-[0.78rem] flex items-center justify-center transition-all z-[2] hover:bg-background active:scale-90 ${isFavorito(p.id) ? "text-terra" : ""}`}
+              aria-label={isFavorito(p.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); alternarFavorito(p.id); }}
             >
-              {favs.has(p.id) ? "♥" : "♡"}
+              {isFavorito(p.id) ? "♥" : "♡"}
             </button>
             <ImagemComPlaceholder
               src={p.img ?? undefined}
@@ -85,7 +83,7 @@ const ProductGrid = ({ products, onAddToCart, loading = false, skeletonCount = 8
                 </div>
               </div>
               <button
-                onClick={(e) => { e.stopPropagation(); addItem(p); onAddToCart?.(); }}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); addItem(p); onAddToCart?.(); }}
                 disabled={p.stockQuantity <= 0}
                 className="bg-transparent border border-border cursor-pointer w-full sm:w-auto px-3 py-2 sm:py-1 font-body text-[0.62rem] sm:text-[0.6rem] tracking-[0.12em] uppercase font-medium hover:bg-foreground hover:text-background hover:border-foreground active:bg-foreground active:text-background transition-all shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -93,7 +91,7 @@ const ProductGrid = ({ products, onAddToCart, loading = false, skeletonCount = 8
               </button>
             </div>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   );
